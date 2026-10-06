@@ -169,3 +169,10 @@ def test_non_latin1_title_is_safe():
     sent = []
     send("t", "caf\u00e9 \u2713".encode("ascii", "replace").decode(), "b", "", 2, _capture(sent))
     assert sent[0][1]["Priority"] == "2" and "Click" not in sent[0][1]
+
+
+def test_late_and_missing_runs_are_reported():
+    for status in ("skipped_late", "no_run"):
+        s = summary({"control_random": row(0.0), "analog": row(0.01), "xgb_indicators": row(None, n_days=0, status=status)})
+        _, body = build_message(s, "2026-01-06")
+        assert "Problem: XGB_INDICATORS" in body, status

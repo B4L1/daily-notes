@@ -29,7 +29,7 @@ def test_daily_job_graph():
     assert jobs["predict"]["strategy"]["fail-fast"] is False
     assert jobs["predict"]["needs"] == "fetch"
     assert set(jobs["aggregate"]["needs"]) == {"fetch", "predict"}
-    assert "always()" in jobs["aggregate"]["if"]
+    assert "!cancelled()" in jobs["aggregate"]["if"]
     assert jobs["deploy"]["environment"]["name"] == "github-pages"
     assert "notify" in jobs
 
@@ -70,7 +70,7 @@ def test_notify_always_runs_and_flags_any_upstream_failure():
     assert "always()" in notify["if"]
     assert set(notify["needs"]) == {"fetch", "predict", "aggregate", "deploy"}
     assert "--failure" in text
-    for job in ("fetch", "predict", "aggregate", "deploy"):
+    for job in ("fetch", "aggregate", "deploy"):
         assert f"needs.{job}.result" in text
 
 
@@ -97,3 +97,91 @@ def test_no_expression_is_spliced_into_scripts():
         for job in doc["jobs"].values():
             for step in job["steps"]:
                 assert "${{" not in step.get("run", ""), (name, step["run"])
+
+
+def _steps(doc):
+    for jname, job in doc["jobs"].items():
+        for step in job["steps"]:
+            yield jname, step
+
+
+def test_only_schedule_and_manual_triggers():
+    for name in ("daily.yml", "backfill.yml"):
+        _, doc = load(name)
+        assert set(triggers(doc)) <= {"schedule", "workflow_dispatch"}
+        assert "workflow_dispatch" in triggers(doc)
+
+
+def test_every_job_has_a_timeout():
+    for name in ("daily.yml", "backfill.yml"):
+        _, doc = load(name)
+        for job_name, job in doc["jobs"].items():
+            assert "timeout-minutes" in job, (name, job_name)
+
+
+def test_matrix_comes_from_fetch_output_and_requirements_are_installed():
+    for name, job in (("daily.yml", "predict"), ("backfill.yml", "backtest")):
+        text, doc = load(name)
+        j = doc["jobs"][job]
+        assert "fromJson(needs.fetch.outputs.estimators)" in j["strategy"]["matrix"]["estimator"]
+        install = [s for s in j["steps"] if s.get("name") == "Install dependencies"][0]
+        assert "bench.cli requirements" in install["run"]
+
+
+def test_empty_estimator_list_fails_loudly():
+    _, doc = load("daily.yml")
+    step = [s for s in doc["jobs"]["fetch"]["steps"] if s.get("id") == "list"][0]
+    assert "exit 1" in step["run"]
+
+
+def test_aggregate_does_not_depend_on_predict_result():
+    _, doc = load("daily.yml")
+    cond = doc["jobs"]["aggregate"]["if"]
+    assert "needs.predict" not in cond
+    assert "!cancelled()" in cond and "needs.fetch.result == 'success'" in cond
+    assert "!cancelled()" in doc["jobs"]["deploy"]["if"]
+    _, bf = load("backfill.yml")
+    assert "needs.backtest" not in bf["jobs"]["commit"]["if"]
+
+
+def test_writing_jobs_check_out_full_history():
+    for name, job in (("daily.yml", "aggregate"), ("backfill.yml", "commit")):
+        _, doc = load(name)
+        assert doc["jobs"][job]["steps"][0]["with"]["fetch-depth"] == 0
+        run = [s["run"] for s in doc["jobs"][job]["steps"] if s.get("name") == "Commit data"][0]
+        assert "for attempt in 1 2 3" in run
+
+
+def test_backfill_commits_only_backtest_data():
+    text, _ = load("backfill.yml")
+    assert "git add data/backtest\n" in text
+    assert "git add data\n" not in text
+
+
+def test_uploads_overwrite():
+    for name in ("daily.yml", "backfill.yml"):
+        _, doc = load(name)
+        for jname, step in _steps(doc):
+            if step.get("uses", "").startswith("actions/upload-artifact"):
+                assert step["with"]["overwrite"] is True, (name, jname)
+
+
+def test_notify_success_vs_failure_conditions():
+    _, doc = load("daily.yml")
+    steps = {s["name"]: s for s in doc["jobs"]["notify"]["steps"] if s.get("name", "").startswith("Notify")}
+    ok, bad = steps["Notify (success)"], steps["Notify (failure)"]
+    assert "--failure" not in ok["run"] and "--failure" in bad["run"]
+    for job in ("fetch", "aggregate", "deploy"):
+        assert f"needs.{job}.result == 'success'" in ok["if"]
+        assert f"needs.{job}.result != 'success'" in bad["if"]
+    assert "needs.predict" not in ok["if"] and "needs.predict" not in bad["if"]
+
+
+def test_topic_only_in_notify_step_env():
+    for name in ("daily.yml", "backfill.yml"):
+        _, doc = load(name)
+        for jname, job in doc["jobs"].items():
+            assert "NTFY_TOPIC" not in job.get("env", {}), (name, jname)
+            for step in job["steps"]:
+                if "NTFY_TOPIC" in step.get("env", {}):
+                    assert jname == "notify" and step["name"].startswith("Notify")

@@ -26,7 +26,7 @@ def _pct(v):
 def build_message(summary, run_date):
     labels = {e["name"]: e["label"] for e in summary["estimators"]}
     rows = summary["modes"]["live"]["rows"]
-    problems = [labels[n] for n, r in rows.items() if r["status"] in ("failed", "skipped_late")]
+    problems = [labels[n] for n, r in rows.items() if r["status"] in ("failed", "skipped_late", "no_run")]
     active = {n: r for n, r in rows.items() if not n.startswith("control_") and r["n_days"] > 0}
     parts = []
     if not active:

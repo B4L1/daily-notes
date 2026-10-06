@@ -42,9 +42,16 @@ jobs:
           echo "run_date=$d" >> "$GITHUB_OUTPUT"
       - run: python -m bench.cli fetch
       - id: list
-        run: echo "estimators=$(python -m bench.cli list)" >> "$GITHUB_OUTPUT"
+        run: |
+          list=$(python -m bench.cli list)
+          if [ -z "$list" ] || [ "$list" = "[]" ]; then
+            echo "no estimators registered"
+            exit 1
+          fi
+          echo "estimators=$list" >> "$GITHUB_OUTPUT"
       - uses: actions/upload-artifact@v4
         with:
+          overwrite: true
           name: prices
           path: data/prices
 
@@ -88,19 +95,22 @@ jobs:
       - if: always()
         uses: actions/upload-artifact@v4
         with:
+          overwrite: true
           name: est-${{ matrix.estimator }}
           path: data/live/estimators/${{ matrix.estimator }}
           if-no-files-found: ignore
 
   aggregate:
     needs: [fetch, predict]
-    if: ${{ always() && needs.fetch.result == 'success' }}
+    if: ${{ !cancelled() && needs.fetch.result == 'success' }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
     permissions:
       contents: write
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
@@ -134,8 +144,19 @@ jobs:
           git add data
           if ! git diff --cached --quiet; then
             git commit -m "data: run $RUN_DATE"
-            git pull --rebase origin "$BRANCH"
-            git push origin "HEAD:$BRANCH"
+            ok=0
+            for attempt in 1 2 3; do
+              if git pull --rebase origin "$BRANCH" && git push origin "HEAD:$BRANCH"; then
+                ok=1
+                break
+              fi
+              git rebase --abort 2>/dev/null || true
+              sleep 5
+            done
+            if [ "$ok" != 1 ]; then
+              echo "push failed after 3 attempts"
+              exit 1
+            fi
           fi
       - name: Build site data
         env:
@@ -143,6 +164,7 @@ jobs:
         run: python -m bench.cli aggregate --run-date "$RUN_DATE"
       - uses: actions/upload-artifact@v4
         with:
+          overwrite: true
           name: site-data
           path: site/data
       - uses: actions/upload-pages-artifact@v3
@@ -151,7 +173,7 @@ jobs:
 
   deploy:
     needs: aggregate
-    if: ${{ always() && needs.aggregate.result == 'success' }}
+    if: ${{ !cancelled() && needs.aggregate.result == 'success' }}
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
@@ -165,14 +187,14 @@ jobs:
         uses: actions/deploy-pages@v4
 
   notify:
-    # Always runs, so a failed day is never silent. Any upstream job that did
-    # not succeed turns the message into a failure alert.
+    # Always runs, so a failed day is never silent. If fetch, aggregate or
+    # deploy did not succeed it sends a failure alert; failed predict cells
+    # still show up as "Problem:" lines in the normal summary.
     needs: [fetch, predict, aggregate, deploy]
     if: ${{ always() }}
     runs-on: ubuntu-latest
     timeout-minutes: 10
     env:
-      NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
       SITE_URL: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/
       RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
       RUN_DATE: ${{ needs.fetch.outputs.run_date }}
@@ -191,8 +213,12 @@ jobs:
           name: site-data
           path: site/data
       - name: Notify (success)
-        if: ${{ needs.fetch.result == 'success' && needs.predict.result == 'success' && needs.aggregate.result == 'success' && needs.deploy.result == 'success' }}
+        if: ${{ needs.fetch.result == 'success' && needs.aggregate.result == 'success' && needs.deploy.result == 'success' }}
+        env:
+          NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
         run: python -m bench.cli notify --run-date "$RUN_DATE"
       - name: Notify (failure)
-        if: ${{ needs.fetch.result != 'success' || needs.predict.result != 'success' || needs.aggregate.result != 'success' || needs.deploy.result != 'success' }}
+        if: ${{ needs.fetch.result != 'success' || needs.aggregate.result != 'success' || needs.deploy.result != 'success' }}
+        env:
+          NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
         run: python -m bench.cli notify --failure --run-date "$RUN_DATE"

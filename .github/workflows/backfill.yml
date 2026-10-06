@@ -44,6 +44,7 @@ jobs:
         run: echo "estimators=$(python -m bench.cli list)" >> "$GITHUB_OUTPUT"
       - uses: actions/upload-artifact@v4
         with:
+          overwrite: true
           name: prices
           path: data/prices
 
@@ -87,19 +88,22 @@ jobs:
       - if: always()
         uses: actions/upload-artifact@v4
         with:
+          overwrite: true
           name: bt-${{ matrix.estimator }}
           path: data/backtest/estimators/${{ matrix.estimator }}
           if-no-files-found: ignore
 
   commit:
     needs: [fetch, backtest]
-    if: ${{ always() && needs.fetch.result == 'success' }}
+    if: ${{ !cancelled() && needs.fetch.result == 'success' }}
     runs-on: ubuntu-latest
     timeout-minutes: 20
     permissions:
       contents: write
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
@@ -129,9 +133,20 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add data
+          git add data/backtest
           if ! git diff --cached --quiet; then
             git commit -m "data: backtest replay"
-            git pull --rebase origin "$BRANCH"
-            git push origin "HEAD:$BRANCH"
+            ok=0
+            for attempt in 1 2 3; do
+              if git pull --rebase origin "$BRANCH" && git push origin "HEAD:$BRANCH"; then
+                ok=1
+                break
+              fi
+              git rebase --abort 2>/dev/null || true
+              sleep 5
+            done
+            if [ "$ok" != 1 ]; then
+              echo "push failed after 3 attempts"
+              exit 1
+            fi
           fi
