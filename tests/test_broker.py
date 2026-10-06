@@ -1,3 +1,4 @@
+import pandas as pd
 import pytest
 
 from bench.broker import settle_estimator
@@ -106,3 +107,43 @@ def test_prediction_without_a_completed_target_candle_waits(tmp_path):
     st = Store(tmp_path)
     save(st, "e", "2026-01-03", {"AAA": pred("2026-01-02", 0.01)})
     assert settle_estimator(st, "e", prices, S) == 0
+
+
+def test_incremental_settlement_carries_equity_across_calls(tmp_path):
+    st = Store(tmp_path)
+    save(st, "e", "2026-01-03", {"AAA": pred("2026-01-02", 0.01)})
+    assert settle_estimator(st, "e", two_day_prices(), S) == 1
+    assert st.load_equity("e")["equity"].iloc[0] == pytest.approx(10190.0)
+    prices = {
+        "AAA": candles([
+            ("2026-01-02", 99, 101, 98, 100),
+            ("2026-01-05", 100, 103, 99, 102),
+            ("2026-01-06", 100, 101, 98, 99),
+        ])
+    }
+    save(st, "e", "2026-01-06", {"AAA": pred("2026-01-05", 0.01)})
+    assert settle_estimator(st, "e", prices, S) == 1
+    eq = st.load_equity("e")
+    assert eq["equity"].iloc[1] == pytest.approx(10077.91)  # 10190 * 0.989
+    assert len(eq) == 2 and len(st.load_ledger("e")) == 2
+
+
+def test_two_traders_in_one_day(tmp_path):
+    prices = two_day_prices()
+    prices["BBB"] = candles([("2026-01-02", 50, 51, 49, 50), ("2026-01-05", 50, 51, 48, 49)])
+    st = Store(tmp_path)
+    save(st, "e", "2026-01-03", {"AAA": pred("2026-01-02", 0.01), "BBB": pred("2026-01-02", 0.01)})
+    settle_estimator(st, "e", prices, S)
+    eq = st.load_equity("e").iloc[0]
+    assert eq["day_return"] == pytest.approx(-0.001)  # (0.019 + -0.021) / 2
+    assert eq["equity"] == pytest.approx(9990.0)
+    assert eq["n_traded"] == 2 and eq["n_universe"] == 2
+
+
+def test_zero_expected_return_is_not_a_scored_call(tmp_path):
+    st = Store(tmp_path)
+    save(st, "e", "2026-01-03", {"AAA": pred("2026-01-02", 0.0)})
+    settle_estimator(st, "e", two_day_prices(), S)
+    eq = st.load_equity("e").iloc[0]
+    assert eq["equity"] == pytest.approx(10000.0) and eq["n_traded"] == 0
+    assert pd.isna(st.load_ledger("e").iloc[0]["hit"])
