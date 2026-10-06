@@ -1,4 +1,4 @@
-import { cellColor, signMark, fmtPct, fmtUsd, calendarCells, luckText } from "./lib.js";
+import { cellColor, signMark, fmtPct, fmtUsd, calendarCells, luckText, hitDeviation } from "./lib.js";
 import { lineChart, sparkline } from "./charts.js";
 
 const COLORS = ["#58a6ff", "#d29922", "#3fb950", "#bc8cff", "#f778ba", "#39c5cf", "#ff7b72", "#ffa657", "#7ee787", "#a5d6ff"];
@@ -10,7 +10,8 @@ const HEAT_DAYS = 90;
 const store = (k, d) => { try { return localStorage.getItem(k) ?? d; } catch { return d; } };
 const keep = (k, v) => { try { localStorage.setItem(k, v); } catch { /* storage unavailable: fine */ } };
 
-const state = { mode: store("mode", "live"), palette: store("palette", "default"), summary: null, detail: {} };
+const storedMode = store("mode", "live");
+const state = { mode: storedMode === "backtest" ? "backtest" : "live", palette: store("palette", "default"), summary: null, detail: {} };
 
 export function el(tag, attrs = {}, ...kids) {
   const n = document.createElement(tag);
@@ -53,7 +54,9 @@ function panel(title, text) {
   return el("div", { class: "panel" }, el("h3", {}, title), el("p", { class: "dim" }, text));
 }
 
+let loadError = false;
 function showError(message, retry) {
+  loadError = true;
   const view = document.getElementById("view");
   view.textContent = "";
   view.append(el("div", { class: "panel" }, el("p", { class: "warn" }, message), el("button", { type: "button", onclick: retry }, "Retry")));
@@ -69,11 +72,16 @@ function heatGrid(b, names, key, scale) {
     const cells = el("div", { class: "heat-cells" });
     dates.forEach((d, i) => {
       const v = b[key][n][offset + i];
-      const dev = key === "hit" && v !== null ? v - 0.5 : v;
-      const text = v === null ? `${d}: no calls` : key === "hit" ? `${d}: ${signMark(dev)} ${(v * 100).toFixed(0)}% correct` : `${d}: ${signMark(v)} ${fmtPct(v)}`;
+      const dev = key === "hit" ? hitDeviation(v) : v;
+      const text = v === null || v === undefined ? `${d}: ${key === "hit" ? "no calls" : "no data"}` : key === "hit" ? `${d}: ${signMark(dev)} ${(v * 100).toFixed(0)}% correct` : `${d}: ${signMark(v)} ${fmtPct(v)}`;
       cells.append(el("div", { class: "cell", title: text, style: `background:${cellColor(dev, scale, state.palette)}` }));
     });
-    wrap.append(el("div", { class: "heat-row" }, el("span", { class: "heat-label" }, m[n].label), cells));
+    const vals = b[key][n].slice(offset).filter((x) => x !== null && x !== undefined);
+    const avg = vals.length ? vals.reduce((a, c) => a + c, 0) / vals.length : null;
+    const summary = vals.length
+      ? `${m[n].label}: ${vals.length} days with data, average ${key === "hit" ? (avg * 100).toFixed(1) + "% correct" : fmtPct(avg)}`
+      : `${m[n].label}: no data`;
+    wrap.append(el("div", { class: "heat-row" }, el("span", { class: "heat-label", title: m[n].label }, m[n].label), el("span", { class: "sr-only" }, summary), cells));
   }
   return wrap;
 }
@@ -104,13 +112,13 @@ function renderOverview(view) {
 
   view.append(el("h2", {}, "Wallets"));
   const strip = el("div", { class: "strip" });
-  for (const n of [...active].sort((a, c) => b.rows[c].balance - b.rows[a].balance)) {
+  for (const n of [...active].sort((a, c) => (b.rows[c].balance ?? 0) - (b.rows[a].balance ?? 0))) {
     const r = b.rows[n];
     strip.append(el("a", { class: "tile", href: `#/e/${n}`, style: `color:${colors[n]}` },
       el("div", { class: "tile-name" }, m[n].label),
       el("div", { class: "tile-bal", style: "color:var(--text)" }, fmtUsd(r.balance)),
-      el("div", { class: trend(r.day_return) }, `${signMark(r.day_return)} ${fmtPct(r.day_return)}  (${r.day_change >= 0 ? "+" : "-"}${fmtUsd(Math.abs(r.day_change))})`),
-      sparkline(r.spark),
+      el("div", { class: trend(r.day_return) }, `${signMark(r.day_return)} ${fmtPct(r.day_return)}  (${r.day_change == null ? "n/a" : (r.day_change >= 0 ? "+" : "-") + fmtUsd(Math.abs(r.day_change))})`),
+      sparkline(r.spark ?? []),
       el("div", {}, ...badges(r))));
   }
   view.append(strip);
@@ -118,8 +126,8 @@ function renderOverview(view) {
   view.append(el("h2", {}, "Account value"));
   const chart = el("div", {});
   view.append(chart);
-  const series = active.map((n) => ({ name: m[n].label, color: colors[n], dashed: m[n].kind === "control", points: b.equity[n] }));
-  series.push({ name: "Buy and hold (reference, no costs)", color: "#8b949e", dashed: true, points: b.hold });
+  const series = active.map((n) => ({ name: m[n].label, color: colors[n], dashed: m[n].kind === "control", points: b.equity[n] ?? [] }));
+  series.push({ name: "Buy and hold (reference, no costs)", color: "#8b949e", dashed: true, points: b.hold ?? [] });
   lineChart(chart, series);
 
   view.append(el("h2", {}, "Leaderboard"));
@@ -134,7 +142,7 @@ function renderOverview(view) {
       el("td", {}, m[n].kind === "control" ? "baseline" : fmtPct(r.edge, 3)),
       el("td", {}, hit(r.hit_rate)), el("td", {}, hit(r.hit_rate_down)),
       el("td", {}, fmtPct(r.max_drawdown)), el("td", {}, fmtPct(r.worst_day)),
-      el("td", {}, r.trades_per_day.toFixed(1)),
+      el("td", {}, (r.trades_per_day == null ? "n/a" : r.trades_per_day.toFixed(1))),
       el("td", {}, m[n].kind === "control" ? "baseline" : luckText(r)),
       el("td", {}, ...badges(r), r.status === "ok" ? "ok" : r.status === "no_run" ? "not run yet" : ""));
   });
@@ -161,7 +169,10 @@ export function render() {
   const view = document.getElementById("view");
   view.textContent = "";
   document.querySelectorAll("[data-mode]").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.mode === state.mode)));
-  if (!state.summary) return;
+  if (!state.summary) {
+    if (loadError) showError("Couldn't load the data. Check your connection, then retry.", boot);
+    return;
+  }
   renderTabs(route);
   if (route.startsWith("e/")) return renderEstimator(view, decodeURIComponent(route.slice(2)));
   renderOverview(view);
@@ -181,6 +192,7 @@ async function boot() {
   applyPalette();
   try {
     state.summary = await getJSON("data/summary.json");
+    loadError = false;
   } catch {
     return showError("Couldn't load the data. Check your connection, then retry.", boot);
   }

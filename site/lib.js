@@ -5,9 +5,15 @@ export const PALETTES = {
 
 export function cellColor(value, scale, palette = "default") {
   if (value === null || value === undefined || Number.isNaN(value)) return "var(--cell-empty)";
+  if (value === 0) return "var(--cell-flat)";
   const [r, g, b] = value >= 0 ? PALETTES[palette].pos : PALETTES[palette].neg;
   const alpha = 0.2 + 0.8 * Math.min(Math.abs(value) / scale, 1);
   return `rgba(${r},${g},${b},${alpha.toFixed(2)})`;
+}
+
+// Hit rate 0..1 -> deviation from a coin flip, so 50% is neutral.
+export function hitDeviation(v) {
+  return v === null || v === undefined || Number.isNaN(v) ? null : v - 0.5;
 }
 
 export function signMark(v) {
@@ -45,7 +51,7 @@ export function calendarCells(dates) {
 
 export function luckText(row) {
   if (!row.n_days) return "no data";
-  if (row.too_early) return "too early to tell";
+  if (row.too_early) return `too early to tell (${row.n_days} day${row.n_days === 1 ? "" : "s"} so far)`;
   return row.p_value < 0.05
     ? `unlikely luck (p=${row.p_value.toFixed(3)})`
     : `consistent with luck (p=${row.p_value.toFixed(2)})`;

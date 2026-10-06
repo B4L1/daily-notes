@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { cellColor, signMark, fmtPct, fmtUsd, calendarCells, luckText } from "./lib.js";
+import { cellColor, signMark, fmtPct, fmtUsd, calendarCells, luckText, hitDeviation } from "./lib.js";
 
 test("fmtPct keeps the sign and handles missing values", () => {
   assert.equal(fmtPct(0.0123), "+1.23%");
@@ -57,7 +57,22 @@ test("calendarCells with one date and none", () => {
 
 test("luckText never overclaims", () => {
   assert.equal(luckText({ n_days: 0 }), "no data");
-  assert.equal(luckText({ n_days: 10, too_early: true, p_value: 0.001 }), "too early to tell");
+  assert.equal(luckText({ n_days: 10, too_early: true, p_value: 0.001 }), "too early to tell (10 days so far)");
   assert.match(luckText({ n_days: 90, too_early: false, p_value: 0.01 }), /^unlikely luck/);
   assert.match(luckText({ n_days: 90, too_early: false, p_value: 0.4 }), /^consistent with luck/);
+});
+
+test("cellColor gives exactly zero a neutral colour", () => {
+  assert.equal(cellColor(0, 0.02), "var(--cell-flat)");
+  assert.equal(cellColor(NaN, 0.02), "var(--cell-empty)");
+});
+
+test("hitDeviation centres hit rate on 50%", () => {
+  assert.equal(hitDeviation(0.5), 0);
+  assert.equal(hitDeviation(1), 0.5);
+  assert.equal(hitDeviation(0), -0.5);
+  assert.equal(hitDeviation(null), null);
+  assert.equal(hitDeviation(undefined), null);
+  assert.equal(hitDeviation(NaN), null);
+  assert.equal(cellColor(hitDeviation(0.5), 0.5), "var(--cell-flat)");
 });
