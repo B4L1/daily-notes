@@ -1,0 +1,134 @@
+{
+ "created_at": null,
+ "estimator": "xgb_indicators",
+ "predictions": {
+  "AAPL": {
+   "asof": "2026-05-11",
+   "confidence": null,
+   "expected_return": 0.001260654884390533,
+   "path": null
+  },
+  "AMD": {
+   "asof": "2026-05-11",
+   "confidence": null,
+   "expected_return": -0.002884451299905777,
+   "path": null
+  },
+  "AMZN": {
+   "asof": "2026-05-11",
+   "confidence": null,
+   "expected_return": 0.0017752803396433592,
+   "path": null
+  },
+  "BTC-USD": {
+   "asof": "2026-05-11",
+   "confidence": null,
+   "expected_return": 0.001070685451850295,
+   "path": null
+  },
+  "ETH-USD": {
+   "asof": "2026-05-11",
+   "confidence": null,
+   "expected_return": 0.000878430437296629,
+   "path": null
+  },
+  "GLD": {
+   "asof": "2026-05-11",
+   "confidence": null,
+   "expected_return": 0.000878430437296629,
+   "path": null
+  },
+  "GOOGL": {
+   "asof": "2026-05-11",
+   "confidence": null,
+   "expected_return": 0.001965249888598919,
+   "path": null
+  },
+  "JNJ": {
+   "asof": "2026-05-11",
+   "confidence": null,
+   "expected_return": 0.000878430437296629,
+   "path": null
+  },
+  "JPM": {
+   "asof": "2026-05-11",
+   "confidence": null,
+   "expected_return": 0.0009615025483071804,
+   "path": null
+  },
+  "META": {
+   "asof": "2026-05-11",
+   "confidence": null,
+   "expected_return": 0.0016795055707916617,
+   "path": null
+  },
+  "MSFT": {
+   "asof": "2026-05-11",
+   "confidence": null,
+   "expected_return": 0.000878430437296629,
+   "path": null
+  },
+  "NVDA": {
+   "asof": "2026-05-11",
+   "confidence": null,
+   "expected_return": 0.0012464477913454175,
+   "path": null
+  },
+  "QQQ": {
+   "asof": "2026-05-11",
+   "confidence": null,
+   "expected_return": 0.001965249888598919,
+   "path": null
+  },
+  "SLV": {
+   "asof": "2026-05-11",
+   "confidence": null,
+   "expected_return": 0.0002418515650788322,
+   "path": null
+  },
+  "SOL-USD": {
+   "asof": "2026-05-11",
+   "confidence": null,
+   "expected_return": 0.0015187555691227317,
+   "path": null
+  },
+  "SPY": {
+   "asof": "2026-05-11",
+   "confidence": null,
+   "expected_return": 0.000878430437296629,
+   "path": null
+  },
+  "TSLA": {
+   "asof": "2026-05-11",
+   "confidence": null,
+   "expected_return": 0.0048714992590248585,
+   "path": null
+  },
+  "USO": {
+   "asof": "2026-05-11",
+   "confidence": null,
+   "expected_return": -0.00034716902882792056,
+   "path": null
+  },
+  "V": {
+   "asof": "2026-05-11",
+   "confidence": null,
+   "expected_return": 0.000878430437296629,
+   "path": null
+  },
+  "WMT": {
+   "asof": "2026-05-11",
+   "confidence": null,
+   "expected_return": 0.000878430437296629,
+   "path": null
+  },
+  "XOM": {
+   "asof": "2026-05-11",
+   "confidence": null,
+   "expected_return": 0.0013165854616090655,
+   "path": null
+  }
+ },
+ "run_date": "2026-05-12",
+ "schema_version": 1
+}

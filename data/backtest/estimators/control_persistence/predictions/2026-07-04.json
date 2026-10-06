@@ -1,0 +1,26 @@
+{
+ "created_at": null,
+ "estimator": "control_persistence",
+ "predictions": {
+  "BTC-USD": {
+   "asof": "2026-07-03",
+   "confidence": null,
+   "expected_return": 0.017221977026140145,
+   "path": null
+  },
+  "ETH-USD": {
+   "asof": "2026-07-03",
+   "confidence": null,
+   "expected_return": 0.03436008328131357,
+   "path": null
+  },
+  "SOL-USD": {
+   "asof": "2026-07-03",
+   "confidence": null,
+   "expected_return": 0.02028766240990687,
+   "path": null
+  }
+ },
+ "run_date": "2026-07-04",
+ "schema_version": 1
+}
