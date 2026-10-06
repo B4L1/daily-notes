@@ -1,0 +1,151 @@
+import json
+import math
+from datetime import datetime, timezone
+
+import pytest
+
+from bench.config import Settings
+from bench.runner import (
+    assets_needing_prediction, cut_history, cutoff_for, live_window_ok, run_estimator_day,
+)
+from bench.store import Store
+from estimators.base import Estimator, Prediction
+from tests.helpers import candles, random_walk
+
+S = Settings()
+
+
+class Spy(Estimator):
+    name = "spy"
+
+    def __init__(self):
+        self.seen = {}
+        self.asked = []
+
+    def predict(self, history, assets):
+        self.seen = {a: df["date"].max() for a, df in history.items() if len(df)}
+        self.asked = list(assets)
+        return {a: Prediction(0.01) for a in assets if len(history[a])}
+
+
+class Bad(Estimator):
+    name = "bad"
+
+    def __init__(self, value):
+        self.value = value
+
+    def predict(self, history, assets):
+        return {a: Prediction(self.value) for a in assets if len(history[a])}
+
+
+class Boom(Estimator):
+    name = "boom"
+
+    def predict(self, history, assets):
+        raise RuntimeError("model exploded")
+
+
+class Extra(Estimator):
+    name = "extra"
+
+    def predict(self, history, assets):
+        return {"NOT_ASKED": Prediction(0.5), **{a: Prediction(0.01) for a in assets if len(history[a])}}
+
+
+def test_cutoff_is_the_day_before():
+    assert cutoff_for("2026-01-06") == "2026-01-05"
+
+
+def test_estimator_never_sees_the_run_day_or_later(tmp_path):
+    prices = {"AAA": candles([
+        ("2026-01-02", 1, 1, 1, 1), ("2026-01-05", 1, 1, 1, 1),
+        ("2026-01-06", 1, 1, 1, 1),  # today's partial candle: must be invisible
+        ("2026-01-07", 1, 1, 1, 1),
+    ])}
+    spy = Spy()
+    run_estimator_day(Store(tmp_path), spy, prices, "2026-01-06", S)
+    assert spy.seen == {"AAA": "2026-01-05"}
+
+
+def test_prediction_is_saved_with_asof(tmp_path):
+    st = Store(tmp_path)
+    prices = {"AAA": candles([("2026-01-02", 1, 1, 1, 1), ("2026-01-05", 1, 1, 1, 1)])}
+    rec = run_estimator_day(st, Spy(), prices, "2026-01-06", S)
+    assert rec["status"] == "ok" and rec["n_predictions"] == 1
+    saved = st.load_predictions("spy")["2026-01-06"]["predictions"]["AAA"]
+    assert saved["asof"] == "2026-01-05" and saved["expected_return"] == 0.01
+
+
+def test_rerun_same_day_is_idempotent(tmp_path):
+    st = Store(tmp_path)
+    prices = {"AAA": random_walk(30, "2026-01-01")}
+    run_estimator_day(st, Spy(), prices, "2026-01-31", S)
+    first = json.dumps(st.load_predictions("spy"), sort_keys=True)
+    run_estimator_day(st, Spy(), prices, "2026-01-31", S)
+    assert json.dumps(st.load_predictions("spy"), sort_keys=True) == first
+
+
+def test_weekend_stock_is_not_repredicted_but_crypto_is(tmp_path):
+    # 2026-01-02 is a Friday. STK has no weekend candles; CRY trades every day.
+    stk = candles([("2025-12-31", 1, 1, 1, 1), ("2026-01-02", 1, 1, 1, 1)])
+    cry = candles([("2026-01-01", 1, 1, 1, 1), ("2026-01-02", 1, 1, 1, 1), ("2026-01-03", 1, 1, 1, 1)])
+    prices = {"STK": stk, "CRY": cry}
+    st = Store(tmp_path)
+    sat, sun = Spy(), Spy()
+    run_estimator_day(st, sat, prices, "2026-01-03", S)   # Saturday: cutoff Friday
+    assert sorted(sat.asked) == ["CRY", "STK"]
+    run_estimator_day(st, sun, prices, "2026-01-04", S)   # Sunday: cutoff Saturday
+    assert sun.asked == ["CRY"]
+
+
+def test_non_finite_output_is_a_recorded_failure_with_no_prediction(tmp_path):
+    prices = {"AAA": candles([("2026-01-02", 1, 1, 1, 1), ("2026-01-05", 1, 1, 1, 1)])}
+    for value in (math.nan, math.inf):
+        st = Store(tmp_path / str(value))
+        rec = run_estimator_day(st, Bad(value), prices, "2026-01-06", S)
+        assert rec["status"] == "failed" and "non-finite" in rec["error"]
+        assert st.load_predictions("bad") == {}
+        assert st.load_runs("bad")[-1]["status"] == "failed"
+
+
+def test_exception_is_recorded_not_raised(tmp_path):
+    st = Store(tmp_path)
+    prices = {"AAA": candles([("2026-01-02", 1, 1, 1, 1)])}
+    rec = run_estimator_day(st, Boom(), prices, "2026-01-06", S)
+    assert rec["status"] == "failed" and "model exploded" in rec["error"]
+    assert st.load_predictions("boom") == {}
+
+
+def test_assets_nobody_asked_for_are_ignored(tmp_path):
+    st = Store(tmp_path)
+    prices = {"AAA": candles([("2026-01-02", 1, 1, 1, 1), ("2026-01-05", 1, 1, 1, 1)])}
+    run_estimator_day(st, Extra(), prices, "2026-01-06", S)
+    assert list(st.load_predictions("extra")["2026-01-06"]["predictions"]) == ["AAA"]
+
+
+def test_live_window():
+    d = "2026-01-06"
+    ok = datetime(2026, 1, 6, 0, 40, tzinfo=timezone.utc)
+    late = datetime(2026, 1, 6, 9, 0, tzinfo=timezone.utc)
+    early = datetime(2026, 1, 5, 23, 0, tzinfo=timezone.utc)
+    assert live_window_ok(d, ok) and not live_window_ok(d, late) and not live_window_ok(d, early)
+
+
+def test_late_run_settles_but_does_not_predict(tmp_path):
+    st = Store(tmp_path)
+    prices = {"AAA": candles([("2026-01-02", 1, 1, 1, 1), ("2026-01-05", 1, 1, 1, 1)])}
+    late = datetime(2026, 1, 6, 12, 0, tzinfo=timezone.utc)
+    rec = run_estimator_day(st, Spy(), prices, "2026-01-06", S, now=late)
+    assert rec["status"] == "skipped_late"
+    assert st.load_predictions("spy") == {}
+
+
+def test_settles_before_predicting(tmp_path):
+    st = Store(tmp_path)
+    prices = {"AAA": candles([
+        ("2026-01-02", 99, 101, 98, 100), ("2026-01-05", 100, 103, 99, 102),
+    ])}
+    run_estimator_day(st, Spy(), prices, "2026-01-03", S)   # predicts for the 5th
+    run_estimator_day(st, Spy(), prices, "2026-01-06", S)   # settles the 5th
+    assert len(st.load_equity("spy")) == 1
+    assert st.load_equity("spy")["equity"].iloc[0] == pytest.approx(10190.0)
