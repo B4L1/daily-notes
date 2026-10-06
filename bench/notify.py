@@ -1,7 +1,22 @@
 import json
+import re
 import urllib.parse
 import urllib.request
 from pathlib import Path
+
+
+_DATE = re.compile(r"\d{4}-\d{2}-\d{2}")
+
+
+def _clean(text):
+    """Drop control chars/newlines and make the text safe for an HTTP header (latin-1)."""
+    text = "".join(c for c in str(text) if c.isprintable())
+    return text.encode("ascii", "replace").decode()
+
+
+def _safe_click(url):
+    url = _clean(url or "").strip()
+    return url if url.startswith("https://") else ""
 
 
 def _pct(v):
@@ -48,16 +63,24 @@ def notify(summary_path, run_date, failure, env, opener=urllib.request.urlopen):
     if not topic:
         print("NTFY_TOPIC is not set; skipping the notification.")
         return 0
+    run_date = run_date if _DATE.fullmatch(str(run_date)) else "unknown date"
+    title = f"Prediction bench {run_date}"
+    run_url = env.get("RUN_URL", "")
     if failure:
-        title = f"Prediction bench {run_date}"
         body = "The daily run failed. Open the run to see why."
-        click = env.get("RUN_URL", "")
+        click = run_url
     else:
-        summary = json.loads(Path(summary_path).read_text(encoding="utf-8"))
-        title, body = build_message(summary, run_date)
-        click = env.get("SITE_URL", "")
+        try:
+            summary = json.loads(Path(summary_path).read_text(encoding="utf-8"))
+            title, body = build_message(summary, run_date)
+            click = env.get("SITE_URL", "")
+        except Exception as e:
+            print(f"summary unreadable: {type(e).__name__}")
+            body = "The run finished but the summary is missing or unreadable. Open the run to see why."
+            click = run_url
     try:
-        send(topic, title, body, click, 2, opener)
+        # A non-2xx status is not treated as failure here; urlopen raises for most of them.
+        send(topic, _clean(title), _clean(body), _safe_click(click), 2, opener)
     except Exception as e:
         # Print only the exception type: its message can contain the URL, which holds the topic.
         print(f"notification failed: {type(e).__name__}")
