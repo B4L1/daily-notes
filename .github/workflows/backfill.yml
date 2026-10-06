@@ -136,6 +136,8 @@ jobs:
           git add data/backtest
           if ! git diff --cached --quiet; then
             git commit -m "data: backtest replay"
+            # The fetch step refreshed data/prices, which a backfill does not commit; drop it so the rebase can run.
+            git checkout -- .
             ok=0
             for attempt in 1 2 3; do
               if git pull --rebase origin "$BRANCH" && git push origin "HEAD:$BRANCH"; then
