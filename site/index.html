@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Prediction bench</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+  <h1>prediction bench</h1>
+  <div class="controls">
+    <span role="group" aria-label="Data set">
+      <button type="button" data-mode="live">Live</button>
+      <button type="button" data-mode="backtest">Backtest</button>
+    </span>
+    <button type="button" id="palette" aria-pressed="false">Colour-blind palette</button>
+  </div>
+</header>
+<nav id="tabs" aria-label="Estimators"></nav>
+<main id="view" tabindex="-1"><p class="dim">Loading…</p></main>
+<footer>
+  Paper trading experiment on public price data. Not investment advice.
+  Each prediction is committed before the session it trades; a crypto trade enters at the
+  00:00 UTC open and its prediction is committed 30 to 60 minutes later.
+</footer>
+<script type="module" src="app.js"></script>
+</body>
+</html>
