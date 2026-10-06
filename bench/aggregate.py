@@ -1,8 +1,7 @@
 import json
+import math
 from datetime import datetime, timezone
 from pathlib import Path
-
-import pandas as pd
 
 from bench import scoring
 from bench.data import stale_assets
@@ -32,7 +31,10 @@ def _hold_curve(prices, dates, start_equity):
     for df in prices.values():
         d, c = df["date"].tolist(), df["close"].tolist()
         for i in range(1, len(d)):
-            per_date.setdefault(d[i], []).append(c[i] / c[i - 1] - 1.0)
+            prev, cur = c[i - 1], c[i]
+            if not (prev > 0 and cur > 0 and math.isfinite(prev) and math.isfinite(cur)):
+                continue
+            per_date.setdefault(d[i], []).append(cur / prev - 1.0)
     eq, out = float(start_equity), []
     for day in dates:
         rets = per_date.get(day)
