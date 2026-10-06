@@ -1,17 +1,29 @@
 import sys
 from pathlib import Path
 
+import numpy as np
+import pandas as pd
+
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from bench.config import load_config
 from bench.data import load_prices
 from bench.store import Store
 
+LEDGER_NUMERIC = ["entry", "exit", "expected_return", "gross_ret", "net_ret", "actual_cc"]
+
+
+def _finite(df, cols):
+    return bool(np.isfinite(df[cols].apply(pd.to_numeric, errors="coerce").to_numpy(dtype=float)).all())
+
 
 def check(data_dir="data", assets_file="assets.yaml"):
     settings, assets = load_config(assets_file)
     prices = load_prices(Path(data_dir) / "prices", assets)
     problems = []
+    for sym, df in prices.items():
+        if df is not None and len(df) and (df["date"].duplicated().any() or not df["date"].is_monotonic_increasing):
+            problems.append(f"prices/{sym}: dates are not unique and increasing")
     for mode in ("live", "backtest"):
         root = Path(data_dir) / mode
         if not (root / "estimators").exists():
@@ -25,17 +37,31 @@ def check(data_dir="data", assets_file="assets.yaml"):
                         problems.append(f"{where}/{run_date}/{asset}: asof {p['asof']} is not before the run date")
             eq = store.load_equity(name)
             if len(eq):
+                if not _finite(eq, list(eq.columns.drop("date"))):
+                    problems.append(f"{where}: equity.csv has missing or non-finite values")
+                    continue_eq = False
+                else:
+                    continue_eq = True
+            else:
+                continue_eq = False
+            if continue_eq:
                 if eq["date"].duplicated().any() or not eq["date"].is_monotonic_increasing:
                     problems.append(f"{where}: settled dates are not unique and increasing")
                 expected = settings.start_equity * (1 + eq["day_return"]).cumprod()
                 if (expected - eq["equity"]).abs().max() > 1e-6:
                     problems.append(f"{where}: equity does not compound from day returns")
-            for r in store.load_ledger(name).itertuples():
-                df = prices.get(r.asset)
-                row = df[df["date"] == r.settle_date] if df is not None else []
-                if len(row) != 1 or abs(row["open"].iloc[0] - r.entry) > 1e-9 or abs(row["close"].iloc[0] - r.exit) > 1e-9:
+            led = store.load_ledger(name)
+            if len(led):
+                if not _finite(led, LEDGER_NUMERIC):
+                    problems.append(f"{where}: ledger.csv has missing or non-finite values")
+                    continue
+                refs = pd.concat(
+                    [df[["date", "open", "close"]].assign(asset=sym) for sym, df in prices.items() if df is not None and len(df)]
+                ).drop_duplicates(["asset", "date"]).rename(columns={"date": "settle_date"})
+                m = led.merge(refs, on=["asset", "settle_date"], how="left", suffixes=("", "_c"))
+                bad = m["open"].isna() | ((m["open"] - m["entry"]).abs() > 1e-9) | ((m["close"] - m["exit"]).abs() > 1e-9)
+                for r in m[bad].itertuples():
                     problems.append(f"{where}: ledger row {r.asset} {r.settle_date} does not match the candle")
-                    break
     return problems
 
 
