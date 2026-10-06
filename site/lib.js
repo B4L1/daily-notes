@@ -56,3 +56,8 @@ export function luckText(row) {
     ? `unlikely luck (p=${row.p_value.toFixed(3)})`
     : `consistent with luck (p=${row.p_value.toFixed(2)})`;
 }
+
+export function dayHit(d) {
+  const hits = (d?.trades ?? []).map((t) => t.hit).filter((h) => h !== null && h !== undefined);
+  return hits.length ? hits.reduce((a, b) => a + b, 0) / hits.length : null;
+}

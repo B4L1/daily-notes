@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { cellColor, signMark, fmtPct, fmtUsd, calendarCells, luckText, hitDeviation } from "./lib.js";
+import { cellColor, signMark, fmtPct, fmtUsd, calendarCells, luckText, hitDeviation, dayHit } from "./lib.js";
 
 test("fmtPct keeps the sign and handles missing values", () => {
   assert.equal(fmtPct(0.0123), "+1.23%");
@@ -75,4 +75,16 @@ test("hitDeviation centres hit rate on 50%", () => {
   assert.equal(hitDeviation(undefined), null);
   assert.equal(hitDeviation(NaN), null);
   assert.equal(cellColor(hitDeviation(0.5), 0.5), "var(--cell-flat)");
+});
+
+test("dayHit averages the non-null hits", () => {
+  assert.equal(dayHit({ trades: [] }), null);
+  assert.equal(dayHit({ trades: [{ hit: null }, {}] }), null);
+  assert.equal(dayHit({ trades: [{ hit: 1 }] }), 1);
+  assert.equal(dayHit({ trades: [{ hit: 1 }, { hit: 0 }, { hit: null }, { hit: 0 }, { hit: 1 }] }), 0.5);
+});
+
+test("calendarCells starting on a Sunday uses row 0", () => {
+  const cells = calendarCells(["2026-01-04", "2026-01-05"]);
+  assert.deepEqual(cells.map((c) => [c.col, c.row]), [[0, 0], [0, 1]]);
 });

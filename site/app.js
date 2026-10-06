@@ -1,4 +1,4 @@
-import { cellColor, signMark, fmtPct, fmtUsd, calendarCells, luckText, hitDeviation } from "./lib.js";
+import { cellColor, signMark, fmtPct, fmtUsd, calendarCells, luckText, hitDeviation, dayHit } from "./lib.js";
 import { lineChart, sparkline } from "./charts.js";
 
 const COLORS = ["#58a6ff", "#d29922", "#3fb950", "#bc8cff", "#f778ba", "#39c5cf", "#ff7b72", "#ffa657", "#7ee787", "#a5d6ff"];
@@ -174,28 +174,28 @@ export function render() {
     return;
   }
   renderTabs(route);
-  if (route.startsWith("e/")) return renderEstimator(view, decodeURIComponent(route.slice(2)));
+  if (route.startsWith("e/")) {
+    let name;
+    try { name = decodeURIComponent(route.slice(2)); } catch { name = null; }
+    if (name === null) { view.append(panel("Unknown estimator", "That address isn't valid.")); return; }
+    return renderEstimator(view, name);
+  }
   renderOverview(view);
 }
 
 const hitText = (v) => (v === null || v === undefined ? "n/a" : (v * 100).toFixed(1) + "%");
 
-function calendar(days, valueOf, scale, kind) {
+function calendar(days, valueOf, scale, kind, devOf, describe) {
   const byDate = Object.fromEntries(days.map((d) => [d.date, valueOf(d)]));
   const cells = calendarCells(days.map((d) => d.date));
   const grid = el("div", { class: "cal", role: "img", "aria-label": `Calendar heatmap of ${kind}. The day list below has the same numbers.` });
   cells.forEach((c, i) => {
     const v = byDate[c.date] ?? null;
-    const dev = kind === "hit rate" ? hitDeviation(v) : v;
-    const text = v === null ? `${c.date}: no session or no calls` : kind === "hit rate" ? `${c.date}: ${signMark(dev)} ${(v * 100).toFixed(0)}% correct` : `${c.date}: ${signMark(v)} ${fmtPct(v)}`;
+    const dev = devOf(v);
+    const text = v === null ? `${c.date}: no session or no calls` : `${c.date}: ${describe(v, dev)}`;
     grid.append(el("div", { class: "cell", title: text, style: `background:${cellColor(dev, scale, state.palette)};${i === 0 ? `grid-row:${c.row + 1};` : ""}` }));
   });
   return grid;
-}
-
-function dayHit(d) {
-  const hits = d.trades.map((t) => t.hit).filter((h) => h !== null && h !== undefined);
-  return hits.length ? hits.reduce((a, b) => a + b, 0) / hits.length : null;
 }
 
 function statsPanel(s, kind) {
@@ -241,7 +241,7 @@ function dayList(days, isControl) {
 
 async function renderEstimator(view, name) {
   const startHash = location.hash;
-  const m = meta()[name];
+  const m = state.summary.estimators.find((e) => e.name === name);
   if (!m) { view.append(panel("Unknown estimator", `There is no estimator called ${name}.`)); return; }
   view.append(el("p", { class: "dim" }, "Loading…"));
   let d = state.detail[name];
@@ -254,8 +254,14 @@ async function renderEstimator(view, name) {
     }
   }
   if (location.hash !== startHash) return; // the user already moved on
+  const mode = d?.modes?.[state.mode];
+  const okShape = mode && Array.isArray(mode.days) && Array.isArray(mode.equity) && mode.stats && typeof mode.stats === "object" && mode.per_asset && typeof mode.per_asset === "object"
+    && mode.days.every((x) => x && Array.isArray(x.trades));
+  if (!okShape) {
+    delete state.detail[name];
+    return showError(`The data for ${m.label} looks damaged. Retry, or check back after the next update.`, render);
+  }
   view.textContent = "";
-  const mode = d.modes[state.mode];
   const isControl = m.kind === "control";
   view.append(el("h2", {}, m.label));
   view.append(el("p", { class: "dim" }, `${m.kind} · ${m.source} · licence: ${m.license} · ${m.original_code ? "original code" : "our own implementation"}`));
@@ -276,8 +282,8 @@ async function renderEstimator(view, name) {
   series.push({ name: "Buy and hold (reference, no costs)", color: "#8b949e", dashed: true, points: b.hold ?? [] });
   lineChart(chart, series);
 
-  view.append(el("h2", {}, "Daily account return"), calendar(mode.days, (x) => x.day_return, PNL_SCALE, "daily return"));
-  view.append(el("h2", {}, "Direction hit rate"), calendar(mode.days, dayHit, HIT_SCALE, "hit rate"));
+  view.append(el("h2", {}, "Daily account return"), calendar(mode.days, (x) => x.day_return, PNL_SCALE, "daily return", (v) => v, (v) => `${signMark(v)} ${fmtPct(v)}`));
+  view.append(el("h2", {}, "Direction hit rate"), calendar(mode.days, dayHit, HIT_SCALE, "hit rate", hitDeviation, (v, dev) => `${signMark(dev)} ${(v * 100).toFixed(0)}% correct`));
   view.append(el("p", { class: "note" }, "Each square is one calendar day, oldest at the left. Empty squares are days with no session or no calls."));
   view.append(el("h2", {}, "By asset"), assetTable(mode.per_asset));
   view.append(el("h2", {}, "Day by day"), dayList(mode.days, isControl));
