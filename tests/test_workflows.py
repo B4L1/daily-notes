@@ -156,6 +156,8 @@ def test_backfill_commits_only_backtest_data():
     text, _ = load("backfill.yml")
     assert "git add data/backtest\n" in text
     assert "git add data\n" not in text
+    # uncommitted price refreshes must be discarded before pull --rebase, or the rebase refuses to run
+    assert text.index("git checkout -- .") < text.index("git pull --rebase")
 
 
 def test_uploads_overwrite():
