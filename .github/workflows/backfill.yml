@@ -1,0 +1,137 @@
+name: backfill
+
+on:
+  workflow_dispatch:
+    inputs:
+      days:
+        description: "Days to replay"
+        required: false
+        default: "365"
+
+concurrency:
+  group: bench-data
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    outputs:
+      estimators: ${{ steps.list.outputs.estimators }}
+      days: ${{ steps.days.outputs.days }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - id: days
+        env:
+          INPUT_DAYS: ${{ inputs.days }}
+        run: |
+          d="${INPUT_DAYS:-365}"
+          if ! [[ "$d" =~ ^[0-9]{1,4}$ ]]; then
+            echo "days must be a whole number"
+            exit 1
+          fi
+          echo "days=$d" >> "$GITHUB_OUTPUT"
+      - run: pip install -r requirements.txt
+      - run: python -m bench.cli fetch
+      - id: list
+        run: echo "estimators=$(python -m bench.cli list)" >> "$GITHUB_OUTPUT"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: prices
+          path: data/prices
+
+  backtest:
+    needs: fetch
+    runs-on: ubuntu-latest
+    timeout-minutes: 340
+    strategy:
+      fail-fast: false
+      matrix:
+        estimator: ${{ fromJson(needs.fetch.outputs.estimators) }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - uses: actions/download-artifact@v4
+        with:
+          name: prices
+          path: data/prices
+      - uses: actions/cache@v4
+        with:
+          path: |
+            data/cache
+            ~/.cache/huggingface
+          key: cache-${{ matrix.estimator }}-bt-${{ github.run_id }}
+          restore-keys: cache-${{ matrix.estimator }}-
+      - name: Install dependencies
+        env:
+          ESTIMATOR: ${{ matrix.estimator }}
+        run: |
+          pip install -r requirements.txt
+          REQ=$(python -m bench.cli requirements --estimator "$ESTIMATOR")
+          if [ -n "$REQ" ]; then pip install -r "$REQ"; fi
+      - name: Backfill
+        env:
+          ESTIMATOR: ${{ matrix.estimator }}
+          DAYS: ${{ needs.fetch.outputs.days }}
+        run: python -m bench.cli backfill --estimator "$ESTIMATOR" --days "$DAYS"
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: bt-${{ matrix.estimator }}
+          path: data/backtest/estimators/${{ matrix.estimator }}
+          if-no-files-found: ignore
+
+  commit:
+    needs: [fetch, backtest]
+    if: ${{ always() && needs.fetch.result == 'success' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -r requirements.txt
+      - uses: actions/download-artifact@v4
+        with:
+          name: prices
+          path: data/prices
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: bt-*
+          path: artifacts
+      - name: Merge estimator results
+        run: |
+          shopt -s nullglob
+          for d in artifacts/bt-*; do
+            n="${d#artifacts/bt-}"
+            mkdir -p "data/backtest/estimators/$n"
+            cp -r "$d"/. "data/backtest/estimators/$n"/
+          done
+      - name: Verify data
+        run: python scripts/verify_data.py data
+      - name: Commit data
+        env:
+          BRANCH: ${{ github.ref_name }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data
+          if ! git diff --cached --quiet; then
+            git commit -m "data: backtest replay"
+            git pull --rebase origin "$BRANCH"
+            git push origin "HEAD:$BRANCH"
+          fi

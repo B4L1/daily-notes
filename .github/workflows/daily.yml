@@ -1,0 +1,198 @@
+name: daily
+
+on:
+  schedule:
+    - cron: "30 0 * * *"
+  workflow_dispatch:
+    inputs:
+      run_date:
+        description: "Run date (UTC, YYYY-MM-DD). Leave empty for today."
+        required: false
+
+concurrency:
+  group: bench-data
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    outputs:
+      estimators: ${{ steps.list.outputs.estimators }}
+      run_date: ${{ steps.date.outputs.run_date }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -r requirements.txt
+      - id: date
+        env:
+          INPUT_DATE: ${{ inputs.run_date }}
+        run: |
+          d="${INPUT_DATE:-$(date -u +%F)}"
+          if ! [[ "$d" =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}$ ]]; then
+            echo "run_date must look like YYYY-MM-DD"
+            exit 1
+          fi
+          echo "run_date=$d" >> "$GITHUB_OUTPUT"
+      - run: python -m bench.cli fetch
+      - id: list
+        run: echo "estimators=$(python -m bench.cli list)" >> "$GITHUB_OUTPUT"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: prices
+          path: data/prices
+
+  predict:
+    needs: fetch
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        estimator: ${{ fromJson(needs.fetch.outputs.estimators) }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - uses: actions/download-artifact@v4
+        with:
+          name: prices
+          path: data/prices
+      - uses: actions/cache@v4
+        with:
+          path: |
+            data/cache
+            ~/.cache/huggingface
+          key: cache-${{ matrix.estimator }}-${{ github.run_id }}
+          restore-keys: cache-${{ matrix.estimator }}-
+      - name: Install dependencies
+        env:
+          ESTIMATOR: ${{ matrix.estimator }}
+        run: |
+          pip install -r requirements.txt
+          REQ=$(python -m bench.cli requirements --estimator "$ESTIMATOR")
+          if [ -n "$REQ" ]; then pip install -r "$REQ"; fi
+      - name: Predict
+        env:
+          ESTIMATOR: ${{ matrix.estimator }}
+          RUN_DATE: ${{ needs.fetch.outputs.run_date }}
+        run: python -m bench.cli run --estimator "$ESTIMATOR" --run-date "$RUN_DATE"
+      - if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: est-${{ matrix.estimator }}
+          path: data/live/estimators/${{ matrix.estimator }}
+          if-no-files-found: ignore
+
+  aggregate:
+    needs: [fetch, predict]
+    if: ${{ always() && needs.fetch.result == 'success' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -r requirements.txt
+      - uses: actions/download-artifact@v4
+        with:
+          name: prices
+          path: data/prices
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: est-*
+          path: artifacts
+      - name: Merge estimator results
+        run: |
+          shopt -s nullglob
+          for d in artifacts/est-*; do
+            n="${d#artifacts/est-}"
+            mkdir -p "data/live/estimators/$n"
+            cp -r "$d"/. "data/live/estimators/$n"/
+          done
+      - name: Verify data
+        run: python scripts/verify_data.py data
+      - name: Commit data
+        env:
+          RUN_DATE: ${{ needs.fetch.outputs.run_date }}
+          BRANCH: ${{ github.ref_name }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data
+          if ! git diff --cached --quiet; then
+            git commit -m "data: run $RUN_DATE"
+            git pull --rebase origin "$BRANCH"
+            git push origin "HEAD:$BRANCH"
+          fi
+      - name: Build site data
+        env:
+          RUN_DATE: ${{ needs.fetch.outputs.run_date }}
+        run: python -m bench.cli aggregate --run-date "$RUN_DATE"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: site-data
+          path: site/data
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+  deploy:
+    needs: aggregate
+    if: ${{ always() && needs.aggregate.result == 'success' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
+
+  notify:
+    # Always runs, so a failed day is never silent. Any upstream job that did
+    # not succeed turns the message into a failure alert.
+    needs: [fetch, predict, aggregate, deploy]
+    if: ${{ always() }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      NTFY_TOPIC: ${{ secrets.NTFY_TOPIC }}
+      SITE_URL: https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/
+      RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+      RUN_DATE: ${{ needs.fetch.outputs.run_date }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install -r requirements.txt
+      - name: Fetch site data
+        if: ${{ needs.deploy.result == 'success' }}
+        continue-on-error: true
+        uses: actions/download-artifact@v4
+        with:
+          name: site-data
+          path: site/data
+      - name: Notify (success)
+        if: ${{ needs.fetch.result == 'success' && needs.predict.result == 'success' && needs.aggregate.result == 'success' && needs.deploy.result == 'success' }}
+        run: python -m bench.cli notify --run-date "$RUN_DATE"
+      - name: Notify (failure)
+        if: ${{ needs.fetch.result != 'success' || needs.predict.result != 'success' || needs.aggregate.result != 'success' || needs.deploy.result != 'success' }}
+        run: python -m bench.cli notify --failure --run-date "$RUN_DATE"
