@@ -1,0 +1,4 @@
+-r requirements.txt
+pytest>=8
+xgboost>=2.0
+scikit-learn>=1.4

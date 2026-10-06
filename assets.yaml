@@ -1,0 +1,30 @@
+settings:
+  start_equity: 10000
+  cost_round_trip: 0.001
+  trade_threshold: 0.001
+  min_live_days: 60
+  sanity_day_pct: 0.10
+  sanity_week_pct: 0.50
+  history_start: "2019-01-01"
+assets:
+  - {symbol: SPY,    group: stock,     max_gap_days: 5}
+  - {symbol: QQQ,    group: stock,     max_gap_days: 5}
+  - {symbol: AAPL,   group: stock,     max_gap_days: 5}
+  - {symbol: MSFT,   group: stock,     max_gap_days: 5}
+  - {symbol: NVDA,   group: stock,     max_gap_days: 5}
+  - {symbol: AMZN,   group: stock,     max_gap_days: 5}
+  - {symbol: GOOGL,  group: stock,     max_gap_days: 5}
+  - {symbol: META,   group: stock,     max_gap_days: 5}
+  - {symbol: TSLA,   group: stock,     max_gap_days: 5}
+  - {symbol: JPM,    group: stock,     max_gap_days: 5}
+  - {symbol: V,      group: stock,     max_gap_days: 5}
+  - {symbol: XOM,    group: stock,     max_gap_days: 5}
+  - {symbol: WMT,    group: stock,     max_gap_days: 5}
+  - {symbol: JNJ,    group: stock,     max_gap_days: 5}
+  - {symbol: AMD,    group: stock,     max_gap_days: 5}
+  - {symbol: BTC-USD, group: crypto,    max_gap_days: 2}
+  - {symbol: ETH-USD, group: crypto,    max_gap_days: 2}
+  - {symbol: SOL-USD, group: crypto,    max_gap_days: 2}
+  - {symbol: GLD,    group: commodity, max_gap_days: 5}
+  - {symbol: SLV,    group: commodity, max_gap_days: 5}
+  - {symbol: USO,    group: commodity, max_gap_days: 5}
