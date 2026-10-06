@@ -858,8 +858,9 @@ def _sessions_per_date(prices):
 
 def settle_estimator(store, name, prices, settings):
     by_key = {}
-    for run_date in sorted(store.load_predictions(name)):
-        payload = store.load_predictions(name)[run_date]
+    saved = store.load_predictions(name)  # read the prediction files once
+    for run_date in sorted(saved):
+        payload = saved[run_date]
         for asset, p in payload["predictions"].items():
             by_key[(asset, p["asof"])] = p
 
