@@ -178,9 +178,109 @@ export function render() {
   renderOverview(view);
 }
 
-// Replaced in Task 11.
-function renderEstimator(view, name) {
-  view.append(panel(name, "This tab is built in the next task."));
+const hitText = (v) => (v === null || v === undefined ? "n/a" : (v * 100).toFixed(1) + "%");
+
+function calendar(days, valueOf, scale, kind) {
+  const byDate = Object.fromEntries(days.map((d) => [d.date, valueOf(d)]));
+  const cells = calendarCells(days.map((d) => d.date));
+  const grid = el("div", { class: "cal", role: "img", "aria-label": `Calendar heatmap of ${kind}. The day list below has the same numbers.` });
+  cells.forEach((c, i) => {
+    const v = byDate[c.date] ?? null;
+    const dev = kind === "hit rate" ? hitDeviation(v) : v;
+    const text = v === null ? `${c.date}: no session or no calls` : kind === "hit rate" ? `${c.date}: ${signMark(dev)} ${(v * 100).toFixed(0)}% correct` : `${c.date}: ${signMark(v)} ${fmtPct(v)}`;
+    grid.append(el("div", { class: "cell", title: text, style: `background:${cellColor(dev, scale, state.palette)};${i === 0 ? `grid-row:${c.row + 1};` : ""}` }));
+  });
+  return grid;
+}
+
+function dayHit(d) {
+  const hits = d.trades.map((t) => t.hit).filter((h) => h !== null && h !== undefined);
+  return hits.length ? hits.reduce((a, b) => a + b, 0) / hits.length : null;
+}
+
+function statsPanel(s, kind) {
+  const items = [
+    ["Balance", fmtUsd(s.balance)], ["Return", `${signMark(s.total_return)} ${fmtPct(s.total_return)}`],
+    ["Days settled", String(s.n_days)], ["Hit rate", hitText(s.hit_rate)], ["Down calls hit", hitText(s.hit_rate_down)],
+    ["Max drawdown", fmtPct(s.max_drawdown)], ["Worst day", fmtPct(s.worst_day)], ["Trades per day", s.trades_per_day == null ? "n/a" : s.trades_per_day.toFixed(1)],
+    ["Luck check", kind === "control" ? "baseline" : luckText(s)],
+  ];
+  return el("div", { class: "stats" }, ...items.map(([k, v]) => el("div", { class: "stat" }, el("span", { class: "dim" }, k), el("b", {}, v))));
+}
+
+function assetTable(perAsset) {
+  const rows = Object.entries(perAsset).sort((a, b) => b[1].net_return_sum - a[1].net_return_sum);
+  return el("div", { class: "tablewrap" }, el("table", {},
+    el("thead", {}, el("tr", {}, ...["Asset", "Calls", "Traded", "Hit", "Sum of trade returns"].map((h) => el("th", {}, h)))),
+    el("tbody", {}, ...rows.map(([a, p]) => el("tr", {}, el("td", {}, a), el("td", {}, String(p.n)), el("td", {}, String(p.traded)), el("td", {}, hitText(p.hit_rate)), el("td", { class: trend(p.net_return_sum) }, `${signMark(p.net_return_sum)} ${fmtPct(p.net_return_sum)}`))))));
+}
+
+function dayList(days, isControl) {
+  const wrap = el("div", {});
+  const draw = (limit) => {
+    wrap.textContent = "";
+    for (const d of [...days].reverse().slice(0, limit)) {
+      const trades = el("div", { class: "tablewrap" }, el("table", {},
+        el("thead", {}, el("tr", {}, ...["Asset", "Predicted", "Actual", "Hit", "Traded", "Net return"].map((h) => el("th", {}, h)))),
+        el("tbody", {}, ...d.trades.map((t) => el("tr", {},
+          el("td", {}, t.asset),
+          el("td", {}, isControl ? (t.expected_return > 0 ? "▲ long" : "▼ down") : `${signMark(t.expected_return)} ${fmtPct(t.expected_return)}`),
+          el("td", {}, `${signMark(t.actual_cc)} ${fmtPct(t.actual_cc)}`),
+          el("td", {}, t.hit === null || t.hit === undefined ? "n/a" : t.hit ? "yes" : "no"),
+          el("td", {}, t.traded ? "yes" : "no (cash)"),
+          el("td", { class: trend(t.net_ret) }, `${signMark(t.net_ret)} ${fmtPct(t.net_ret)}`))))));
+      wrap.append(el("details", { class: "day" },
+        el("summary", {}, el("span", {}, d.date), el("span", { class: trend(d.day_return) }, `${signMark(d.day_return)} ${fmtPct(d.day_return)}`), el("span", { class: "dim" }, `${fmtUsd(d.equity)} · ${d.n_traded} of ${d.n_universe} traded`)),
+        trades));
+    }
+    if (days.length > limit) wrap.append(el("button", { type: "button", onclick: () => draw(days.length) }, `Show all ${days.length} days`));
+  };
+  draw(30);
+  return wrap;
+}
+
+async function renderEstimator(view, name) {
+  const startHash = location.hash;
+  const m = meta()[name];
+  if (!m) { view.append(panel("Unknown estimator", `There is no estimator called ${name}.`)); return; }
+  view.append(el("p", { class: "dim" }, "Loading…"));
+  let d = state.detail[name];
+  if (!d) {
+    try {
+      d = state.detail[name] = await getJSON(`data/estimators/${name}.json`);
+    } catch {
+      if (location.hash !== startHash) return;
+      return showError(`Couldn't load ${m.label}. Check your connection, then retry.`, render);
+    }
+  }
+  if (location.hash !== startHash) return; // the user already moved on
+  view.textContent = "";
+  const mode = d.modes[state.mode];
+  const isControl = m.kind === "control";
+  view.append(el("h2", {}, m.label));
+  view.append(el("p", { class: "dim" }, `${m.kind} · ${m.source} · licence: ${m.license} · ${m.original_code ? "original code" : "our own implementation"}`));
+  if (state.mode === "backtest") view.append(el("p", { class: "note" }, "Backtest: each day replayed using only earlier data. Pretrained models may have seen this period in training, so their backtest numbers may be optimistic."));
+  if (!mode.days.length) {
+    view.append(panel(state.mode === "live" ? "No settled days yet" : "No backtest data yet", state.mode === "live" ? "Its predictions are being logged. Results appear after the next trading session closes." : "Run the backfill workflow to fill in the past year."));
+    return;
+  }
+  view.append(el("h2", {}, "Summary"), statsPanel(mode.stats, m.kind));
+  if (mode.stats.sanity) view.append(el("p", { class: "warn" }, "check this: a gain this large is more likely a bug or a data leak than skill."));
+
+  view.append(el("h2", {}, "Account value"));
+  const chart = el("div", {});
+  view.append(chart);
+  const b = block();
+  const series = [{ name: m.label, color: "#58a6ff", dashed: false, points: mode.equity }];
+  if (name !== "control_random") series.push({ name: "Random coin (control)", color: CONTROL_COLOR, dashed: true, points: b.equity.control_random ?? [] });
+  series.push({ name: "Buy and hold (reference, no costs)", color: "#8b949e", dashed: true, points: b.hold ?? [] });
+  lineChart(chart, series);
+
+  view.append(el("h2", {}, "Daily account return"), calendar(mode.days, (x) => x.day_return, PNL_SCALE, "daily return"));
+  view.append(el("h2", {}, "Direction hit rate"), calendar(mode.days, dayHit, HIT_SCALE, "hit rate"));
+  view.append(el("p", { class: "note" }, "Each square is one calendar day, oldest at the left. Empty squares are days with no session or no calls."));
+  view.append(el("h2", {}, "By asset"), assetTable(mode.per_asset));
+  view.append(el("h2", {}, "Day by day"), dayList(mode.days, isControl));
 }
 
 function applyPalette() {
