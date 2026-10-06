@@ -140,7 +140,7 @@ def test_late_run_settles_but_does_not_predict(tmp_path):
     assert st.load_predictions("spy") == {}
 
 
-def test_settles_before_predicting(tmp_path):
+def test_settles_incrementally_across_runs(tmp_path):
     st = Store(tmp_path)
     prices = {"AAA": candles([
         ("2026-01-02", 99, 101, 98, 100), ("2026-01-05", 100, 103, 99, 102),
@@ -149,3 +149,97 @@ def test_settles_before_predicting(tmp_path):
     run_estimator_day(st, Spy(), prices, "2026-01-06", S)   # settles the 5th
     assert len(st.load_equity("spy")) == 1
     assert st.load_equity("spy")["equity"].iloc[0] == pytest.approx(10190.0)
+
+
+class Flaky(Estimator):
+    name = "flaky"
+
+    def __init__(self):
+        self.calls = 0
+        self.asked = []
+
+    def predict(self, history, assets):
+        self.calls += 1
+        self.asked = list(assets)
+        return {a: Prediction(0.001 * self.calls) for a in assets if len(history[a])}
+
+
+def test_late_run_still_settles_before_skipping(tmp_path):
+    st = Store(tmp_path)
+    st.save_prediction("spy", "2026-01-03", {"predictions": {
+        "AAA": {"asof": "2026-01-02", "expected_return": 0.01, "confidence": None, "path": None}}})
+    prices = {"AAA": candles([("2026-01-02", 99, 101, 98, 100), ("2026-01-05", 100, 103, 99, 102)])}
+    late = datetime(2026, 1, 6, 12, 0, tzinfo=timezone.utc)
+    rec = run_estimator_day(st, Spy(), prices, "2026-01-06", S, now=late)
+    assert rec["status"] == "skipped_late"
+    assert st.load_equity("spy")["equity"].iloc[0] == pytest.approx(10190.0)
+    assert "2026-01-06" not in st.load_predictions("spy")
+
+
+def test_rerun_with_nondeterministic_estimator_keeps_first_file(tmp_path):
+    st = Store(tmp_path)
+    prices = {"AAA": candles([("2026-01-02", 1, 1, 1, 1), ("2026-01-05", 1, 1, 1, 1)])}
+    est = Flaky()
+    run_estimator_day(st, est, prices, "2026-01-06", S)
+    first = json.dumps(st.load_predictions("flaky"), sort_keys=True)
+    rec = run_estimator_day(st, est, prices, "2026-01-06", S)
+    assert est.calls == 1 and rec["status"] == "ok" and rec["n_predictions"] == 1
+    assert json.dumps(st.load_predictions("flaky"), sort_keys=True) == first
+
+
+def test_failing_rerun_leaves_existing_file_and_records_failure(tmp_path):
+    st = Store(tmp_path)
+    prices = {"AAA": candles([("2026-01-02", 1, 1, 1, 1), ("2026-01-05", 1, 1, 1, 1)])}
+    run_estimator_day(st, Spy(), prices, "2026-01-06", S)
+    first = json.dumps(st.load_predictions("spy"), sort_keys=True)
+    prices["BBB"] = candles([("2026-01-02", 1, 1, 1, 1), ("2026-01-05", 1, 1, 1, 1)])
+
+    class SpyBoom(Boom):
+        name = "spy"
+
+    rec = run_estimator_day(st, SpyBoom(), prices, "2026-01-06", S)
+    assert rec["status"] == "failed"
+    assert st.load_runs("spy")[-1]["status"] == "failed"
+    assert json.dumps(st.load_predictions("spy"), sort_keys=True) == first
+
+
+def test_rerun_adds_newly_available_asset_and_asks_only_for_it(tmp_path):
+    st = Store(tmp_path)
+    a = candles([("2026-01-02", 1, 1, 1, 1), ("2026-01-05", 1, 1, 1, 1)])
+    run_estimator_day(st, Flaky(), {"AAA": a, "BBB": candles([("2026-01-06", 1, 1, 1, 1)])}, "2026-01-06", S)
+    first_a = st.load_predictions("flaky")["2026-01-06"]["predictions"]["AAA"]
+    est = Flaky()
+    est.calls = 5
+    prices = {"AAA": a, "BBB": candles([("2026-01-02", 1, 1, 1, 1), ("2026-01-05", 1, 1, 1, 1)])}
+    rec = run_estimator_day(st, est, prices, "2026-01-06", S)
+    preds = st.load_predictions("flaky")["2026-01-06"]["predictions"]
+    assert est.asked == ["BBB"] and rec["n_predictions"] == 2
+    assert preds["AAA"] == first_a and preds["BBB"]["expected_return"] == pytest.approx(0.006)
+
+
+def test_live_rerun_keeps_created_at(tmp_path):
+    st = Store(tmp_path)
+    prices = {"AAA": candles([("2026-01-02", 1, 1, 1, 1), ("2026-01-05", 1, 1, 1, 1)])}
+    t1 = datetime(2026, 1, 6, 0, 30, tzinfo=timezone.utc)
+    t2 = datetime(2026, 1, 6, 0, 40, tzinfo=timezone.utc)
+    run_estimator_day(st, Spy(), prices, "2026-01-06", S, now=t1)
+    run_estimator_day(st, Spy(), prices, "2026-01-06", S, now=t2)
+    assert st.load_predictions("spy")["2026-01-06"]["created_at"] == t1.isoformat()
+
+
+@pytest.mark.parametrize("pred", [
+    Prediction(0.01, confidence=math.nan),
+    Prediction(0.01, path=[1.0, math.inf]),
+])
+def test_non_finite_confidence_or_path_is_a_recorded_failure(tmp_path, pred):
+    class Fixed(Estimator):
+        name = "fixed"
+
+        def predict(self, history, assets):
+            return {a: pred for a in assets}
+
+    st = Store(tmp_path)
+    prices = {"AAA": candles([("2026-01-02", 1, 1, 1, 1), ("2026-01-05", 1, 1, 1, 1)])}
+    rec = run_estimator_day(st, Fixed(), prices, "2026-01-06", S)
+    assert rec["status"] == "failed" and "non-finite" in rec["error"]
+    assert st.load_predictions("fixed") == {}

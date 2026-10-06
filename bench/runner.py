@@ -60,11 +60,19 @@ def run_estimator_day(store, estimator, prices, run_date, settings, now=None):
         return rec
 
     need = assets_needing_prediction(store, name, history, run_date)
+    existing = store.load_predictions(name).get(run_date)
+    kept = {}
+    if existing:
+        for asset in need:
+            old = existing["predictions"].get(asset)
+            if old is not None and old["asof"] == history[asset]["date"].iloc[-1]:
+                kept[asset] = old  # already predicted (and possibly scored): never overwrite
+    remaining = [a for a in need if a not in kept]
     try:
-        raw = estimator.predict(history, list(need)) if need else {}
+        raw = estimator.predict(history, list(remaining)) if remaining else {}
         preds = {}
         for asset, p in raw.items():
-            if asset not in need:
+            if asset not in remaining:
                 continue
             _validate(asset, p)
             preds[asset] = {
@@ -73,13 +81,19 @@ def run_estimator_day(store, estimator, prices, run_date, settings, now=None):
                 "confidence": None if p.confidence is None else float(p.confidence),
                 "path": None if p.path is None else [float(x) for x in p.path],
             }
-        payload = {
-            "schema_version": SCHEMA_VERSION, "estimator": name, "run_date": run_date,
-            "created_at": None if now is None else now.astimezone(timezone.utc).isoformat(),
-            "predictions": preds,
-        }
-        store.save_prediction(name, run_date, payload)
-        rec.update(status="ok", n_predictions=len(preds))
+        if existing is None or preds:
+            created_at = existing["created_at"] if existing else (
+                None if now is None else now.astimezone(timezone.utc).isoformat())
+            payload = {
+                "schema_version": SCHEMA_VERSION, "estimator": name, "run_date": run_date,
+                "created_at": created_at,
+                "predictions": {**(existing["predictions"] if existing else {}), **kept, **preds},
+            }
+            store.save_prediction(name, run_date, payload)
+            total = len(payload["predictions"])
+        else:
+            total = len(existing["predictions"])
+        rec.update(status="ok", n_predictions=total)
     except Exception as e:  # an estimator may fail; the bench must not
         rec.update(status="failed", error=f"{type(e).__name__}: {e}")
     store.record_run(name, rec)
