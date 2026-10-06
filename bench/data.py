@@ -1,3 +1,5 @@
+import os
+import tempfile
 from datetime import date, timedelta
 from pathlib import Path
 
@@ -51,16 +53,31 @@ def update_prices(prices_dir, assets, start, fetch=fetch_asset):
     status = {}
     for a in assets:
         path = _path(prices_dir, a.symbol)
-        old = _read(path)
-        since = start
-        if not old.empty:
-            since = (date.fromisoformat(old["date"].iloc[-1]) - timedelta(days=10)).isoformat()
         try:
+            old = _read(path)
+            since = start
+            if not old.empty:
+                since = (date.fromisoformat(old["date"].iloc[-1]) - timedelta(days=10)).isoformat()
             new = fetch(a.symbol, since)
             if new is None or len(new) == 0:
                 raise ValueError("no rows returned")
-            merge_candles(old, new).to_csv(path, index=False, lineterminator="\n")
-            status[a.symbol] = "ok"
+            merged = merge_candles(old, new)
+            # Write atomically: temp file, then replace
+            with tempfile.NamedTemporaryFile(
+                mode="w", dir=path.parent, prefix=f".{path.name}.", suffix=".tmp", delete=False
+            ) as tmp:
+                tmp_path = tmp.name
+            try:
+                merged.to_csv(tmp_path, index=False, lineterminator="\n")
+                os.replace(tmp_path, path)
+                status[a.symbol] = "ok"
+            except Exception:
+                # Clean up temp file if write or replace failed
+                try:
+                    os.unlink(tmp_path)
+                except FileNotFoundError:
+                    pass
+                raise
         except Exception as e:  # recorded, never raised: one bad asset must not stop the run
             status[a.symbol] = f"error: {type(e).__name__}: {e}"
     return status

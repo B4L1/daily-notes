@@ -1,5 +1,4 @@
 import pandas as pd
-import pytest
 
 from bench.config import Asset
 from bench.data import (
@@ -99,3 +98,55 @@ def test_stale_assets():
               Asset("DDD", "stock", 5)]
     out = stale_assets(prices, assets, "2026-01-11")
     assert out == {"AAA": 9, "BBB": 3, "DDD": None}
+
+
+def test_update_atomic_write_cleans_up_on_failure(tmp_path, monkeypatch):
+    """Simulate write failure mid-operation: cache should be untouched and no temp file left."""
+    good = lambda s, since: candles([("2026-01-05", 1, 1, 1, 1)])
+    update_prices(tmp_path, ASSETS, "2019-01-01", fetch=good)
+    before = (tmp_path / "AAA.csv").read_text()
+
+    # Monkeypatch to_csv to succeed (create temp file) but raise on flush
+    import tempfile
+    import os
+    orig_to_csv = pd.DataFrame.to_csv
+    write_count = [0]
+
+    def failing_to_csv(self, path, *args, **kwargs):
+        write_count[0] += 1
+        if write_count[0] == 1:  # First call (AAA) fails mid-write
+            # Create the file to simulate partial write, then raise
+            with open(path, "w") as f:
+                f.write("corrupted")
+            raise OSError("simulated disk failure")
+        return orig_to_csv(self, path, *args, **kwargs)
+
+    monkeypatch.setattr(pd.DataFrame, "to_csv", failing_to_csv)
+
+    status = update_prices(tmp_path, ASSETS, "2019-01-01", fetch=good)
+    # First asset (AAA) should error, cache unchanged, no temp file
+    assert "error: OSError" in status["AAA"]
+    assert (tmp_path / "AAA.csv").read_text() == before
+    # No stray temp files (*.tmp pattern)
+    import glob
+    assert len(glob.glob(str(tmp_path / ".*.tmp"))) == 0
+
+
+def test_update_corrupt_cache_doesn_not_stop_other_assets(tmp_path):
+    """One asset with corrupt CSV reports error; other assets still update."""
+    assets = [Asset("AAA", "stock", 5), Asset("BBB", "stock", 5)]
+
+    # Write garbage into AAA's cache
+    (tmp_path / "AAA.csv").write_text("this is not a valid CSV\ninvalid data here\n")
+
+    def fake(symbol, since):
+        return candles([("2026-01-05", 1, 1, 1, 1)])
+
+    status = update_prices(tmp_path, assets, "2019-01-01", fetch=fake)
+    # AAA should error (corrupt cache read)
+    assert status["AAA"].startswith("error:")
+    # BBB should succeed (independent asset)
+    assert status["BBB"] == "ok"
+    # BBB file should be written, AAA file should remain corrupt
+    assert (tmp_path / "BBB.csv").exists()
+    assert (tmp_path / "AAA.csv").read_text() == "this is not a valid CSV\ninvalid data here\n"
