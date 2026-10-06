@@ -19,6 +19,25 @@ REGISTRY = {
         "source": "Baseline: predicts that the next return equals the last return",
         "license": "own code", "original_code": False,
     },
+    "analog": {
+        "target": "estimators.analog.predict:Analog",
+        "label": "Analog candle matching", "kind": "pattern",
+        "source": "Idea from CandleEdge-style historical pattern matching; our own reimplementation",
+        "license": "own code", "original_code": False,
+    },
+    "candle_rules": {
+        "target": "estimators.candle_rules.predict:CandleRules",
+        "label": "Candlestick pattern rules", "kind": "pattern",
+        "source": "Textbook rules: hammer, shooting star, engulfing; our own implementation",
+        "license": "own code", "original_code": False,
+    },
+    "xgb_indicators": {
+        "target": "estimators.xgb_indicators.predict:XgbIndicators",
+        "label": "XGBoost on indicators", "kind": "ml",
+        "source": "XGBoost regression on RSI, moving averages and recent returns; our own implementation",
+        "license": "own code (uses xgboost, Apache-2.0)", "original_code": False,
+        "requirements": "estimators/xgb_indicators/requirements.txt",
+    },
 }
 
 
