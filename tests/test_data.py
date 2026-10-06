@@ -107,8 +107,6 @@ def test_update_atomic_write_cleans_up_on_failure(tmp_path, monkeypatch):
     before = (tmp_path / "AAA.csv").read_text()
 
     # Monkeypatch to_csv to succeed (create temp file) but raise on flush
-    import tempfile
-    import os
     orig_to_csv = pd.DataFrame.to_csv
     write_count = [0]
 
@@ -132,7 +130,7 @@ def test_update_atomic_write_cleans_up_on_failure(tmp_path, monkeypatch):
     assert len(glob.glob(str(tmp_path / ".*.tmp"))) == 0
 
 
-def test_update_corrupt_cache_doesn_not_stop_other_assets(tmp_path):
+def test_update_corrupt_cache_does_not_stop_other_assets(tmp_path):
     """One asset with corrupt CSV reports error; other assets still update."""
     assets = [Asset("AAA", "stock", 5), Asset("BBB", "stock", 5)]
 
