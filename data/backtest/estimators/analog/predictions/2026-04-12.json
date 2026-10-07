@@ -1,0 +1,26 @@
+{
+ "created_at": null,
+ "estimator": "analog",
+ "predictions": {
+  "BTC-USD": {
+   "asof": "2026-04-11",
+   "confidence": 0.4666666666666667,
+   "expected_return": 0.00043991889527575194,
+   "path": null
+  },
+  "ETH-USD": {
+   "asof": "2026-04-11",
+   "confidence": 0.4,
+   "expected_return": 0.000294342967735269,
+   "path": null
+  },
+  "SOL-USD": {
+   "asof": "2026-04-11",
+   "confidence": 0.6666666666666666,
+   "expected_return": -0.005887320297861394,
+   "path": null
+  }
+ },
+ "run_date": "2026-04-12",
+ "schema_version": 1
+}

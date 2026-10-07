@@ -1,0 +1,26 @@
+{
+ "created_at": null,
+ "estimator": "xgb_indicators",
+ "predictions": {
+  "BTC-USD": {
+   "asof": "2026-10-04",
+   "confidence": null,
+   "expected_return": 0.0009481729357503355,
+   "path": null
+  },
+  "ETH-USD": {
+   "asof": "2026-10-04",
+   "confidence": null,
+   "expected_return": 0.000892894749995321,
+   "path": null
+  },
+  "SOL-USD": {
+   "asof": "2026-10-04",
+   "confidence": null,
+   "expected_return": 0.0016455822624266148,
+   "path": null
+  }
+ },
+ "run_date": "2026-10-05",
+ "schema_version": 1
+}
