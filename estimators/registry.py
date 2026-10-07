@@ -61,6 +61,14 @@ REGISTRY = {
         "requirements": "estimators/timesfm/requirements.txt",
         "setup": "estimators.timesfm.fetch_assets",
     },
+    "chronos": {
+        "target": "estimators.chronos.predict:Chronos",
+        "label": "Chronos-Bolt Tiny (pretrained)", "kind": "pretrained",
+        "source": "Amazon Chronos-Bolt (chronos-forecasting on PyPI, pinned) with amazon/chronos-bolt-tiny weights, median forecast, 5-day path",
+        "license": "Apache-2.0 (code) and Apache-2.0 (weights)", "original_code": True,
+        "requirements": "estimators/chronos/requirements.txt",
+        "setup": "estimators.chronos.fetch_assets",
+    },
 }
 
 
