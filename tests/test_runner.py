@@ -126,15 +126,17 @@ def test_assets_nobody_asked_for_are_ignored(tmp_path):
 def test_live_window():
     d = "2026-01-06"
     ok = datetime(2026, 1, 6, 0, 40, tzinfo=timezone.utc)
-    late = datetime(2026, 1, 6, 9, 0, tzinfo=timezone.utc)
+    ok_late = datetime(2026, 1, 6, 11, 59, tzinfo=timezone.utc)
+    late = datetime(2026, 1, 6, 12, 1, tzinfo=timezone.utc)
     early = datetime(2026, 1, 5, 23, 0, tzinfo=timezone.utc)
-    assert live_window_ok(d, ok) and not live_window_ok(d, late) and not live_window_ok(d, early)
+    assert live_window_ok(d, ok) and live_window_ok(d, ok_late)
+    assert not live_window_ok(d, late) and not live_window_ok(d, early)
 
 
 def test_late_run_settles_but_does_not_predict(tmp_path):
     st = Store(tmp_path)
     prices = {"AAA": candles([("2026-01-02", 1, 1, 1, 1), ("2026-01-05", 1, 1, 1, 1)])}
-    late = datetime(2026, 1, 6, 12, 0, tzinfo=timezone.utc)
+    late = datetime(2026, 1, 6, 13, 0, tzinfo=timezone.utc)
     rec = run_estimator_day(st, Spy(), prices, "2026-01-06", S, now=late)
     assert rec["status"] == "skipped_late"
     assert st.load_predictions("spy") == {}
@@ -169,7 +171,7 @@ def test_late_run_still_settles_before_skipping(tmp_path):
     st.save_prediction("spy", "2026-01-03", {"predictions": {
         "AAA": {"asof": "2026-01-02", "expected_return": 0.01, "confidence": None, "path": None}}})
     prices = {"AAA": candles([("2026-01-02", 99, 101, 98, 100), ("2026-01-05", 100, 103, 99, 102)])}
-    late = datetime(2026, 1, 6, 12, 0, tzinfo=timezone.utc)
+    late = datetime(2026, 1, 6, 13, 0, tzinfo=timezone.utc)
     rec = run_estimator_day(st, Spy(), prices, "2026-01-06", S, now=late)
     assert rec["status"] == "skipped_late"
     assert st.load_equity("spy")["equity"].iloc[0] == pytest.approx(10190.0)

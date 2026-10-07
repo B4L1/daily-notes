@@ -4,7 +4,7 @@ from datetime import date, datetime, timedelta, timezone
 from bench.broker import settle_estimator
 from bench.store import SCHEMA_VERSION
 
-LIVE_WINDOW_HOURS = 6
+LIVE_WINDOW_HOURS = 12
 
 
 def cutoff_for(run_date):

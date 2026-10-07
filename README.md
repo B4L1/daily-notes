@@ -20,7 +20,7 @@ The trading rules are the same for every account: the full balance carries over 
 
 Two stated approximations:
 
-- A crypto trade enters at the 00:00 UTC open, and its prediction is committed 30 to 60 minutes later.
+- A crypto trade enters at the 00:00 UTC open, and its prediction is committed up to 12 hours later (the cron fires at 00:30 UTC but GitHub can start it late), using only data from before that day.
 - Trading is open to close, so overnight gaps are ignored. That is why buy-and-hold is drawn as a reference line, not as an account.
 
 ## Reading the dashboard
@@ -98,7 +98,7 @@ python -m http.server -d site 8000
 
 Then open http://localhost:8000. `aggregate` writes `site/data/`, which is not committed.
 
-Other commands: `python -m bench.cli fetch` refreshes the price cache in `data/prices/`, `python -m bench.cli backfill --estimator <name> --days 365` replays the past, and `python -m bench.cli run --estimator <name> --run-date YYYY-MM-DD` does one live day (it only predicts within 6 hours after 00:00 UTC of that date, by design). Data layout: `data/live/` and `data/backtest/` each hold `estimators/<name>/` with `predictions/`, `ledger.csv`, `equity.csv` and `runs.jsonl`.
+Other commands: `python -m bench.cli fetch` refreshes the price cache in `data/prices/`, `python -m bench.cli backfill --estimator <name> --days 365` replays the past, and `python -m bench.cli run --estimator <name> --run-date YYYY-MM-DD` does one live day (it only predicts within 12 hours after 00:00 UTC of that date, by design). Data layout: `data/live/` and `data/backtest/` each hold `estimators/<name>/` with `predictions/`, `ledger.csv`, `equity.csv` and `runs.jsonl`.
 
 To reset a backtest, delete `data/backtest/estimators/<name>` (or the whole `data/backtest/estimators` folder), commit, and run the `backfill` workflow from the Actions tab. Live data is never reset.
 
