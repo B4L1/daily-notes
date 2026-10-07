@@ -1,6 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { cellColor, signMark, fmtPct, fmtUsd, calendarCells, luckText, hitDeviation, dayHit } from "./lib.js";
+import { cellColor, signMark, fmtPct, fmtUsd, calendarCells, luckText, hitDeviation, dayHit,
+  testedCount, luckThreshold, staleness, freshnessText, validPalette, strideNote, HOLD_LABEL } from "./lib.js";
 
 test("fmtPct keeps the sign and handles missing values", () => {
   assert.equal(fmtPct(0.0123), "+1.23%");
@@ -87,4 +88,56 @@ test("dayHit averages the non-null hits", () => {
 test("calendarCells starting on a Sunday uses row 0", () => {
   const cells = calendarCells(["2026-01-04", "2026-01-05"]);
   assert.deepEqual(cells.map((c) => [c.col, c.row]), [[0, 0], [0, 1]]);
+});
+
+test("Bonferroni threshold is 0.05 over the non-control estimators", () => {
+  const est = [{ kind: "control" }, { kind: "control" }, { kind: "ml" }, { kind: "pretrained" }, { kind: "pattern" }, { kind: "ml" }];
+  assert.equal(testedCount(est), 4);
+  assert.equal(testedCount(null), 0);
+  assert.equal(luckThreshold(4), 0.0125);
+  assert.equal(luckThreshold(0), 0.05);
+  assert.equal(luckThreshold(undefined), 0.05);
+});
+
+test("luckText applies the corrected threshold and shows it", () => {
+  const row = { n_days: 90, too_early: false, p_value: 0.02 };
+  assert.match(luckText(row, 1), /^unlikely luck/);
+  assert.match(luckText(row, 8), /^consistent with luck \(p=0\.02, not below 0\.05\/8 = 0\.0063\)/);
+  assert.match(luckText({ ...row, p_value: 0.004 }, 8), /^unlikely luck \(p=0\.004, below 0\.05\/8 = 0\.0063\)/);
+  assert.equal(luckText({ n_days: 10, too_early: true, p_value: 0.001 }, 8), "too early to tell (10 days so far)");
+});
+
+test("staleness flags data older than 36 hours and is null-safe", () => {
+  const now = new Date("2026-10-08T12:00:00Z");
+  assert.deepEqual(staleness("2026-10-08T00:30:00Z", now), { stale: false, ageHours: 11.5 });
+  assert.equal(staleness("2026-10-06T23:59:59Z", now).stale, true);
+  assert.equal(staleness("2026-10-07T00:00:00Z", now).stale, false); // exactly 36 h
+  assert.deepEqual(staleness(null, now), { stale: true, ageHours: null });
+  assert.deepEqual(staleness(undefined, now), { stale: true, ageHours: null });
+  assert.deepEqual(staleness("garbage", now), { stale: true, ageHours: null });
+});
+
+test("freshnessText shows run date and generation time, null-safe", () => {
+  assert.equal(freshnessText({ run_date: "2026-10-07", generated_at: "2026-10-07T01:02:03Z" }),
+    "Data as of 2026-10-07, generated 2026-10-07 01:02:03 UTC");
+  assert.match(freshnessText(null), /unknown/);
+});
+
+test("validPalette falls back to default", () => {
+  assert.equal(validPalette("cvd"), "cvd");
+  assert.equal(validPalette("default"), "default");
+  for (const bad of ["neon", "", null, undefined, "__proto__", "toString", 3]) assert.equal(validPalette(bad), "default");
+});
+
+test("strideNote warns only when an estimator is evaluated every Nth day", () => {
+  assert.equal(strideNote({ backfill_stride: 1 }), null);
+  assert.equal(strideNote({}), null);
+  assert.equal(strideNote(null), null);
+  assert.equal(strideNote({ backfill_stride: 3 }), "evaluated every 3rd day: balance not comparable");
+  assert.equal(strideNote({ backfill_stride: 2 }), "evaluated every 2nd day: balance not comparable");
+  assert.equal(strideNote({ backfill_stride: 5 }), "evaluated every 5th day: balance not comparable");
+});
+
+test("the reference line is named for what it computes", () => {
+  assert.match(HOLD_LABEL, /^Equal-weight daily rebalanced hold/);
 });

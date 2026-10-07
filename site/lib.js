@@ -49,12 +49,60 @@ export function calendarCells(dates) {
   return cells;
 }
 
-export function luckText(row) {
+export const HOLD_LABEL = "Equal-weight daily rebalanced hold (assets with a session that day, no costs)";
+export const STALE_HOURS = 36;
+const ALPHA = 0.05;
+
+// Number of estimators that get a luck check: everything that is not a control.
+export function testedCount(estimators) {
+  return (estimators ?? []).filter((e) => e && e.kind !== "control").length;
+}
+
+// Bonferroni: with N estimators tested, one p < 0.05 is expected by chance, so use 0.05 / N.
+export function luckThreshold(nTests) {
+  const n = Number.isFinite(nTests) && nTests >= 1 ? Math.floor(nTests) : 1;
+  return ALPHA / n;
+}
+
+function thresholdText(n) {
+  const t = luckThreshold(n);
+  return n > 1 ? `0.05/${Math.floor(n)} = ${t.toFixed(4)}` : "0.05";
+}
+
+export function luckText(row, nTests = 1) {
   if (!row.n_days) return "no data";
   if (row.too_early) return `too early to tell (${row.n_days} day${row.n_days === 1 ? "" : "s"} so far)`;
-  return row.p_value < 0.05
-    ? `unlikely luck (p=${row.p_value.toFixed(3)})`
-    : `consistent with luck (p=${row.p_value.toFixed(2)})`;
+  const limit = thresholdText(nTests);
+  return row.p_value < luckThreshold(nTests)
+    ? `unlikely luck (p=${row.p_value.toFixed(3)}, below ${limit})`
+    : `consistent with luck (p=${row.p_value.toFixed(2)}, not below ${limit})`;
+}
+
+// Data freshness. generated_at is an ISO UTC string; null-safe: unknown age counts as stale.
+export function staleness(generatedAt, now = new Date(), limitHours = STALE_HOURS) {
+  const t = typeof generatedAt === "string" ? Date.parse(generatedAt) : NaN;
+  const n = now instanceof Date ? now.getTime() : Date.parse(now);
+  if (!Number.isFinite(t) || !Number.isFinite(n)) return { stale: true, ageHours: null };
+  const ageHours = (n - t) / 3600000;
+  return { stale: ageHours > limitHours, ageHours };
+}
+
+export function freshnessText(summary) {
+  const run = summary?.run_date ?? "unknown";
+  const gen = summary?.generated_at ?? "unknown";
+  return `Data as of ${run}, generated ${String(gen).replace("T", " ").replace(/Z$/, "")} UTC`;
+}
+
+export function validPalette(p) {
+  return typeof p === "string" && Object.prototype.hasOwnProperty.call(PALETTES, p) ? p : "default";
+}
+
+// Backtest only: an estimator evaluated every Nth day sits in cash on the other days.
+export function strideNote(meta) {
+  const n = Number(meta?.backfill_stride);
+  if (!Number.isFinite(n) || n <= 1) return null;
+  const ord = n === 2 ? "2nd" : n === 3 ? "3rd" : n + "th";
+  return `evaluated every ${ord} day: balance not comparable`;
 }
 
 export function dayHit(d) {

@@ -1,4 +1,5 @@
-import { cellColor, signMark, fmtPct, fmtUsd, calendarCells, luckText, hitDeviation, dayHit } from "./lib.js";
+import { cellColor, signMark, fmtPct, fmtUsd, calendarCells, luckText, hitDeviation, dayHit,
+  testedCount, staleness, freshnessText, validPalette, strideNote, HOLD_LABEL } from "./lib.js";
 import { lineChart, sparkline } from "./charts.js";
 
 const COLORS = ["#58a6ff", "#d29922", "#3fb950", "#bc8cff", "#f778ba", "#39c5cf", "#ff7b72", "#ffa657", "#7ee787", "#a5d6ff"];
@@ -11,7 +12,7 @@ const store = (k, d) => { try { return localStorage.getItem(k) ?? d; } catch { r
 const keep = (k, v) => { try { localStorage.setItem(k, v); } catch { /* storage unavailable: fine */ } };
 
 const storedMode = store("mode", "live");
-const state = { mode: storedMode === "backtest" ? "backtest" : "live", palette: store("palette", "default"), summary: null, detail: {} };
+const state = { mode: storedMode === "backtest" ? "backtest" : "live", palette: validPalette(store("palette", "default")), summary: null, detail: {} };
 
 export function el(tag, attrs = {}, ...kids) {
   const n = document.createElement(tag);
@@ -33,6 +34,7 @@ async function getJSON(url) {
 
 const meta = () => Object.fromEntries(state.summary.estimators.map((e) => [e.name, e]));
 const block = () => state.summary.modes[state.mode];
+const nTests = () => testedCount(state.summary.estimators);
 
 function colorMap() {
   const out = {};
@@ -116,6 +118,7 @@ function renderOverview(view) {
     const r = b.rows[n];
     strip.append(el("a", { class: "tile", href: `#/e/${n}`, style: `color:${colors[n]}` },
       el("div", { class: "tile-name" }, m[n].label),
+      state.mode === "backtest" && strideNote(m[n]) ? el("div", { class: "badge" }, strideNote(m[n])) : null,
       el("div", { class: "tile-bal", style: "color:var(--text)" }, fmtUsd(r.balance)),
       el("div", { class: trend(r.day_return) }, `${signMark(r.day_return)} ${fmtPct(r.day_return)}  (${r.day_change == null ? "n/a" : (r.day_change >= 0 ? "+" : "-") + fmtUsd(Math.abs(r.day_change))})`),
       sparkline(r.spark ?? []),
@@ -127,7 +130,7 @@ function renderOverview(view) {
   const chart = el("div", {});
   view.append(chart);
   const series = active.map((n) => ({ name: m[n].label, color: colors[n], dashed: m[n].kind === "control", points: b.equity[n] ?? [] }));
-  series.push({ name: "Buy and hold (reference, no costs)", color: "#8b949e", dashed: true, points: b.hold ?? [] });
+  series.push({ name: HOLD_LABEL, color: "#8b949e", dashed: true, points: b.hold ?? [] });
   lineChart(chart, series);
 
   view.append(el("h2", {}, "Leaderboard"));
@@ -143,8 +146,8 @@ function renderOverview(view) {
       el("td", {}, hit(r.hit_rate)), el("td", {}, hit(r.hit_rate_down)),
       el("td", {}, fmtPct(r.max_drawdown)), el("td", {}, fmtPct(r.worst_day)),
       el("td", {}, (r.trades_per_day == null ? "n/a" : r.trades_per_day.toFixed(1))),
-      el("td", {}, m[n].kind === "control" ? "baseline" : luckText(r)),
-      el("td", {}, ...badges(r), r.status === "ok" ? "ok" : r.status === "no_run" ? "not run yet" : ""));
+      el("td", {}, m[n].kind === "control" ? "baseline" : luckText(r, nTests())),
+      el("td", {}, ...badges(r), state.mode === "backtest" && strideNote(m[n]) ? strideNote(m[n]) + " " : "", r.status === "ok" ? "ok" : r.status === "no_run" ? "not run yet" : ""));
   });
   view.append(el("div", { class: "tablewrap" }, el("table", {}, el("thead", {}, el("tr", {}, ...head.map((h) => el("th", {}, h)))), el("tbody", {}, ...rows))));
   view.append(el("p", { class: "note" }, "Edge is the average daily return minus the random control's. Trades/day near 0 means the estimator mostly stayed in cash."));
@@ -164,6 +167,17 @@ function renderTabs(route) {
   for (const e of state.summary.estimators) tabs.append(link(`#/e/${e.name}`, e.label, route === `e/${e.name}`));
 }
 
+function renderFreshness(view) {
+  const f = staleness(state.summary.generated_at, new Date());
+  const footer = document.getElementById("freshness");
+  if (footer) footer.textContent = freshnessText(state.summary);
+  if (!f.stale) return;
+  const age = f.ageHours === null ? "its age is unknown" : `it is ${Math.floor(f.ageHours)} hours old`;
+  view.append(el("div", { class: "panel warn", role: "alert" },
+    el("h3", {}, "Data may be out of date"),
+    el("p", {}, `${freshnessText(state.summary)}; ${age}. The daily run may have failed or been skipped; check the Actions tab.`)));
+}
+
 export function render() {
   const route = location.hash.replace(/^#\/?/, "");
   const view = document.getElementById("view");
@@ -174,6 +188,7 @@ export function render() {
     return;
   }
   renderTabs(route);
+  renderFreshness(view);
   if (route.startsWith("e/")) {
     let name;
     try { name = decodeURIComponent(route.slice(2)); } catch { name = null; }
@@ -203,7 +218,7 @@ function statsPanel(s, kind) {
     ["Balance", fmtUsd(s.balance)], ["Return", `${signMark(s.total_return)} ${fmtPct(s.total_return)}`],
     ["Days settled", String(s.n_days)], ["Hit rate", hitText(s.hit_rate)], ["Down calls hit", hitText(s.hit_rate_down)],
     ["Max drawdown", fmtPct(s.max_drawdown)], ["Worst day", fmtPct(s.worst_day)], ["Trades per day", s.trades_per_day == null ? "n/a" : s.trades_per_day.toFixed(1)],
-    ["Luck check", kind === "control" ? "baseline" : luckText(s)],
+    ["Luck check", kind === "control" ? "baseline" : luckText(s, nTests())],
   ];
   return el("div", { class: "stats" }, ...items.map(([k, v]) => el("div", { class: "stat" }, el("span", { class: "dim" }, k), el("b", {}, v))));
 }
@@ -266,6 +281,7 @@ async function renderEstimator(view, name) {
   view.append(el("h2", {}, m.label));
   view.append(el("p", { class: "dim" }, `${m.kind} · ${m.source} · licence: ${m.license} · ${m.original_code ? "original code" : "our own implementation"}`));
   if (state.mode === "backtest") view.append(el("p", { class: "note" }, "Backtest: each day replayed using only earlier data. Pretrained models may have seen this period in training, so their backtest numbers may be optimistic."));
+  if (state.mode === "backtest" && strideNote(m)) view.append(el("p", { class: "warn" }, strideNote(m)));
   if (!mode.days.length) {
     view.append(panel(state.mode === "live" ? "No settled days yet" : "No backtest data yet", state.mode === "live" ? "Its predictions are being logged. Results appear after the next trading session closes." : "Run the backfill workflow to fill in the past year."));
     return;
@@ -279,7 +295,7 @@ async function renderEstimator(view, name) {
   const b = block();
   const series = [{ name: m.label, color: "#58a6ff", dashed: false, points: mode.equity }];
   if (name !== "control_random") series.push({ name: "Random coin (control)", color: CONTROL_COLOR, dashed: true, points: b.equity.control_random ?? [] });
-  series.push({ name: "Buy and hold (reference, no costs)", color: "#8b949e", dashed: true, points: b.hold ?? [] });
+  series.push({ name: HOLD_LABEL, color: "#8b949e", dashed: true, points: b.hold ?? [] });
   lineChart(chart, series);
 
   view.append(el("h2", {}, "Daily account return"), calendar(mode.days, (x) => x.day_return, PNL_SCALE, "daily return", (v) => v, (v) => `${signMark(v)} ${fmtPct(v)}`));
