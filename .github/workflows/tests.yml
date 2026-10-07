@@ -1,0 +1,32 @@
+name: tests
+
+# Runs the test suites on code changes only. Never on a schedule: scheduled runs are the bench itself.
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: tests-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - run: pip install -r requirements-dev.txt
+      # The heavy estimators' contract tests skip themselves when torch is not installed.
+      - run: python -m pytest -q
+      - run: node --test site/lib.test.js

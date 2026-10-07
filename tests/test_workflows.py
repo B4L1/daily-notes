@@ -211,3 +211,22 @@ def test_asset_cache_is_one_static_entry_per_estimator_and_pin_set():
         assert "run_id" not in key and "restore-keys" not in cache["with"]  # no new ~1 GB entry per run
         assert "matrix.estimator" in key and "estimators/{0}/fetch_assets.py" in key
         assert cache["with"]["path"].split("#")[0].strip() == "data/cache"  # prices travel as an artifact, not here
+
+
+def test_tests_workflow_runs_on_push_and_pr_only_never_on_a_schedule():
+    _, doc = load("tests.yml")
+    trig = triggers(doc)
+    assert set(trig) == {"push", "pull_request"}
+    assert trig["push"]["branches"] == ["main"]
+    assert doc["permissions"] == {"contents": "read"}
+    assert all("timeout-minutes" in j for j in doc["jobs"].values())
+    steps = [s for j in doc["jobs"].values() for s in j["steps"]]
+    for s in steps:
+        if "uses" in s:
+            assert "@v" in s["uses"], s  # pinned to a major version like the other workflows
+    runs = [s.get("run", "") for s in steps]
+    assert "pip install -r requirements-dev.txt" in runs
+    assert "python -m pytest -q" in runs
+    assert "node --test site/lib.test.js" in runs
+    py = next(s for s in steps if s.get("uses", "").startswith("actions/setup-python"))
+    assert py["with"]["python-version"] == "3.12"
