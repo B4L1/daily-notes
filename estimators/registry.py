@@ -38,6 +38,13 @@ REGISTRY = {
         "license": "own code (uses xgboost, Apache-2.0)", "original_code": False,
         "requirements": "estimators/xgb_indicators/requirements.txt",
     },
+    "statsforecast_auto": {
+        "target": "estimators.statsforecast_auto.predict:StatsforecastAuto",
+        "label": "AutoETS (statsforecast)", "kind": "ml",
+        "source": "Nixtla statsforecast AutoETS on the last 256 closes, 5-day path; depends on the pinned package",
+        "license": "Apache-2.0 (statsforecast)", "original_code": True,
+        "requirements": "estimators/statsforecast_auto/requirements.txt",
+    },
 }
 
 
