@@ -1,0 +1,26 @@
+{
+ "created_at": null,
+ "estimator": "lstm",
+ "predictions": {
+  "BTC-USD": {
+   "asof": "2025-11-15",
+   "confidence": null,
+   "expected_return": 0.0002671799808740616,
+   "path": null
+  },
+  "ETH-USD": {
+   "asof": "2025-11-15",
+   "confidence": null,
+   "expected_return": -0.00024257399141788482,
+   "path": null
+  },
+  "SOL-USD": {
+   "asof": "2025-11-15",
+   "confidence": null,
+   "expected_return": 0.00038295842707157133,
+   "path": null
+  }
+ },
+ "run_date": "2025-11-16",
+ "schema_version": 1
+}
