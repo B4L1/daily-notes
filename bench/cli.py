@@ -38,6 +38,16 @@ def cmd_requirements(args, now):
     return 0
 
 
+def cmd_setup(args, now):
+    """Run an estimator's one-off preparation (weights, pinned sources), if it has one."""
+    import importlib
+
+    module = registry.REGISTRY[args.estimator].get("setup")
+    if module:
+        importlib.import_module(module).main()
+    return 0
+
+
 def cmd_fetch(args, now):
     settings, assets = load_config(_assets_file())
     status = update_prices(
@@ -108,6 +118,8 @@ def main(argv=None, now=None):
     sub.add_parser("fetch")
     r = sub.add_parser("requirements")
     r.add_argument("--estimator", required=True)
+    r = sub.add_parser("setup")
+    r.add_argument("--estimator", required=True)
     r = sub.add_parser("run")
     r.add_argument("--estimator", required=True)
     r.add_argument("--run-date")
@@ -122,7 +134,7 @@ def main(argv=None, now=None):
     n.add_argument("--failure", action="store_true")
     args = p.parse_args(argv)
     commands = {
-        "list": cmd_list, "requirements": cmd_requirements, "fetch": cmd_fetch, "run": cmd_run,
+        "list": cmd_list, "requirements": cmd_requirements, "setup": cmd_setup, "fetch": cmd_fetch, "run": cmd_run,
         "backfill": cmd_backfill, "aggregate": cmd_aggregate, "notify": cmd_notify,
     }
     return commands[args.cmd](args, now)

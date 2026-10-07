@@ -80,6 +80,7 @@ jobs:
           pip install -r requirements.txt
           REQ=$(python -m bench.cli requirements --estimator "$ESTIMATOR")
           if [ -n "$REQ" ]; then pip install -r "$REQ"; fi
+          python -m bench.cli setup --estimator "$ESTIMATOR"
       - name: Backfill
         env:
           ESTIMATOR: ${{ matrix.estimator }}

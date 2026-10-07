@@ -45,6 +45,14 @@ REGISTRY = {
         "license": "Apache-2.0 (statsforecast)", "original_code": True,
         "requirements": "estimators/statsforecast_auto/requirements.txt",
     },
+    "kronos": {
+        "target": "estimators.kronos.predict:Kronos",
+        "label": "Kronos-small (pretrained)", "kind": "pretrained",
+        "source": "Kronos candlestick foundation model (shiyu-coder/Kronos, pinned commit) with NeoQuasar/Kronos-small weights, greedy 5-day path",
+        "license": "MIT (code) and MIT (weights)", "original_code": True,
+        "requirements": "estimators/kronos/requirements.txt",
+        "setup": "estimators.kronos.fetch_assets",
+    },
 }
 
 

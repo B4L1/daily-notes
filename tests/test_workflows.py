@@ -187,3 +187,12 @@ def test_topic_only_in_notify_step_env():
             for step in job["steps"]:
                 if "NTFY_TOPIC" in step.get("env", {}):
                     assert jname == "notify" and step["name"].startswith("Notify")
+
+
+def test_predict_jobs_prepare_estimator_assets_after_installing_requirements():
+    # Pretrained models need weights and pinned sources in the cache before predict runs offline.
+    for name in ("daily.yml", "backfill.yml"):
+        text, _ = load(name)
+        assert text.index('pip install -r "$REQ"') < text.index("bench.cli setup --estimator")
+        action = "bench.cli run" if name == "daily.yml" else "bench.cli backfill"
+        assert text.index("bench.cli setup --estimator") < text.index(action)
