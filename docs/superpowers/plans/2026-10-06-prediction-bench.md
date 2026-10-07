@@ -18,7 +18,7 @@
 - Long-only. Trade when `expected_return > trade_threshold` (default equals `cost_round_trip`). Enter at the target session's open, exit at its close. Cost 0.1% round trip (`cost_round_trip: 0.001`), charged on every trade.
 - Nothing is invented: a failed estimator stays in cash and is recorded `failed`; a failed price fetch leaves the asset stale; no value is ever filled in from a previous day.
 - The harness gives an estimator only candles dated `<= run_date - 1 day`. Predictions are written before their outcome exists.
-- Daily schedule is cron `30 0 * * *` (00:30 UTC). A live run that starts more than 12 hours after 00:00 UTC (originally 6; widened after the first scheduled run started 5h43m late) of its run date records `skipped_late` and makes no prediction.
+- Daily schedule is cron `30 0 * * *` (00:30 UTC). A live run that starts more than 11 hours after 00:00 UTC (originally 6, then 12; widened after the first scheduled run started 5h43m late) of its run date records `skipped_late` and makes no prediction.
 - Backtest and live are separate stores (`data/backtest`, `data/live`), shown behind a Live / Backtest switch. Pretrained-model backtests are labelled "may be optimistic".
 - The repo is public. The ntfy topic lives only in the GitHub secret `NTFY_TOPIC`; never in code, logs or the repo. Notifications use ntfy priority 2 (low).
 - Every data file set carries `schema_version` 1 (the `SCHEMA` marker file in each data root).
@@ -2794,7 +2794,7 @@ Expected: all tests pass.
 <footer>
   Paper trading experiment on public price data. Not investment advice.
   Each prediction is committed before the session it trades; a crypto trade enters at the
-  00:00 UTC open and its prediction is committed up to 12 hours later.
+  00:00 UTC open and its prediction is made up to 11 hours later.
 </footer>
 <script type="module" src="app.js"></script>
 </body>

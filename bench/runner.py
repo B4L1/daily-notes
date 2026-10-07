@@ -4,7 +4,9 @@ from datetime import date, datetime, timedelta, timezone
 from bench.broker import settle_estimator
 from bench.store import SCHEMA_VERSION
 
-LIVE_WINDOW_HOURS = 12
+# Worst case: window (11 h) + predict job (up to 45 min) + aggregate/commit (up to 20 min) is about 12h05,
+# still before the ~13:30 UTC US open.
+LIVE_WINDOW_HOURS = 11
 
 
 def cutoff_for(run_date):

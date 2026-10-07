@@ -126,8 +126,8 @@ def test_assets_nobody_asked_for_are_ignored(tmp_path):
 def test_live_window():
     d = "2026-01-06"
     ok = datetime(2026, 1, 6, 0, 40, tzinfo=timezone.utc)
-    ok_late = datetime(2026, 1, 6, 11, 59, tzinfo=timezone.utc)
-    late = datetime(2026, 1, 6, 12, 1, tzinfo=timezone.utc)
+    ok_late = datetime(2026, 1, 6, 10, 59, tzinfo=timezone.utc)
+    late = datetime(2026, 1, 6, 11, 1, tzinfo=timezone.utc)
     early = datetime(2026, 1, 5, 23, 0, tzinfo=timezone.utc)
     assert live_window_ok(d, ok) and live_window_ok(d, ok_late)
     assert not live_window_ok(d, late) and not live_window_ok(d, early)

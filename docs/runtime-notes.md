@@ -27,7 +27,7 @@ The longest job is about 75 s against the 340 minute job limit, so the cheap est
 | deploy | ~8 s |
 | notify | ~20 s (no `NTFY_TOPIC` secret set yet, so it skipped quietly) |
 
-Total about 4 runner minutes per day; longest single job about 35 s against the 45 minute `timeout-minutes`. Run outside the first 6 hours of the UTC day (the window was 6 hours then; it is now 12), so every estimator recorded `skipped_late`; that is the designed behaviour.
+Total about 4 runner minutes per day; longest single job about 35 s against the 45 minute `timeout-minutes`. Run outside the first 6 hours of the UTC day (the window was 6 hours then; it is now 11), so every estimator recorded `skipped_late`; that is the designed behaviour.
 
 ## Found by the first cloud run
 
@@ -35,10 +35,10 @@ The backfill `commit` job failed once: `git pull --rebase` refuses to run with u
 
 ## First scheduled run
 
-Created 2026-10-07 06:13:45 UTC against a 00:30 cron (about 5h43m late). The 6-hour window made every estimator `skipped_late`, so no live prediction was made for that day. The window was widened to 12 hours (`LIVE_WINDOW_HOURS`), which ends at 12:00 UTC, still before the first US session opens at about 13:30 UTC. Estimators only see candles dated before the run date, so a later start adds no look-ahead in data; the cost is that a crypto prediction can be committed up to 12 hours after that day's 00:00 UTC candle opens, which the dashboard footer and README state. That run's aggregate step also failed on the adjusted-price mismatch fixed earlier (commit 1649396).
+Created 2026-10-07 06:13:45 UTC against a 00:30 cron (about 5h43m late). The 6-hour window made every estimator `skipped_late`, so no live prediction was made for that day. The window was widened to 12 hours and then set to 11 hours (`LIVE_WINDOW_HOURS`), which ends at 11:00 UTC; the worst case (window, plus a predict job of up to 45 minutes, plus aggregate and commit of up to 20 minutes) still lands before the first US session opens at about 13:30 UTC, which 12 hours would not guarantee. Estimators only see candles dated before the run date, so a later start adds no look-ahead in data; the cost is that a crypto prediction can be committed up to 11 hours after that day's 00:00 UTC candle opens, which the dashboard footer and README state. That run's aggregate step also failed on the adjusted-price mismatch fixed earlier (commit 1649396).
 
 ## Still to measure
 
-- The first scheduled 00:30 UTC run: how late GitHub starts it (the live window is now 12 hours; see "First scheduled run").
+- The first scheduled 00:30 UTC run: how late GitHub starts it (the live window is now 11 hours; see "First scheduled run").
 - Heavy estimators once they exist (Task 15).
 - Do not run a backfill near 00:30 UTC: both workflows share the `bench-data` concurrency group, so a long backfill delays the daily run.
