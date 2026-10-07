@@ -26,7 +26,10 @@ def _status_for(runs, run_date):
 
 
 def _hold_curve(prices, dates, start_equity):
-    """Equal-weight close-to-close buy and hold, no costs. A reference line, not an account."""
+    """Equal-weight daily rebalanced hold (mean return of the assets with a session that day, no costs).
+
+    Not a true buy-and-hold of a fixed basket. A reference line, not an account.
+    """
     per_date = {}
     for df in prices.values():
         d, c = df["date"].tolist(), df["close"].tolist()

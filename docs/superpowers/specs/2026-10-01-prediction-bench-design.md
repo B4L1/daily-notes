@@ -64,7 +64,7 @@ site/                       static dashboard, built from data/
 4. **Aggregate** (runs even if some estimators failed): merge results, rebuild the site, commit the `data/` changes.
 5. **Notify** through ntfy.
 
-**Idempotency.** A run is keyed by date. Re-running the same day overwrites that day's files and never double-counts. A workflow concurrency group prevents two runs overlapping. GitHub's cron can start late, so nothing depends on the exact start time.
+**Idempotency.** A run is keyed by date. Re-running the same day keeps the existing predictions for the same asset and as-of date and never double-counts. A workflow concurrency group prevents two runs overlapping. GitHub's cron can start late, so nothing depends on the exact start time.
 
 **Predictions are written before their outcome exists**, and the commit history is the audit trail. The harness gives an estimator only candles up to and including the prediction date. A test enforces this (section 11).
 
@@ -86,7 +86,7 @@ Every estimator implements one function: given price history up to date *t* for 
 | LSTM on technical indicators | trained weekly | As above. |
 | Candlestick pattern rules | no training | Rules from `pandas-ta-classic` patterns. |
 
-**Controls**, scored on identical rules: always-long (trades every asset every day, paying the same costs), random coin flip, "tomorrow equals today". A true buy-and-hold line (equal-weight, close to close, no costs) is drawn on the charts as a reference line, not as an account, because the daily open-to-close broker misses overnight gains and so is not comparable to holding.
+**Controls**, scored on identical rules: always-long (trades every asset every day, paying the same costs), random coin flip, "tomorrow equals today". An equal-weight daily rebalanced hold line (the mean close-to-close return of the assets with a session that day, compounded, no costs; not a true buy-and-hold of a fixed basket) is drawn on the charts as a reference line, not as an account, because the daily open-to-close broker misses overnight gains and so is not comparable to holding.
 
 **Source caveats.** The four repos named by the owner were not verified to install and run. For each, the first attempt is to wrap the original code. Where it is unusable as a library, the core idea is reimplemented and the estimator's tab says so and credits the source. Freqtrade is not an estimator. It is used only as a reference, and the bench has its own lightweight paper broker so every estimator is scored by the same code. The Kronos repository found during research looked like a fork, so the official source and its licence are confirmed before use.
 

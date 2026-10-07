@@ -21,7 +21,7 @@ The trading rules are the same for every account: the full balance carries over 
 Two stated approximations:
 
 - A crypto trade enters at the 00:00 UTC open, and its prediction is made up to 11 hours later (the cron fires at 00:30 UTC but GitHub can start it late; a run that starts after the 11-hour live window records `skipped_late`, so even the slowest accepted run commits before the US open at about 13:30 UTC), using only data from before that day.
-- Trading is open to close, so overnight gaps are ignored. That is why buy-and-hold is drawn as a reference line, not as an account.
+- Trading is open to close, so overnight gaps are ignored. That is why the hold line is drawn as a reference, not as an account.
 
 ## Reading the dashboard
 
@@ -29,33 +29,36 @@ The dashboard is a static page (no login, no input). The ntfy message links to i
 
 - **Live / Backtest switch.** Live is the real record: each prediction was committed before its session. Backtest replays the past year day by day, with each day seeing only earlier data. The two are separate accounts with separate charts, and are never combined. Pretrained models may have seen the backtest period in training, so their backtest numbers may be optimistic; live is the real verdict.
 - **Wallet strip.** One tile per account: balance, today's change, a small sparkline. Sorted by balance. A "check this" badge appears on a gain of more than 10% in a day or 50% in a week, because returns that large are more likely a bug or a data leak than skill.
-- **Hold line.** The dashed grey line on the charts is an equal-weight buy-and-hold of the same assets, close to close, with no costs. It is a reference, not an account.
+- **Hold line.** The dashed grey line on the charts is an "Equal-weight daily rebalanced hold (assets with a session that day, no costs)": each day, the mean close-to-close return of the assets that had a session that day, compounded, with no costs. It is not a buy-and-hold of a fixed basket, and it is a reference, not an account.
 - **Heatmaps.** One row per estimator, one column per day: (1) daily account return, (2) direction hit rate. Brighter means a bigger magnitude; green and red (or blue and orange, with the colour-blind palette button). Each cell also carries a sign marker in its tooltip.
-- **Luck check.** For each estimator, a one-sided sign-flip permutation test on its daily return minus the random control's. "Unlikely luck" means p below 0.05; "consistent with luck" means it cannot be told apart from guessing.
+- **Luck check.** For each estimator, a one-sided sign-flip permutation test on its daily return minus the random control's. "Unlikely luck" means p below the corrected threshold; "consistent with luck" means it cannot be told apart from guessing. Many estimators are tested at once, so a single p<0.05 is expected by chance: with N estimators tested, we use 0.05/N (Bonferroni; N is the number of non-control estimators, currently 8, so 0.00625). The threshold is shown next to every verdict.
 - **"Too early to tell".** Shown in place of the luck check until an estimator has 60 live trading days (`min_live_days` in `assets.yaml`).
 - **Estimator tabs.** Each estimator has its own tab: where it came from, its licence, its stats, calendar heatmaps, a per-asset breakdown, and a day-by-day table with predicted vs actual for every asset.
 
 ## What the backtest says so far
 
-Backtest of 364 days (2025-10-07 to 2026-10-05) with six accounts (three controls and three estimators), computed from the committed data on 2026-10-06:
+Backtest of 364 days (2025-10-08 to 2026-10-06), computed from the committed data on 2026-10-07. Eight accounts have a full backtest; Kronos and TimesFM are being re-run at stride 1 (every day) and are not in the table yet. Final value of $10,000, with the luck-check p-value against the random control:
 
 | Account | Final value of $10,000 | Luck check (p) |
 |---|---|---|
-| Buy and hold (reference, no costs) | about $12,760 | n/a |
-| Candlestick pattern rules | about $10,030 | 0.44 |
-| Random coin (control) | about $9,680 | n/a |
-| Tomorrow = today (control) | about $9,460 | n/a |
-| Analog candle matching | about $8,870 | 0.82 |
-| XGBoost on indicators | about $8,020 | 0.93 |
-| Always long (control) | about $7,440 | n/a |
+| Equal-weight daily rebalanced hold (assets with a session that day, no costs) | about $12,860 | n/a |
+| Candlestick pattern rules | about $10,040 | 0.44 |
+| AutoETS (statsforecast) | about $9,770 | 0.51 |
+| Random coin (control) | about $9,730 | n/a |
+| Tomorrow = today (control) | about $9,550 | n/a |
+| LSTM on candle shape | about $9,000 | 0.69 |
+| Analog candle matching | about $8,940 | 0.80 |
+| XGBoost on indicators | about $8,240 | 0.91 |
+| Chronos-Bolt Tiny (pretrained) | about $7,630 | 0.98 |
+| Always long (control) | about $7,520 | n/a |
+
+These numbers change whenever a backfill is re-run or data is corrected; the live dashboard is the current source of truth, and `data/` is the record.
 
 The honest reading:
 
-- **No estimator beats the random control.** Every estimator's luck-check p-value is far above 0.05, and edge over the random control is about zero. The candlestick rules finish near flat only because they trade rarely (under one trade a day, so they sit in cash most days).
-- **Always-long loses to buy-and-hold** by a wide margin. The 0.1% cost is charged on every trade every day, which on its own is roughly a 22% drag over a year of trading days, and open-to-close trading skips the overnight gains that buy-and-hold keeps. This is the cost model working as designed, and it is why "just be long" is not a free baseline here.
+- **No estimator beats the random control.** Every luck-check p-value is far above the corrected threshold of 0.05/8 = 0.00625 (see the luck check above), and edge over the random control is about zero or negative. The candlestick rules finish near flat only because they trade rarely (under one trade a day, so they sit in cash most days).
+- **Always-long loses to the hold reference** by a wide margin. The 0.1% cost is charged on every trade every day, which on its own is roughly a 22% drag over a year of trading days, and open-to-close trading skips the overnight gains that the reference keeps. This is the cost model working as designed, and it is why "just be long" is not a free baseline here.
 - These are simple estimators on one year of one market regime. The result says these particular tools, on these rules, showed no skill. It does not say prediction is impossible. The live record, which starts with the first scheduled run, is the real test.
-
-Numbers change as data arrives. The source of truth is `data/`.
 
 ## Adding an estimator
 
@@ -78,7 +81,7 @@ An estimator is a folder with a `predict.py`, plus one registry entry.
 
 ## Running locally
 
-Python 3.11 or newer, and a recent Node.js (only for the dashboard's own tests).
+Python 3.12 or newer, and a recent Node.js (only for the dashboard's own tests).
 
 ```sh
 python -m venv .venv
@@ -117,7 +120,26 @@ There is one secret: `NTFY_TOPIC`, the name of the ntfy topic that receives the 
 3. **Shorting accounts:** sell at the open and buy back at the close on predicted drops, with borrow fees. Crypto shorts need derivatives.
 4. **Copy-trading estimators** from public disclosures: SEC Form 4 insider filings first, then Congress STOCK Act filings and 13F holdings. Keyed on the disclosure date, not the trade date, so the estimator only acts on what was public.
 5. **Inverse-tipster estimator:** needs a named tipster with readable, timestamped posts.
-6. **Heavier estimators still to come:** LSTM, Kronos, TimesFM, and the owner's four repositories (pending decisions on which repositories and their licences).
+
+## Estimators
+
+Eleven live accounts: three controls and eight estimators. Each has a short note under `docs/estimators/` where it needed one.
+
+- **Controls:** always long (`control_always_long`), a random coin (`control_random`), and tomorrow equals today (`control_persistence`).
+- **Estimators:** `analog` (candle matching), `xgb_indicators` (XGBoost on indicators), `candle_rules` (textbook candlestick patterns), `statsforecast_auto` (AutoETS), `kronos` (Kronos-small, pretrained), `timesfm` (TimesFM 2.5, pretrained), `chronos` (Chronos-Bolt Tiny, pretrained) and `lstm` (small LSTM on candle shape).
+
+Candidates that were looked at and dropped:
+
+- `Venon282/candlesticks_predictions` and `nsarang/big-data-stock-price-forecast`: no licence, so the code cannot be included in a public repository.
+- neural-candlestick: a 2019 Flask and Theano stack, not an installable package.
+- CandleEdge: a browser tool with no importable module and no next-day prediction.
+
+## Operations
+
+Two caveats for whoever runs the workflows by hand:
+
+- **Use "Run workflow", not "Re-run failed jobs", for a daily run.** A new dispatch starts from the current commit inside the live window. A re-run reuses the original commit, so its data rebase can conflict with what has been committed since.
+- **GitHub keeps at most one pending run per concurrency group.** The daily and backfill workflows share the `bench-data` group, so if a dispatch arrives while the 00:30 UTC daily is queued behind a running backfill, GitHub can cancel that queued daily without any notification. Do not start backfills near 00:30 UTC.
 
 ## Help and maintenance
 
