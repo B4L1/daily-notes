@@ -18,7 +18,6 @@ class Kronos(ClosesForecaster):
     name = "kronos"
     window = 400
     horizon = 5
-    backfill_stride = 3  # about 2 s per asset-day steady state on 16 CPUs; see docs/estimators/kronos.md
 
     def __init__(self):
         import torch  # imported here so the registry lists this estimator without the dependency

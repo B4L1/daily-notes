@@ -52,6 +52,7 @@ REGISTRY = {
         "license": "MIT (code) and MIT (weights)", "original_code": True,
         "requirements": "estimators/kronos/requirements.txt",
         "setup": "estimators.kronos.fetch_assets",
+        "backfill_stride": 1,
     },
     "timesfm": {
         "target": "estimators.timesfm.predict:TimesFM",
@@ -60,6 +61,7 @@ REGISTRY = {
         "license": "Apache-2.0 (code) and Apache-2.0 (2.5 weights)", "original_code": True,
         "requirements": "estimators/timesfm/requirements.txt",
         "setup": "estimators.timesfm.fetch_assets",
+        "backfill_stride": 1,
     },
     "chronos": {
         "target": "estimators.chronos.predict:Chronos",
@@ -77,6 +79,11 @@ REGISTRY = {
         "requirements": "estimators/lstm/requirements.txt",
     },
 }
+
+
+def backfill_stride(name):
+    """Backfill evaluates the estimator on every Nth day (default 1). Registry is the single source."""
+    return max(1, int(REGISTRY[name].get("backfill_stride", 1)))
 
 
 def names():

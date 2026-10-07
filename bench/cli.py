@@ -102,7 +102,7 @@ def cmd_backfill(args, now):
     store = Store(_data() / "backtest")
     end = date.fromisoformat(args.end) if args.end else now.date()
     days = [(end - timedelta(days=i)).isoformat() for i in range(args.days - 1, -1, -1)]
-    stride = max(1, estimator.backfill_stride)
+    stride = registry.backfill_stride(args.estimator)
     failed = 0
     for i, d in enumerate(days):
         if i % stride and i != len(days) - 1:

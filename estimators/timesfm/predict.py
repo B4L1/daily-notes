@@ -16,7 +16,6 @@ class TimesFM(ClosesForecaster):
     name = "timesfm"
     window = 512
     horizon = 5
-    backfill_stride = 2  # about 0.9 s per asset-day on 16 CPUs; see docs/estimators/timesfm.md
 
     def __init__(self):
         os.environ.setdefault("HF_HUB_OFFLINE", "1")  # the weights come from the local directory only

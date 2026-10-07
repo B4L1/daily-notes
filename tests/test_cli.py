@@ -64,3 +64,18 @@ def test_backfill_replays_days_into_the_backtest_store(env, capsys):
     assert len(list((base / "predictions").glob("*.json"))) >= 1
     assert (base / "equity.csv").exists()
     assert not (env / "data" / "live" / "estimators").exists()
+
+
+def test_backfill_stride_comes_from_the_registry(env, monkeypatch):
+    from estimators import registry
+
+    now = datetime(2026, 3, 2, 12, 0, tzinfo=timezone.utc)
+    base = env / "data" / "backtest" / "estimators" / "control_always_long" / "predictions"
+    cli.main(["backfill", "--estimator", "control_always_long", "--days", "20", "--end", "2026-03-01"], now=now)
+    every_day = len(list(base.glob("*.json")))
+    for f in base.glob("*.json"):
+        f.unlink()
+    monkeypatch.setitem(registry.REGISTRY["control_always_long"], "backfill_stride", 3)
+    cli.main(["backfill", "--estimator", "control_always_long", "--days", "20", "--end", "2026-03-01"], now=now)
+    assert len(list(base.glob("*.json"))) < every_day
+    assert registry.backfill_stride("kronos") == 1 and registry.backfill_stride("timesfm") == 1

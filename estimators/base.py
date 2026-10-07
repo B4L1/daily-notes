@@ -10,7 +10,6 @@ class Prediction:
 
 class Estimator:
     name = ""
-    backfill_stride = 1  # backfill runs the estimator on every Nth day; the rest stay in cash
 
     def predict(self, history, assets):
         """history: {asset: candle DataFrame up to the cutoff}; return {asset: Prediction}."""

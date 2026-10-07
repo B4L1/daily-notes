@@ -117,7 +117,7 @@ def build_all(data_dir, out_dir, prices, settings, assets, run_date, generated_a
     out = Path(out_dir)
     (out / "estimators").mkdir(parents=True, exist_ok=True)
     meta = [
-        {"name": n, **{k: v for k, v in m.items() if k not in PUBLIC_META_SKIP}}
+        {"name": n, "backfill_stride": 1, **{k: v for k, v in m.items() if k not in PUBLIC_META_SKIP}}
         for n, m in REGISTRY.items()
     ]
     meta_by_name = {m["name"]: m for m in meta}

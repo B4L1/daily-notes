@@ -181,3 +181,9 @@ def test_zero_close_does_not_break_hold(tmp_path):
     s = _build(tmp_path, px)
     assert s["modes"]["live"]["hold"] == [["2026-01-05", 10200.0]]  # only AAA's +2% step counts
     json.dumps(s, allow_nan=False)
+
+
+def test_summary_meta_exposes_backfill_stride(out):
+    s = load(out / "summary.json")
+    assert {e["name"]: e["backfill_stride"] for e in s["estimators"]}["kronos"] == 1
+    assert all(isinstance(e["backfill_stride"], int) and e["backfill_stride"] >= 1 for e in s["estimators"])
