@@ -71,8 +71,8 @@ jobs:
           path: |
             data/cache
             ~/.cache/huggingface
-          key: cache-${{ matrix.estimator }}-bt-${{ github.run_id }}
-          restore-keys: cache-${{ matrix.estimator }}-
+          key: cache-${{ matrix.estimator }}-${{ hashFiles('estimators/*/fetch_assets.py') }}-bt-${{ github.run_id }}
+          restore-keys: cache-${{ matrix.estimator }}-${{ hashFiles('estimators/*/fetch_assets.py') }}-
       - name: Install dependencies
         env:
           ESTIMATOR: ${{ matrix.estimator }}
@@ -83,6 +83,7 @@ jobs:
           python -m bench.cli setup --estimator "$ESTIMATOR"
       - name: Backfill
         env:
+          HF_HUB_OFFLINE: "1"
           ESTIMATOR: ${{ matrix.estimator }}
           DAYS: ${{ needs.fetch.outputs.days }}
         run: python -m bench.cli backfill --estimator "$ESTIMATOR" --days "$DAYS"

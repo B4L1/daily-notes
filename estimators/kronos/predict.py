@@ -1,10 +1,11 @@
 import sys
+from pathlib import Path
 
 import numpy as np
 import pandas as pd
 
 from estimators.adapter import ClosesForecaster
-from estimators.kronos.fetch_assets import source_dir, weights_dir
+from estimators.kronos.fetch_assets import source_dir, source_ok, weights_dir, weights_ok
 
 
 class Kronos(ClosesForecaster):
@@ -23,17 +24,21 @@ class Kronos(ClosesForecaster):
         import torch  # imported here so the registry lists this estimator without the dependency
 
         src = source_dir().resolve()
-        if not (src / "model" / "kronos.py").exists():
-            raise ImportError("kronos source not prepared; run `python -m bench.cli setup --estimator kronos`")
-        if str(src) not in sys.path:
-            sys.path.insert(0, str(src))
-        from model import Kronos as KronosModel, KronosPredictor, KronosTokenizer
+        if not source_ok():
+            raise ImportError("kronos source missing or altered; run `python -m bench.cli setup --estimator kronos`")
+        if not (weights_ok("NeoQuasar/Kronos-small") and weights_ok("NeoQuasar/Kronos-Tokenizer-base")):
+            raise ImportError("kronos weights missing or altered; run `python -m bench.cli setup --estimator kronos`")
+        sys.path.insert(0, str(src))
+        try:
+            import model as kronos_pkg
 
+            if not Path(kronos_pkg.__file__).resolve().is_relative_to(src):
+                raise ImportError(f"a different `model` module shadows Kronos: {kronos_pkg.__file__}")
+            from model import Kronos as KronosModel, KronosPredictor, KronosTokenizer
+        finally:
+            sys.path.remove(str(src))
         tok = weights_dir("NeoQuasar/Kronos-Tokenizer-base")
         mdl = weights_dir("NeoQuasar/Kronos-small")
-        for d in (tok, mdl):
-            if not (d / "model.safetensors").exists():
-                raise ImportError("kronos weights not prepared; run `python -m bench.cli setup --estimator kronos`")
         torch.set_num_threads(max(1, min(4, torch.get_num_threads())))
         self._torch = torch
         self._predictor = KronosPredictor(

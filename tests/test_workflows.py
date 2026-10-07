@@ -189,10 +189,15 @@ def test_topic_only_in_notify_step_env():
                     assert jname == "notify" and step["name"].startswith("Notify")
 
 
-def test_predict_jobs_prepare_estimator_assets_after_installing_requirements():
-    # Pretrained models need weights and pinned sources in the cache before predict runs offline.
-    for name in ("daily.yml", "backfill.yml"):
-        text, _ = load(name)
-        assert text.index('pip install -r "$REQ"') < text.index("bench.cli setup --estimator")
-        action = "bench.cli run" if name == "daily.yml" else "bench.cli backfill"
-        assert text.index("bench.cli setup --estimator") < text.index(action)
+def test_predict_jobs_prepare_assets_online_then_run_offline():
+    # Pretrained models need weights and pinned sources prepared (network) before predict (offline).
+    for name, job, step_name in (("daily.yml", "predict", "Predict"), ("backfill.yml", "backtest", "Backfill")):
+        _, doc = load(name)
+        steps = doc["jobs"][job]["steps"]
+        install = next(s for s in steps if s.get("name") == "Install dependencies")
+        assert "bench.cli setup" in install["run"]
+        assert "HF_HUB_OFFLINE" not in install.get("env", {})
+        run = next(s for s in steps if s.get("name") == step_name)
+        assert str(run["env"]["HF_HUB_OFFLINE"]) == "1"
+        cache = next(s for s in steps if str(s.get("uses", "")).startswith("actions/cache"))
+        assert "fetch_assets.py" in cache["with"]["key"]
