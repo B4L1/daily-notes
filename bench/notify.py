@@ -62,6 +62,8 @@ def notify(summary_path, run_date, failure, env, opener=urllib.request.urlopen):
     topic = env.get("NTFY_TOPIC")
     if not topic:
         print("NTFY_TOPIC is not set; skipping the notification.")
+        # GitHub Actions workflow command: shows as a warning annotation on the run. Never print a topic.
+        print("::warning::NTFY_TOPIC secret is not set; no phone notification was sent.")
         return 0
     run_date = run_date if _DATE.fullmatch(str(run_date)) else "unknown date"
     title = f"Prediction bench {run_date}"

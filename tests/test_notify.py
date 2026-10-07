@@ -58,7 +58,14 @@ def test_send_builds_the_request():
 
 def test_notify_skips_quietly_without_a_topic(tmp_path, capsys):
     assert notify(tmp_path / "none.json", "2026-01-06", False, {}) == 0
-    assert "skipping" in capsys.readouterr().out
+    out = capsys.readouterr().out
+    assert "skipping" in out
+    assert "::warning::NTFY_TOPIC secret is not set; no phone notification was sent." in out
+
+
+def test_notify_empty_topic_also_warns(tmp_path, capsys):
+    assert notify(tmp_path / "none.json", "2026-01-06", True, {"NTFY_TOPIC": ""}) == 0
+    assert "::warning::NTFY_TOPIC secret is not set" in capsys.readouterr().out
 
 
 def test_notify_failure_message_and_no_topic_leak(tmp_path, capsys):
