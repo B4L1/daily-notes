@@ -68,11 +68,8 @@ jobs:
           path: data/prices
       - uses: actions/cache@v4
         with:
-          path: |
-            data/cache
-            ~/.cache/huggingface
-          key: cache-${{ matrix.estimator }}-${{ hashFiles('estimators/*/fetch_assets.py') }}-bt-${{ github.run_id }}
-          restore-keys: cache-${{ matrix.estimator }}-${{ hashFiles('estimators/*/fetch_assets.py') }}-
+          path: data/cache  # downloaded assets only; one entry per estimator and pin set, never re-saved
+          key: cache-${{ matrix.estimator }}-${{ hashFiles(format('estimators/{0}/fetch_assets.py', matrix.estimator)) }}
       - name: Install dependencies
         env:
           ESTIMATOR: ${{ matrix.estimator }}

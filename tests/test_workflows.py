@@ -201,3 +201,13 @@ def test_predict_jobs_prepare_assets_online_then_run_offline():
         assert str(run["env"]["HF_HUB_OFFLINE"]) == "1"
         cache = next(s for s in steps if str(s.get("uses", "")).startswith("actions/cache"))
         assert "fetch_assets.py" in cache["with"]["key"]
+
+
+def test_asset_cache_is_one_static_entry_per_estimator_and_pin_set():
+    for name, job in (("daily.yml", "predict"), ("backfill.yml", "backtest")):
+        _, doc = load(name)
+        cache = next(s for s in doc["jobs"][job]["steps"] if str(s.get("uses", "")).startswith("actions/cache"))
+        key = cache["with"]["key"]
+        assert "run_id" not in key and "restore-keys" not in cache["with"]  # no new ~1 GB entry per run
+        assert "matrix.estimator" in key and "estimators/{0}/fetch_assets.py" in key
+        assert cache["with"]["path"].split("#")[0].strip() == "data/cache"  # prices travel as an artifact, not here

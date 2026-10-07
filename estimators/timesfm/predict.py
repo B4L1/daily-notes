@@ -27,7 +27,9 @@ class TimesFM(ClosesForecaster):
         import timesfm
 
         torch.set_num_threads(max(1, min(4, torch.get_num_threads())))
-        self._model = timesfm.TimesFM_2p5_200M_torch.from_pretrained(str(weights_dir()), local_files_only=True)
+        self._model = timesfm.TimesFM_2p5_200M_torch.from_pretrained(
+            str(weights_dir()), local_files_only=True, torch_compile=False)  # batch of one: skip the first-call C++ compile
+        # max_context must cover `window` and max_horizon must cover `horizon` (class attributes above)
         self._model.compile(timesfm.ForecastConfig(
             max_context=512, max_horizon=8, normalize_inputs=True,
             use_continuous_quantile_head=True, force_flip_invariance=True,
