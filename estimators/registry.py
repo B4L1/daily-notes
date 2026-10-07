@@ -53,6 +53,14 @@ REGISTRY = {
         "requirements": "estimators/kronos/requirements.txt",
         "setup": "estimators.kronos.fetch_assets",
     },
+    "timesfm": {
+        "target": "estimators.timesfm.predict:TimesFM",
+        "label": "TimesFM 2.5 (pretrained)", "kind": "pretrained",
+        "source": "Google Research TimesFM 2.5 200M (timesfm on PyPI, pinned) with google/timesfm-2.5-200m-pytorch weights, point forecast, 5-day path",
+        "license": "Apache-2.0 (code) and Apache-2.0 (2.5 weights)", "original_code": True,
+        "requirements": "estimators/timesfm/requirements.txt",
+        "setup": "estimators.timesfm.fetch_assets",
+    },
 }
 
 
