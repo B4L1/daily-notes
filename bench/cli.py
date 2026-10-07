@@ -40,7 +40,10 @@ def cmd_requirements(args, now):
 
 def cmd_fetch(args, now):
     settings, assets = load_config(_assets_file())
-    status = update_prices(_data() / "prices", assets, settings.history_start)
+    status = update_prices(
+        _data() / "prices", assets, settings.history_start,
+        through=(date.fromisoformat(_run_date(None, now)) - timedelta(days=1)).isoformat(),
+    )
     for symbol, s in status.items():
         print(f"{symbol}: {s}")
     return 1 if all(s != "ok" for s in status.values()) else 0

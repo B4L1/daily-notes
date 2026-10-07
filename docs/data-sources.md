@@ -18,7 +18,9 @@
 - Software licence: Apache-2.0 (Source: context7 yfinance docs, LICENSE.txt file)
 - Data usage: Yahoo's terms restrict use to personal use only. yfinance is not affiliated with Yahoo, Inc. (Source: context7 yfinance docs README)
 
-**Important implementation caveat:** yfinance's `auto_adjust=True` parameter (used in `fetch_asset()`) rewrites historical prices after dividends and splits. The cache refreshes only the last 10 days, so older cached rows retain their earlier adjustment base; this mix is NOT verified. Open-to-close returns within a single day are unaffected by the adjustment base (acceptable for this project's daily open-to-close trading), but close-to-close returns spanning the merge boundary could be distorted for the first days after a corporate action (unverified). (Source: yfinance auto_adjust behavior; caveat inferred, not smoke-tested)
+**Price basis (decided 2026-10-07):** `fetch_asset()` uses `auto_adjust=False` and `normalize()` takes the `Open`/`High`/`Low`/`Close` columns (never `Adj Close`). These are raw prices: adjusted for splits but NOT for dividends, so settled history is not rewritten by later dividends. Reason: with `auto_adjust=True` a refresh of the last ~10 days carried a new adjustment base while settled ledger entry/exit prices and older cached rows kept the old one, and `scripts/verify_data.py` failed in CI with "ledger row ... does not match the candle" (observed in the first cloud run; the adjustment mechanism is the diagnosed cause, not re-proven against Yahoo). A split could still retroactively re-base history (unverified how yfinance handles it for already-cached rows).
+
+**Incomplete candles:** `update_prices` never stores a candle dated after the last completed session day (run date minus 1, or yesterday UTC by default), so an intraday partial candle is never cached.
 
 **Fallback plan:** If yfinance breaks:
 - Stocks and ETFs: Stooq CSV export (https://stooq.com/) - unconfirmed auth, rate limit, licence

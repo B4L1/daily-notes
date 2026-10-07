@@ -148,3 +148,47 @@ def test_update_corrupt_cache_does_not_stop_other_assets(tmp_path):
     # BBB file should be written, AAA file should remain corrupt
     assert (tmp_path / "BBB.csv").exists()
     assert (tmp_path / "AAA.csv").read_text() == "this is not a valid CSV\ninvalid data here\n"
+
+
+def test_normalize_ignores_adj_close_column():
+    raw = raw_frame()
+    raw["Adj Close"] = [1.0, 1.0, 1.0]
+    df = normalize(raw)
+    assert df["close"].tolist() == [102.0, 104.0]
+
+
+def test_fetch_asset_requests_raw_prices(monkeypatch):
+    import sys
+    import types
+
+    from bench import data
+
+    seen = {}
+
+    class FakeTicker:
+        def __init__(self, symbol):
+            pass
+
+        def history(self, **kw):
+            seen.update(kw)
+            return raw_frame()
+
+    monkeypatch.setitem(sys.modules, "yfinance", types.SimpleNamespace(Ticker=FakeTicker))
+    data.fetch_asset("AAA", "2026-01-01")
+    assert seen["auto_adjust"] is False
+
+
+def test_update_never_stores_candles_after_through(tmp_path):
+    fake = lambda s, since: candles([
+        ("2026-01-05", 1, 1, 1, 1), ("2026-01-06", 2, 2, 2, 2), ("2026-01-07", 3, 3, 3, 3),
+    ])
+    update_prices(tmp_path, ASSETS, "2019-01-01", fetch=fake, through="2026-01-06")
+    assert load_prices(tmp_path, ASSETS)["AAA"]["date"].tolist() == ["2026-01-05", "2026-01-06"]
+
+
+def test_update_default_through_excludes_today_utc(tmp_path):
+    from datetime import datetime, timezone
+    today = datetime.now(timezone.utc).date().isoformat()
+    fake = lambda s, since: candles([("2026-01-05", 1, 1, 1, 1), (today, 2, 2, 2, 2)])
+    update_prices(tmp_path, ASSETS, "2019-01-01", fetch=fake)
+    assert today not in load_prices(tmp_path, ASSETS)["AAA"]["date"].tolist()

@@ -61,7 +61,7 @@ def check(data_dir="data", assets_file="assets.yaml"):
                 m = led.merge(refs, on=["asset", "settle_date"], how="left", suffixes=("", "_c"))
                 bad = m["open"].isna() | ((m["open"] - m["entry"]).abs() > 1e-9) | ((m["close"] - m["exit"]).abs() > 1e-9)
                 for r in m[bad].itertuples():
-                    problems.append(f"{where}: ledger row {r.asset} {r.settle_date} does not match the candle")
+                    problems.append(f"{where}: ledger row {r.asset} {r.settle_date} does not match the cached candle (entry/exit vs data/prices open/close; prices were re-based or the candle was incomplete)")
     return problems
 
 

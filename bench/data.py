@@ -1,6 +1,6 @@
 import os
 import tempfile
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 
 import pandas as pd
@@ -10,7 +10,11 @@ PRICE_COLS = ["open", "high", "low", "close"]
 
 
 def normalize(raw):
-    """yfinance history frame -> candle frame with ISO session dates."""
+    """yfinance history frame -> candle frame with ISO session dates.
+
+    Uses the Open/High/Low/Close columns (never 'Adj Close'). Callers must fetch with
+    auto_adjust=False so these are raw (split-adjusted, not dividend-adjusted) prices.
+    """
     if raw is None or len(raw) == 0:
         return pd.DataFrame(columns=COLUMNS)
     df = raw.rename(columns=str.lower)[PRICE_COLS + ["volume"]].copy()
@@ -24,7 +28,7 @@ def fetch_asset(symbol, start):
     """The only function that touches the network. Replace this to change data source."""
     import yfinance as yf
 
-    raw = yf.Ticker(symbol).history(start=start, interval="1d", auto_adjust=True)
+    raw = yf.Ticker(symbol).history(start=start, interval="1d", auto_adjust=False)
     return normalize(raw)
 
 
@@ -47,8 +51,14 @@ def load_prices(prices_dir, assets):
     return {a.symbol: _read(_path(prices_dir, a.symbol)) for a in assets}
 
 
-def update_prices(prices_dir, assets, start, fetch=fetch_asset):
-    """Refresh every asset's cache. A failure or an empty result never touches the cache."""
+def update_prices(prices_dir, assets, start, fetch=fetch_asset, through=None):
+    """Refresh every asset's cache. A failure or an empty result never touches the cache.
+
+    Candles dated after `through` (ISO date, default yesterday UTC = last completed session
+    day) are never stored: the current day's candle is still incomplete.
+    """
+    if through is None:
+        through = (datetime.now(timezone.utc).date() - timedelta(days=1)).isoformat()
     Path(prices_dir).mkdir(parents=True, exist_ok=True)
     status = {}
     for a in assets:
@@ -59,6 +69,8 @@ def update_prices(prices_dir, assets, start, fetch=fetch_asset):
             if not old.empty:
                 since = (date.fromisoformat(old["date"].iloc[-1]) - timedelta(days=10)).isoformat()
             new = fetch(a.symbol, since)
+            if new is not None and len(new):
+                new = new[new["date"] <= through]
             if new is None or len(new) == 0:
                 raise ValueError("no rows returned")
             merged = merge_candles(old, new)
