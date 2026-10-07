@@ -69,6 +69,13 @@ REGISTRY = {
         "requirements": "estimators/chronos/requirements.txt",
         "setup": "estimators.chronos.fetch_assets",
     },
+    "lstm": {
+        "target": "estimators.lstm.predict:Lstm",
+        "label": "LSTM on candle shape", "kind": "ml",
+        "source": "Small PyTorch LSTM on 20-day windows of return, range and body; our own implementation, retrained weekly from history up to that week's Monday",
+        "license": "own code (uses PyTorch, BSD-3-Clause)", "original_code": False,
+        "requirements": "estimators/lstm/requirements.txt",
+    },
 }
 
 
