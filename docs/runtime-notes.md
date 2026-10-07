@@ -42,3 +42,13 @@ Created 2026-10-07 06:13:45 UTC against a 00:30 cron (about 5h43m late). The 6-h
 - The first scheduled 00:30 UTC run: how late GitHub starts it (the live window is now 11 hours; see "First scheduled run").
 - Heavy estimators once they exist (Task 15).
 - Do not run a backfill near 00:30 UTC: both workflows share the `bench-data` concurrency group, so a long backfill delays the daily run.
+
+## Cloud backfill at stride 1, all 11 estimators (2026-10-07)
+
+| Estimator | Job duration |
+|---|---|
+| controls, analog, xgb_indicators, candle_rules, statsforecast_auto, chronos, lstm | 1 to 6 min each (incremental when data already exists) |
+| timesfm | ~26 min (from scratch, 365 days) |
+| kronos | ~48 min (from scratch, 365 days) |
+
+Both heavy jobs are far below the 340 minute limit; the earlier stride 3 / stride 2 settings were needless. A daily run with all 11 estimators takes about 3.5 minutes end to end (fetch ~26 s, slowest predict cell ~1 min, aggregate ~35 s, deploy ~10 s, notify ~20 s).
