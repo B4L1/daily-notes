@@ -54,9 +54,34 @@ def cmd_fetch(args, now):
         _data() / "prices", assets, settings.history_start,
         through=(date.fromisoformat(_run_date(None, now)) - timedelta(days=1)).isoformat(),
     )
+    split = False
     for symbol, s in status.items():
         print(f"{symbol}: {s}")
-    return 1 if all(s != "ok" for s in status.values()) else 0
+        for line in revision_warnings(symbol, s):
+            print(line)
+        split = split or bool(getattr(s, "split_like", False))
+    return 1 if split or all(s != "ok" for s in status.values()) else 0
+
+
+def revision_warnings(symbol, s, max_examples=3):
+    """WARNING lines for a refresh whose source disagrees with stored candles (kept as stored)."""
+    revisions = getattr(s, "revisions", None)
+    if not revisions:
+        return []
+    days = sorted({r["date"] for r in revisions})
+    lines = [
+        f"WARNING: {symbol}: the source revised {len(revisions)} stored value(s) on {len(days)} date(s) "
+        f"({days[0]} to {days[-1]}); stored values were KEPT (the price cache is append-only)."
+    ]
+    for r in revisions[:max_examples]:
+        lines.append(f"WARNING: {symbol} {r['date']} {r['field']}: old {r['old']:.6g}, new {r['new']:.6g}")
+    if s.split_like:
+        lines.append(
+            f"WARNING: {symbol}: possible split: manual re-base needed (new/old ratio is constant at "
+            f"{s.ratio:.4g} over {s.overlap_days} overlapping days). See docs/data-sources.md, "
+            "'Corrections and splits'."
+        )
+    return lines
 
 
 def cmd_run(args, now):

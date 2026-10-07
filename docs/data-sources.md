@@ -22,6 +22,8 @@
 
 **Incomplete candles:** `update_prices` never stores a candle dated after the last completed session day (run date minus 1, or yesterday UTC by default), so an intraday partial candle is never cached.
 
+**Corrections and splits:** the price cache is append-only. `update_prices` re-fetches the last 10 days but never overwrites a stored date; it only adds dates it has not seen. If the source reports different OHLC for a stored date (more than 1e-6 relative), the old value is kept and `python -m bench.cli fetch` prints a `WARNING` line naming the asset, date and old/new values. Ledger consistency wins: settled trades keep the prices they were settled with, so a small correction at the source is warned about and otherwise ignored. If the revision is one constant ratio more than 2% from 1 across all overlapping days, the line also says "possible split: manual re-base needed" and `fetch` exits non-zero (the workflow stops before committing). Manual re-base for an asset: delete `data/prices/<SYMBOL>.csv`, delete the backtest and live ledger rows that depend on it (or, more simply, delete `data/backtest/estimators` and re-run the backfills; live rows after the split date cannot be recomputed and should be annotated or dropped by hand), then run `fetch` so the file is rebuilt from the source's current, re-based history, and run `scripts/verify_data.py data`. This procedure has not been rehearsed against a real split.
+
 **Fallback plan:** If yfinance breaks:
 - Stocks and ETFs: Stooq CSV export (https://stooq.com/) - unconfirmed auth, rate limit, licence
 - Crypto: Public exchange API (e.g., CoinGecko, Kraken) - unconfirmed auth, rate limit, licence for both

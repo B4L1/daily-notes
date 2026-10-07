@@ -2,7 +2,7 @@ import pandas as pd
 
 from bench.config import Asset
 from bench.data import (
-    COLUMNS, load_prices, merge_candles, normalize, stale_assets, update_prices,
+    COLUMNS, find_revisions, load_prices, merge_candles, normalize, stale_assets, update_prices,
 )
 from tests.helpers import candles
 
@@ -35,12 +35,12 @@ def test_normalize_empty():
     assert list(normalize(pd.DataFrame()).columns) == COLUMNS
 
 
-def test_merge_new_overrides_old_and_sorts():
+def test_merge_is_append_only_and_sorts():
     old = candles([("2026-01-05", 1, 1, 1, 1), ("2026-01-06", 2, 2, 2, 2)])
     new = candles([("2026-01-06", 9, 9, 9, 9), ("2026-01-07", 3, 3, 3, 3)])
     out = merge_candles(old, new)
     assert out["date"].tolist() == ["2026-01-05", "2026-01-06", "2026-01-07"]
-    assert out["close"].tolist() == [1, 9, 3]
+    assert out["close"].tolist() == [1, 2, 3]  # the stored 2026-01-06 value is kept
 
 
 ASSETS = [Asset("AAA", "stock", 5), Asset("BBB", "crypto", 2)]
@@ -192,3 +192,86 @@ def test_update_default_through_excludes_today_utc(tmp_path):
     fake = lambda s, since: candles([("2026-01-05", 1, 1, 1, 1), (today, 2, 2, 2, 2)])
     update_prices(tmp_path, ASSETS, "2019-01-01", fetch=fake)
     assert today not in load_prices(tmp_path, ASSETS)["AAA"]["date"].tolist()
+
+
+ONE = [Asset("AAA", "stock", 5)]
+BASE = [(f"2026-01-{d:02d}", 100 + d, 101 + d, 99 + d, 100.5 + d) for d in range(5, 13)]
+THROUGH = "2026-12-31"
+
+
+def _stored(tmp_path):
+    update_prices(tmp_path, ONE, "2019-01-01", fetch=lambda s, since: candles(BASE), through=THROUGH)
+
+
+def _scaled(rows, factor, from_day=0):
+    return [(d, o * f, h * f, l * f, c * f) for (d, o, h, l, c), f in
+            zip(rows, [1.0] * from_day + [factor] * (len(rows) - from_day))]
+
+
+def test_normal_new_day_append_has_no_revisions(tmp_path):
+    _stored(tmp_path)
+    new = candles(BASE[-3:] + [("2026-01-13", 120, 121, 119, 120.5)])
+    status = update_prices(tmp_path, ONE, "2019-01-01", fetch=lambda s, since: new, through=THROUGH)
+    assert status["AAA"] == "ok" and status["AAA"].revisions == [] and not status["AAA"].split_like
+    out = load_prices(tmp_path, ONE)["AAA"]
+    assert out["date"].tolist()[-1] == "2026-01-13" and len(out) == len(BASE) + 1
+
+
+def test_append_only_keeps_old_values_and_flags_small_revision(tmp_path):
+    _stored(tmp_path)
+    rev = candles([(d, o, h, l, c) for d, o, h, l, c in BASE[-3:-1]] + [("2026-01-12", 112, 113, 111, 112.0)])
+    status = update_prices(tmp_path, ONE, "2019-01-01", fetch=lambda s, since: rev, through=THROUGH)
+    st = status["AAA"]
+    assert st == "ok" and not st.split_like  # one revised date of three: not split-like
+    assert [r["date"] for r in st.revisions] == ["2026-01-12"]
+    out = load_prices(tmp_path, ONE)["AAA"]
+    assert out["close"].tolist() == [c for *_, c in BASE]  # old stored values kept
+
+
+def test_tiny_float_noise_is_not_a_revision():
+    old = candles([("2026-01-05", 100.0, 101.0, 99.0, 100.5)])
+    new = candles([("2026-01-05", 100.0 * (1 + 1e-8), 101.0, 99.0, 100.5)])
+    assert find_revisions(old, new)[0] == []
+
+
+def test_split_like_revision_is_detected_and_old_values_kept(tmp_path):
+    _stored(tmp_path)
+    split = candles(_scaled(BASE[-4:], 0.5))
+    status = update_prices(tmp_path, ONE, "2019-01-01", fetch=lambda s, since: split, through=THROUGH)
+    st = status["AAA"]
+    assert st.split_like and abs(st.ratio - 0.5) < 1e-9 and st.overlap_days == 4
+    assert load_prices(tmp_path, ONE)["AAA"]["close"].tolist() == [c for *_, c in BASE]
+
+
+def test_constant_but_small_ratio_is_not_split_like():
+    old = candles(BASE[-4:])
+    new = candles(_scaled(BASE[-4:], 1.005))
+    revisions, split_like, ratio, n = find_revisions(old, new)
+    assert revisions and not split_like and n == 4
+
+
+def test_cli_fetch_warns_and_exits_nonzero_only_for_split(tmp_path, monkeypatch, capsys):
+    import yaml
+    from bench import cli
+    from bench import data as data_mod
+    from datetime import datetime, timezone
+
+    assets_file = tmp_path / "assets.yaml"
+    assets_file.write_text(yaml.safe_dump({
+        "settings": {"history_start": "2019-01-01"},
+        "assets": [{"symbol": "AAA", "group": "stock", "max_gap_days": 5}],
+    }), encoding="utf-8")
+    monkeypatch.setenv("BENCH_DATA", str(tmp_path / "data"))
+    monkeypatch.setenv("BENCH_ASSETS", str(assets_file))
+    now = datetime(2026, 2, 1, 1, 0, tzinfo=timezone.utc)
+    monkeypatch.setattr(cli, "update_prices", lambda *a, **k: data_mod.update_prices(*a, **{**k, "fetch": lambda s, since: candles(BASE)}))
+    assert cli.main(["fetch"], now=now) == 0
+    small = candles(_scaled(BASE[-4:], 1.0) [:-1] + [("2026-01-12", 112, 113, 111, 112.0)])
+    monkeypatch.setattr(cli, "update_prices", lambda *a, **k: data_mod.update_prices(*a, **{**k, "fetch": lambda s, since: small}))
+    assert cli.main(["fetch"], now=now) == 0
+    out = capsys.readouterr().out
+    assert "WARNING: AAA" in out and "2026-01-12" in out and "possible split" not in out
+    split = candles(_scaled(BASE[-4:], 0.5))
+    monkeypatch.setattr(cli, "update_prices", lambda *a, **k: data_mod.update_prices(*a, **{**k, "fetch": lambda s, since: split}))
+    assert cli.main(["fetch"], now=now) == 1
+    assert "possible split: manual re-base needed" in capsys.readouterr().out

@@ -32,9 +32,74 @@ def fetch_asset(symbol, start):
     return normalize(raw)
 
 
+REVISION_TOLERANCE = 1e-6  # relative; a stored value differing by more than this is a revision
+SPLIT_RATIO_MIN_OFFSET = 0.02  # a constant ratio further than 2% from 1 looks like a split
+SPLIT_RATIO_SPREAD = 0.005  # ratios within 0.5% of each other count as constant
+
+
+class PriceStatus(str):
+    """Outcome of one asset's refresh. Compares equal to its text ("ok" or "error: ...").
+
+    `revisions` lists stored candles the source now reports differently (never applied);
+    `split_like` is true when the revision is one constant ratio far from 1 over the overlap.
+    """
+
+    revisions = ()
+    split_like = False
+    ratio = None
+    overlap_days = 0
+
+    def __new__(cls, text, revisions=(), split_like=False, ratio=None, overlap_days=0):
+        obj = super().__new__(cls, text)
+        obj.revisions = list(revisions)
+        obj.split_like = split_like
+        obj.ratio = ratio
+        obj.overlap_days = overlap_days
+        return obj
+
+
 def merge_candles(old, new):
-    both = new.copy() if len(old) == 0 else pd.concat([old, new], ignore_index=True)
-    return both.drop_duplicates(subset="date", keep="last").sort_values("date").reset_index(drop=True)
+    """Append-only merge: a stored date is never overwritten, only unseen dates are added."""
+    if len(old) == 0:
+        return new.drop_duplicates(subset="date", keep="last").sort_values("date").reset_index(drop=True)
+    fresh = new[~new["date"].isin(set(old["date"]))]
+    both = pd.concat([old, fresh], ignore_index=True)
+    return both.drop_duplicates(subset="date", keep="first").sort_values("date").reset_index(drop=True)
+
+
+def find_revisions(old, new):
+    """Compare dates present in both frames. Returns (revisions, split_like, ratio, overlap_days).
+
+    A revision is {date, field, old, new} for an OHLC value differing by more than
+    REVISION_TOLERANCE relative. split_like: every overlapping date is revised, there are at
+    least two of them, all new/old ratios agree within SPLIT_RATIO_SPREAD, and the ratio is
+    more than SPLIT_RATIO_MIN_OFFSET away from 1.
+    """
+    if len(old) == 0 or len(new) == 0:
+        return [], False, None, 0
+    joined = old.set_index("date")[PRICE_COLS].join(
+        new.drop_duplicates(subset="date", keep="last").set_index("date")[PRICE_COLS],
+        how="inner", lsuffix="_old", rsuffix="_new",
+    )
+    revisions, ratios, revised_dates = [], [], set()
+    for day, row in joined.iterrows():
+        for col in PRICE_COLS:
+            o, n = float(row[f"{col}_old"]), float(row[f"{col}_new"])
+            if abs(n - o) > REVISION_TOLERANCE * abs(o):
+                revisions.append({"date": day, "field": col, "old": o, "new": n})
+                ratios.append(n / o)
+                revised_dates.add(day)
+    if not revisions:
+        return [], False, None, len(joined)
+    ratios.sort()
+    median = ratios[len(ratios) // 2]
+    split_like = (
+        len(joined) >= 2
+        and len(revised_dates) == len(joined)
+        and all(abs(r - median) <= SPLIT_RATIO_SPREAD * median for r in ratios)
+        and abs(median - 1.0) > SPLIT_RATIO_MIN_OFFSET
+    )
+    return revisions, split_like, median, len(joined)
 
 
 def _path(prices_dir, symbol):
@@ -53,6 +118,10 @@ def load_prices(prices_dir, assets):
 
 def update_prices(prices_dir, assets, start, fetch=fetch_asset, through=None):
     """Refresh every asset's cache. A failure or an empty result never touches the cache.
+
+    The cache is append-only: a stored date is never overwritten. Where the source now reports
+    different OHLC for a stored date, the old value is kept and the difference is returned on
+    the asset's PriceStatus (`.revisions`, `.split_like`).
 
     Candles dated after `through` (ISO date, default yesterday UTC = last completed session
     day) are never stored: the current day's candle is still incomplete.
@@ -73,6 +142,7 @@ def update_prices(prices_dir, assets, start, fetch=fetch_asset, through=None):
                 new = new[new["date"] <= through]
             if new is None or len(new) == 0:
                 raise ValueError("no rows returned")
+            revisions, split_like, ratio, overlap = find_revisions(old, new)
             merged = merge_candles(old, new)
             # Write atomically: temp file, then replace
             with tempfile.NamedTemporaryFile(
@@ -82,7 +152,7 @@ def update_prices(prices_dir, assets, start, fetch=fetch_asset, through=None):
             try:
                 merged.to_csv(tmp_path, index=False, lineterminator="\n")
                 os.replace(tmp_path, path)
-                status[a.symbol] = "ok"
+                status[a.symbol] = PriceStatus("ok", revisions, split_like, ratio, overlap)
             except Exception:
                 # Clean up temp file if write or replace failed
                 try:
