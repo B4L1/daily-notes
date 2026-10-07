@@ -27,6 +27,8 @@ jobs:
         with:
           node-version: "22"
       - run: pip install -r requirements-dev.txt
+      # statsforecast is light enough for CI; its contract test needs it (torch-based estimators skip).
+      - run: pip install -r estimators/statsforecast_auto/requirements.txt
       # The heavy estimators' contract tests skip themselves when torch is not installed.
       - run: python -m pytest -q
       - run: node --test site/lib.test.js
