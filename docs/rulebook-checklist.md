@@ -106,4 +106,4 @@ The rulebook's rule: a capability used but not declared is a finding. `tests/tes
 
 By reading the code, the declared capabilities match what the project does: it calls external APIs (yfinance, ntfy), runs background jobs (the scheduled workflows), keeps persistent state (files in `data/`), ships a client (a few static files), and sends push notifications. `localStorage` is used for two display preferences (mode, palette): that is browser storage, not a declared capability, and is noted here so it is not a surprise. Nothing undeclared was found.
 
-Clean-clone run (chapter 34.1): see the note appended below once it was run.
+Clean-clone run (chapter 34.1), 2026-10-07: the repository was cloned into an empty folder and the README's setup block was followed as written (virtual environment, `pip install -r requirements-dev.txt`, then the three test commands): 150 Python tests passed, 13 dashboard tests passed, and `scripts/verify_data.py data` printed "data checks passed". Run with Python 3.12 on Windows; the workflows use 3.11 on Linux.
