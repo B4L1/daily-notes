@@ -93,6 +93,19 @@ export function freshnessText(summary) {
   return `Data as of ${run}, generated ${String(gen).replace("T", " ").replace(/Z$/, "")} UTC`;
 }
 
+// One short line for the top of the page: when the data was produced and what each mode covers.
+export function updatedLine(summary) {
+  const gen = summary?.generated_at;
+  const when = typeof gen === "string" && Number.isFinite(Date.parse(gen))
+    ? gen.replace("T", " ").replace(/Z$/, "").slice(0, 16) + " UTC" : "unknown";
+  const liveDays = summary?.modes?.live?.dates?.length ?? 0;
+  const btDates = summary?.modes?.backtest?.dates ?? [];
+  const btEnd = btDates.length ? btDates[btDates.length - 1] : null;
+  const live = liveDays ? `Live: ${liveDays} settled day${liveDays === 1 ? "" : "s"}` : "Live: no settled days yet";
+  const bt = btEnd ? `Backtest: fixed replay ending ${btEnd}, does not update` : "Backtest: none";
+  return `Updated ${when} · ${live} · ${bt}`;
+}
+
 export function validPalette(p) {
   return typeof p === "string" && Object.prototype.hasOwnProperty.call(PALETTES, p) ? p : "default";
 }

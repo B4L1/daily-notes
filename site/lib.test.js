@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { cellColor, signMark, fmtPct, fmtUsd, calendarCells, luckText, hitDeviation, dayHit,
-  testedCount, luckThreshold, staleness, freshnessText, validPalette, strideNote, HOLD_LABEL } from "./lib.js";
+  testedCount, luckThreshold, staleness, freshnessText, updatedLine, validPalette, strideNote, HOLD_LABEL } from "./lib.js";
 
 test("fmtPct keeps the sign and handles missing values", () => {
   assert.equal(fmtPct(0.0123), "+1.23%");
@@ -140,4 +140,12 @@ test("strideNote warns only when an estimator is evaluated every Nth day", () =>
 
 test("the reference line is named for what it computes", () => {
   assert.match(HOLD_LABEL, /^Equal-weight daily rebalanced hold/);
+});
+
+test("updatedLine shows update time, live day count and the fixed backtest end, null-safe", () => {
+  const s = { generated_at: "2026-10-08T06:24:35Z", modes: { live: { dates: ["2026-10-08"] }, backtest: { dates: ["2025-10-08", "2026-10-06"] } } };
+  assert.equal(updatedLine(s), "Updated 2026-10-08 06:24 UTC · Live: 1 settled day · Backtest: fixed replay ending 2026-10-06, does not update");
+  assert.match(updatedLine({ generated_at: "2026-10-08T06:24:35Z", modes: { live: { dates: [] }, backtest: { dates: [] } } }), /Live: no settled days yet · Backtest: none/);
+  assert.match(updatedLine(null), /^Updated unknown · Live: no settled days yet/);
+  assert.match(updatedLine({ generated_at: "garbage" }), /^Updated unknown/);
 });

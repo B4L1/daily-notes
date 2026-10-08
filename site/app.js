@@ -1,5 +1,5 @@
 import { cellColor, signMark, fmtPct, fmtUsd, calendarCells, luckText, hitDeviation, dayHit,
-  testedCount, staleness, freshnessText, validPalette, strideNote, HOLD_LABEL } from "./lib.js";
+  testedCount, staleness, freshnessText, updatedLine, validPalette, strideNote, HOLD_LABEL } from "./lib.js";
 import { lineChart, sparkline } from "./charts.js";
 
 const COLORS = ["#58a6ff", "#d29922", "#3fb950", "#bc8cff", "#f778ba", "#39c5cf", "#ff7b72", "#ffa657", "#7ee787", "#a5d6ff"];
@@ -171,6 +171,8 @@ function renderFreshness(view) {
   const f = staleness(state.summary.generated_at, new Date());
   const footer = document.getElementById("freshness");
   if (footer) footer.textContent = freshnessText(state.summary);
+  const top = document.getElementById("updated");
+  if (top) top.textContent = updatedLine(state.summary);
   if (!f.stale) return;
   const age = f.ageHours === null ? "its age is unknown" : `it is ${Math.floor(f.ageHours)} hours old`;
   view.append(el("div", { class: "panel warn", role: "alert" },

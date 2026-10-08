@@ -3,6 +3,7 @@
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--text);font:14px/1.5 var(--font)}
 header,nav,main,footer{max-width:1200px;margin:0 auto;padding-left:16px;padding-right:16px}
+.updated{max-width:1200px;margin:0 auto;padding:0 16px 8px;font-size:.9em}
 header{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;padding-top:16px;padding-bottom:8px}
 h1{font-size:16px;margin:0;color:var(--amber);letter-spacing:.04em;font-weight:600}
 h2{font-size:13px;margin:24px 0 8px;color:var(--dim);text-transform:uppercase;letter-spacing:.08em;font-weight:600}
