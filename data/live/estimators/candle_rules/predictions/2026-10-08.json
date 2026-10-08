@@ -20,18 +20,6 @@
    "expected_return": 0.0,
    "path": null
   },
-  "BTC-USD": {
-   "asof": "2026-10-06",
-   "confidence": null,
-   "expected_return": 0.0,
-   "path": null
-  },
-  "ETH-USD": {
-   "asof": "2026-10-06",
-   "confidence": null,
-   "expected_return": 0.0,
-   "path": null
-  },
   "GLD": {
    "asof": "2026-10-07",
    "confidence": null,
@@ -82,12 +70,6 @@
   },
   "SLV": {
    "asof": "2026-10-07",
-   "confidence": null,
-   "expected_return": 0.0,
-   "path": null
-  },
-  "SOL-USD": {
-   "asof": "2026-10-06",
    "confidence": null,
    "expected_return": 0.0,
    "path": null

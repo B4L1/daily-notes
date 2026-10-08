@@ -20,18 +20,6 @@
    "expected_return": 0.0008226687787100673,
    "path": null
   },
-  "BTC-USD": {
-   "asof": "2026-10-06",
-   "confidence": null,
-   "expected_return": 0.0009027834748849273,
-   "path": null
-  },
-  "ETH-USD": {
-   "asof": "2026-10-06",
-   "confidence": null,
-   "expected_return": 0.0009027834748849273,
-   "path": null
-  },
   "GLD": {
    "asof": "2026-10-07",
    "confidence": null,
@@ -84,12 +72,6 @@
    "asof": "2026-10-07",
    "confidence": null,
    "expected_return": 0.000762711395509541,
-   "path": null
-  },
-  "SOL-USD": {
-   "asof": "2026-10-06",
-   "confidence": null,
-   "expected_return": 0.001262259902432561,
    "path": null
   },
   "SPY": {
