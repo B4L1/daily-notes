@@ -2,3 +2,4 @@
 {"error": "run started outside the live window", "estimator": "control_always_long", "run_date": "2026-10-07", "status": "skipped_late"}
 {"error": "run started outside the live window", "estimator": "control_always_long", "run_date": "2026-10-07", "status": "skipped_late"}
 {"estimator": "control_always_long", "n_predictions": 21, "run_date": "2026-10-08", "status": "ok"}
+{"error": "run started outside the live window", "estimator": "control_always_long", "run_date": "2026-10-08", "status": "skipped_late"}
