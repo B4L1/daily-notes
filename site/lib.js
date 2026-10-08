@@ -144,3 +144,12 @@ export function tickerItems(ticker) {
   rows.sort((a, b) => b.chg - a.chg);
   return rows.map(({ chg, ...rest }) => rest);
 }
+
+// One smoothing step for the ticker speed factor (0 = stopped, 1 = full speed). Exponential, so it never overshoots.
+export function easeSpeed(current, target, dtSeconds, tau = 0.25) {
+  const clamp = (v) => (Number.isFinite(v) ? Math.min(1, Math.max(0, v)) : 0);
+  const cur = clamp(current), tgt = clamp(target);
+  if (!(dtSeconds > 0)) return cur;
+  if (!(tau > 0)) return tgt;
+  return cur + (tgt - cur) * (1 - Math.exp(-dtSeconds / tau));
+}

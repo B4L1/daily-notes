@@ -49,20 +49,18 @@ svg.chart text{fill:var(--dim);font-size:10px;font-family:var(--font)}
 
 .ticker{max-width:1200px;margin:0 auto 8px;padding:0 16px}
 .ticker[hidden]{display:none}
-.tk-window{position:relative;overflow:hidden;background:#05070a;border:1px solid var(--line);border-radius:6px;padding:6px 0}
-.tk-window::after{content:"";position:absolute;inset:0;pointer-events:none;background-image:radial-gradient(circle at center,transparent 0,transparent .8px,rgba(5,7,10,.78) 1.3px);background-size:3px 3px}
-.tk-track{display:flex;width:max-content;animation:tk-scroll 50s linear infinite}
-.tk-window:hover .tk-track,.tk-window:focus-within .tk-track,.tk-window:active .tk-track{animation-play-state:paused}
+.tk-window{position:relative;overflow:hidden;background:#05070a;border:1px solid var(--line);border-radius:6px;padding:16px 0}
+.tk-window::after{content:"";position:absolute;inset:0;pointer-events:none;background-image:radial-gradient(circle at center,transparent 0,transparent 1px,rgba(5,7,10,.6) 1.6px);background-size:4px 4px}
+.tk-track{display:flex;width:max-content;will-change:transform}
 .tk-copy{display:flex;flex:0 0 auto;align-items:center;white-space:nowrap}
-.tk-item{font:600 14px/1.6 var(--font);text-transform:uppercase;letter-spacing:.14em;color:var(--text);text-shadow:0 0 6px currentColor;padding:0 18px}
+.tk-item{font:600 clamp(1.15rem,3.2vw + .5rem,1.5rem)/1.5 var(--font);text-transform:uppercase;letter-spacing:.2em;color:var(--text);text-shadow:0 0 7px currentColor;padding:0 30px}
 .tk-item b{color:var(--amber);font-weight:600}
 .tk-item.up .tk-chg{color:var(--pos)}
 .tk-item.down .tk-chg{color:var(--neg)}
 .tk-item.flat .tk-chg{color:var(--dim)}
-.tk-sep{color:var(--line);font:14px/1.6 var(--font);padding:0 6px;text-shadow:none}
+.tk-sep{color:var(--dim);font:clamp(1.15rem,3.2vw + .5rem,1.5rem)/1.5 var(--font);padding:0 10px;text-shadow:none}
 .tk-note{margin:2px 0 0;font-size:11px;color:var(--dim)}
-@keyframes tk-scroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
-@media (prefers-reduced-motion:reduce){.tk-track{animation:none}.tk-window{overflow-x:auto}.tk-dup{display:none}}
+@media (prefers-reduced-motion:reduce){.tk-track{transform:none!important}.tk-window{overflow-x:auto}.tk-dup{display:none}}
 /* Terminal-style scrollbars: thin, visible, thumb in the muted accent (contrast >3:1 on the dark panels). */
 html,body,nav,.tablewrap,.heat,.cal,.tk-window{scrollbar-width:thin;scrollbar-color:var(--dim) transparent}
 html::-webkit-scrollbar,body::-webkit-scrollbar,nav::-webkit-scrollbar,.tablewrap::-webkit-scrollbar,.heat::-webkit-scrollbar,.cal::-webkit-scrollbar,.tk-window::-webkit-scrollbar{width:8px;height:8px}

@@ -1,5 +1,5 @@
 import { cellColor, signMark, fmtPct, fmtUsd, calendarCells, luckText, hitDeviation, dayHit,
-  testedCount, staleness, freshnessText, updatedLine, validPalette, tickerItems, strideNote, HOLD_LABEL } from "./lib.js";
+  testedCount, staleness, freshnessText, updatedLine, validPalette, tickerItems, easeSpeed, strideNote, HOLD_LABEL } from "./lib.js";
 import { lineChart, sparkline } from "./charts.js";
 
 const COLORS = ["#58a6ff", "#d29922", "#3fb950", "#bc8cff", "#f778ba", "#39c5cf", "#ff7b72", "#ffa657", "#7ee787", "#a5d6ff"];
@@ -307,6 +307,39 @@ async function renderEstimator(view, name) {
   view.append(el("h2", {}, "Day by day"), dayList(mode.days, isControl));
 }
 
+const TICKER_LOOP_SECONDS = 50;
+const TICKER_TAU = 0.25;
+const ticker = { raf: 0, offset: 0, speed: 1, last: 0, held: new Set(), track: null };
+const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+
+function tickerFrame(now) {
+  ticker.raf = 0;
+  const track = ticker.track;
+  if (!track || reducedMotion.matches || document.hidden) return;
+  const dt = ticker.last ? Math.min((now - ticker.last) / 1000, 0.1) : 0;
+  ticker.last = now;
+  ticker.speed = easeSpeed(ticker.speed, ticker.held.size ? 0 : 1, dt, TICKER_TAU);
+  const half = track.scrollWidth / 2;
+  if (half > 0) {
+    ticker.offset = (ticker.offset + (half / TICKER_LOOP_SECONDS) * ticker.speed * dt) % half;
+    track.style.transform = `translate3d(${(-ticker.offset).toFixed(2)}px,0,0)`;
+  }
+  ticker.raf = requestAnimationFrame(tickerFrame);
+}
+
+function tickerSync() {
+  if (!ticker.track) return;
+  if (reducedMotion.matches || document.hidden) {
+    if (ticker.raf) cancelAnimationFrame(ticker.raf);
+    ticker.raf = 0; ticker.last = 0;
+    if (reducedMotion.matches) { ticker.track.style.transform = ""; ticker.offset = 0; }
+    return;
+  }
+  if (!ticker.raf) { ticker.last = 0; ticker.raf = requestAnimationFrame(tickerFrame); }
+}
+
+function tickerHold(on, who) { if (on) ticker.held.add(who); else ticker.held.delete(who); }
+
 function renderTicker() {
   const host = document.getElementById("ticker");
   const items = tickerItems(state.summary?.ticker);
@@ -325,12 +358,24 @@ function renderTicker() {
     if (dup) track.classList.add("tk-dup");
     return track;
   };
+  const track = el("div", { class: "tk-track", "aria-hidden": "true" }, copy(false), copy(true));
+  const win = el("div", { class: "tk-window" }, track);
+  ticker.track = track; ticker.offset = 0; ticker.speed = 1; ticker.held.clear();
+  win.addEventListener("mouseenter", () => tickerHold(true, "hover"));
+  win.addEventListener("mouseleave", () => tickerHold(false, "hover"));
+  win.addEventListener("focusin", () => tickerHold(true, "focus"));
+  win.addEventListener("focusout", () => tickerHold(false, "focus"));
+  win.addEventListener("touchstart", () => tickerHold(true, "touch"), { passive: true });
+  for (const t of ["touchend", "touchcancel"]) win.addEventListener(t, () => tickerHold(false, "touch"), { passive: true });
   host.append(
-    el("div", { class: "tk-window" }, el("div", { class: "tk-track", "aria-hidden": "true" }, copy(false), copy(true))),
+    win,
     el("p", { class: "tk-note" }, "Previous-day price moves of the tracked assets. Not advice."),
     el("ul", { class: "sr-only" }, ...items.map((i) => el("li", {}, i.text))),
   );
+  tickerSync();
 }
+document.addEventListener("visibilitychange", tickerSync);
+reducedMotion.addEventListener?.("change", tickerSync);
 
 function applyPalette() {
   document.documentElement.dataset.palette = state.palette;

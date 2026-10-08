@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { cellColor, signMark, fmtPct, fmtUsd, calendarCells, luckText, hitDeviation, dayHit,
-  testedCount, luckThreshold, staleness, freshnessText, updatedLine, validPalette, strideNote, tickerItems, HOLD_LABEL } from "./lib.js";
+  testedCount, luckThreshold, staleness, freshnessText, updatedLine, validPalette, strideNote, tickerItems, easeSpeed, HOLD_LABEL } from "./lib.js";
 
 test("fmtPct keeps the sign and handles missing values", () => {
   assert.equal(fmtPct(0.0123), "+1.23%");
@@ -187,4 +187,27 @@ test("tickerItems tolerates missing, null and NaN data", () => {
     { symbol: "D", close: NaN, change_pct: 1 }, { symbol: "E", close: 5, change_pct: NaN }, { symbol: "F", close: 0, change_pct: 1 },
     { symbol: "G", close: -3, change_pct: 1 }, { symbol: "H", close: Infinity, change_pct: 1 },
   ]), []);
+});
+
+test("easeSpeed converges to the target without overshooting", () => {
+  let v = 1;
+  const seen = [];
+  for (let i = 0; i < 120; i++) { v = easeSpeed(v, 0, 1 / 60, 0.25); seen.push(v); }
+  assert.ok(seen.every((x, i) => x >= 0 && (i === 0 || x < seen[i - 1] || x === 0)));
+  assert.ok(v < 0.001);
+  let u = 0;
+  for (let i = 0; i < 300; i++) { u = easeSpeed(u, 1, 1 / 60, 0.25); assert.ok(u <= 1); }
+  assert.ok(u > 0.999);
+});
+
+test("easeSpeed: dt=0 leaves it unchanged, huge dt lands on target, inputs are clamped", () => {
+  assert.equal(easeSpeed(0.4, 1, 0, 0.25), 0.4);
+  assert.equal(easeSpeed(0.4, 1, -1, 0.25), 0.4);
+  assert.equal(easeSpeed(0.4, 1, 1000, 0.25), 1);
+  assert.equal(easeSpeed(5, 5, 0.1), 1);
+  assert.equal(easeSpeed(-2, -3, 0.1), 0);
+  assert.equal(easeSpeed(NaN, 1, 0), 0);
+  assert.equal(easeSpeed(0.5, 0, 0.1, 0), 0);
+  // about 0.7 s to be nearly stopped with tau 0.25 (e^-2.8 ~ 6%)
+  assert.ok(easeSpeed(1, 0, 0.7, 0.25) < 0.07);
 });
