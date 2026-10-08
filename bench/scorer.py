@@ -27,7 +27,7 @@ def _check(model, strategy, result):
 def score_store(store, prices, assets, settings, registry):
     """Recompute every account in one store from its predictions. Returns settled days per account.
 
-    Everything is computed before anything is written, so a failure leaves the store untouched.
+    Everything is computed and rendered before anything is written, so a failure leaves the store untouched.
     """
     costs = Costs(assets)
     saved = {m: store.load_predictions(m) for m in registry}
@@ -42,11 +42,11 @@ def score_store(store, prices, assets, settings, registry):
             if result is None:
                 result = Result([], [], [])
             _check(model, strategy, result)
-            results[(model, strategy)] = result
+            results[(model, strategy)] = (result, store.render_account(result))
     store.replace_predictions(ensemble.NAME, derived)
     done = {}
-    for (model, strategy), result in results.items():
-        store.write_account(model, strategy, result)
+    for (model, strategy), (result, texts) in results.items():
+        store.write_account(model, strategy, texts)
         if result.ledger:
             done[(model, strategy)] = len(result.equity)
     return done

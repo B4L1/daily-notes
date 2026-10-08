@@ -85,3 +85,23 @@ def test_non_finite_result_fails_loudly_and_writes_nothing(tmp_path):
     with pytest.raises(ValueError, match="non-finite"):
         score_store(st, bad, ASSETS, Settings(), REG)
     assert not (tmp_path / "accounts" / "m1" / "one_day" / "equity.csv").exists()
+
+
+def test_non_serialisable_positions_fail_before_anything_is_written(tmp_path, monkeypatch):
+    from bench import scorer
+    from bench.strategies.common import Result
+
+    real = scorer.STRATEGIES["one_day"]
+
+    def bad(preds, prices, costs, start):
+        r = real(preds, prices, costs, start)
+        return Result(r.ledger, r.equity, [{"asset": "AAA", "x": float("nan")}])
+
+    monkeypatch.setitem(scorer.STRATEGIES, "one_day", bad)
+    st = Store(tmp_path)
+    for m in ("m1", "m2", "m3"):
+        save(st, m, 0.01)
+    with pytest.raises(ValueError):
+        score_store(st, px(), ASSETS, Settings(), REG)
+    assert not (tmp_path / "accounts").exists()
+    assert not (tmp_path / "estimators" / "ensemble" / "predictions").exists() or not list((tmp_path / "estimators" / "ensemble" / "predictions").glob("*.json"))

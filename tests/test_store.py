@@ -47,10 +47,16 @@ def test_account_round_trip_with_missing_cells(tmp_path):
     led = {c: None for c in LEDGER_COLS}
     led.update(date="2026-01-06", asset="AAA", asof="2026-01-05", traded=1, net_ret=0.01)
     eq = {"date": "2026-01-06", "equity": 10100.0, "day_return": 0.01, "n_universe": 1, "n_traded": 1, "n_open": 0}
-    st.write_account("m", "hold", Result([led], [eq], [{"asset": "AAA"}]))
+    st.write_account("m", "hold", st.render_account(Result([led], [eq], [{"asset": "AAA"}])))
     e, l = st.load_account("m", "hold")
     assert list(e.columns) == EQUITY_COLS and list(l.columns) == LEDGER_COLS
     assert l["date"].tolist() == ["2026-01-06"] and l["hit"].isna().all()
     assert st.load_positions("m", "hold") == [{"asset": "AAA"}]
-    st.write_account("m", "hold", Result([], [], []))
+    st.write_account("m", "hold", st.render_account(Result([], [], [])))
     assert not (tmp_path / "accounts" / "m").exists()
+
+
+def test_prediction_files_use_lf_line_endings(tmp_path):
+    s = Store(tmp_path)
+    s.save_prediction("est", "2026-01-03", {"a": 1})
+    assert b"\r" not in (tmp_path / "estimators" / "est" / "predictions" / "2026-01-03.json").read_bytes()

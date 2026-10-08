@@ -43,7 +43,7 @@ class Store:
         d = self.est_dir(name) / "predictions"
         d.mkdir(exist_ok=True)
         text = json.dumps(payload, indent=1, sort_keys=True) + "\n"
-        (d / f"{run_date}.json").write_text(text, encoding="utf-8")
+        (d / f"{run_date}.json").write_text(text, encoding="utf-8", newline="")
 
     def load_predictions(self, name):
         d = self.est_dir(name) / "predictions"
@@ -77,23 +77,28 @@ class Store:
     def acct_dir(self, model, strategy):
         return self.root / "accounts" / model / strategy
 
-    def write_account(self, model, strategy, result):
-        """Overwrite one account's files. An empty ledger removes them."""
-        d = self.acct_dir(model, strategy)
-        names = ("ledger.csv", "equity.csv", "positions.json")
+    @staticmethod
+    def render_account(result):
+        """An account Result as its three file texts. Empty for an empty ledger. Raises on non-finite values."""
         if not result.ledger:
-            for n in names:
+            return {}
+        return {
+            "ledger.csv": pd.DataFrame(result.ledger, columns=ACCT_LEDGER_COLS).to_csv(index=False, lineterminator="\n"),
+            "equity.csv": pd.DataFrame(result.equity, columns=ACCT_EQUITY_COLS).to_csv(index=False, lineterminator="\n"),
+            "positions.json": json.dumps(result.positions, indent=1, sort_keys=True, allow_nan=False) + "\n",
+        }
+
+    def write_account(self, model, strategy, texts):
+        """Overwrite one account's files with texts from render_account. No texts removes them."""
+        d = self.acct_dir(model, strategy)
+        if not texts:
+            for n in ("ledger.csv", "equity.csv", "positions.json"):
                 (d / n).unlink(missing_ok=True)
             for p in (d, d.parent):
                 if p.exists() and not any(p.iterdir()):
                     p.rmdir()
             return
         d.mkdir(parents=True, exist_ok=True)
-        texts = {
-            "ledger.csv": pd.DataFrame(result.ledger, columns=ACCT_LEDGER_COLS).to_csv(index=False, lineterminator="\n"),
-            "equity.csv": pd.DataFrame(result.equity, columns=ACCT_EQUITY_COLS).to_csv(index=False, lineterminator="\n"),
-            "positions.json": json.dumps(result.positions, indent=1, sort_keys=True) + "\n",
-        }
         for n, text in texts.items():
             tmp = d / f".{n}.tmp"
             tmp.write_text(text, encoding="utf-8", newline="")
