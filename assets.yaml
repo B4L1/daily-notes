@@ -7,24 +7,24 @@ settings:
   sanity_week_pct: 0.50
   history_start: "2019-01-01"
 assets:
-  - {symbol: SPY,    group: stock,     max_gap_days: 5}
-  - {symbol: QQQ,    group: stock,     max_gap_days: 5}
-  - {symbol: AAPL,   group: stock,     max_gap_days: 5}
-  - {symbol: MSFT,   group: stock,     max_gap_days: 5}
-  - {symbol: NVDA,   group: stock,     max_gap_days: 5}
-  - {symbol: AMZN,   group: stock,     max_gap_days: 5}
-  - {symbol: GOOGL,  group: stock,     max_gap_days: 5}
-  - {symbol: META,   group: stock,     max_gap_days: 5}
-  - {symbol: TSLA,   group: stock,     max_gap_days: 5}
-  - {symbol: JPM,    group: stock,     max_gap_days: 5}
-  - {symbol: V,      group: stock,     max_gap_days: 5}
-  - {symbol: XOM,    group: stock,     max_gap_days: 5}
-  - {symbol: WMT,    group: stock,     max_gap_days: 5}
-  - {symbol: JNJ,    group: stock,     max_gap_days: 5}
-  - {symbol: AMD,    group: stock,     max_gap_days: 5}
-  - {symbol: BTC-USD, group: crypto,    max_gap_days: 0}
-  - {symbol: ETH-USD, group: crypto,    max_gap_days: 0}
-  - {symbol: SOL-USD, group: crypto,    max_gap_days: 0}
-  - {symbol: GLD,    group: commodity, max_gap_days: 5}
-  - {symbol: SLV,    group: commodity, max_gap_days: 5}
-  - {symbol: USO,    group: commodity, max_gap_days: 5}
+  - {symbol: SPY,      group: etf,       max_gap_days: 5, cost_round_trip: 0.0001, borrow_annual: 0.005}
+  - {symbol: QQQ,      group: etf,       max_gap_days: 5, cost_round_trip: 0.0001, borrow_annual: 0.005}
+  - {symbol: AAPL,     group: stock,     max_gap_days: 5, cost_round_trip: 0.0005, borrow_annual: 0.005}
+  - {symbol: MSFT,     group: stock,     max_gap_days: 5, cost_round_trip: 0.0005, borrow_annual: 0.005}
+  - {symbol: NVDA,     group: stock,     max_gap_days: 5, cost_round_trip: 0.0005, borrow_annual: 0.005}
+  - {symbol: AMZN,     group: stock,     max_gap_days: 5, cost_round_trip: 0.0005, borrow_annual: 0.005}
+  - {symbol: GOOGL,    group: stock,     max_gap_days: 5, cost_round_trip: 0.0005, borrow_annual: 0.005}
+  - {symbol: META,     group: stock,     max_gap_days: 5, cost_round_trip: 0.0005, borrow_annual: 0.005}
+  - {symbol: TSLA,     group: stock,     max_gap_days: 5, cost_round_trip: 0.0005, borrow_annual: 0.005}
+  - {symbol: JPM,      group: stock,     max_gap_days: 5, cost_round_trip: 0.0005, borrow_annual: 0.005}
+  - {symbol: V,        group: stock,     max_gap_days: 5, cost_round_trip: 0.0005, borrow_annual: 0.005}
+  - {symbol: XOM,      group: stock,     max_gap_days: 5, cost_round_trip: 0.0005, borrow_annual: 0.005}
+  - {symbol: WMT,      group: stock,     max_gap_days: 5, cost_round_trip: 0.0005, borrow_annual: 0.005}
+  - {symbol: JNJ,      group: stock,     max_gap_days: 5, cost_round_trip: 0.0005, borrow_annual: 0.005}
+  - {symbol: AMD,      group: stock,     max_gap_days: 5, cost_round_trip: 0.0005, borrow_annual: 0.005}
+  - {symbol: BTC-USD,  group: crypto,    max_gap_days: 0, cost_round_trip: 0.0025, borrow_annual: 0.10}
+  - {symbol: ETH-USD,  group: crypto,    max_gap_days: 0, cost_round_trip: 0.0025, borrow_annual: 0.10}
+  - {symbol: SOL-USD,  group: crypto,    max_gap_days: 0, cost_round_trip: 0.0025, borrow_annual: 0.10}
+  - {symbol: GLD,      group: commodity, max_gap_days: 5, cost_round_trip: 0.0003, borrow_annual: 0.005}
+  - {symbol: SLV,      group: commodity, max_gap_days: 5, cost_round_trip: 0.0003, borrow_annual: 0.005}
+  - {symbol: USO,      group: commodity, max_gap_days: 5, cost_round_trip: 0.0003, borrow_annual: 0.005}
