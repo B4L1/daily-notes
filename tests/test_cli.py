@@ -79,3 +79,28 @@ def test_backfill_stride_comes_from_the_registry(env, monkeypatch):
     cli.main(["backfill", "--estimator", "control_always_long", "--days", "20", "--end", "2026-03-01"], now=now)
     assert len(list(base.glob("*.json"))) < every_day
     assert registry.backfill_stride("kronos") == 1 and registry.backfill_stride("timesfm") == 1
+
+
+def test_freshness_warnings_flag_short_crypto_fetch():
+    from bench.config import Asset
+    from tests.helpers import candles
+
+    prices = {
+        "BTC-USD": candles([("2026-10-06", 1, 1, 1, 1)]),  # missing 10-07 for run date 10-08
+        "SPY": candles([("2026-10-07", 1, 1, 1, 1)]),
+    }
+    assets = [Asset("BTC-USD", "crypto", 0), Asset("SPY", "stock", 5)]
+    lines = cli.freshness_warnings(prices, assets, "2026-10-08")
+    assert lines[0] == "WARNING: BTC-USD newest candle 2026-10-06 is older than expected 2026-10-07"
+    assert lines[1].startswith("::warning::BTC-USD") and len(lines) == 2
+    fresh = {"BTC-USD": prices["BTC-USD"], "SPY": candles([("2026-10-06", 1, 1, 1, 1)])}
+    assert cli.freshness_warnings(fresh, assets, "2026-10-07") == []
+
+
+def test_fetch_prints_the_freshness_warning_and_does_not_fail(env, monkeypatch, capsys):
+    monkeypatch.setattr(cli, "update_prices", lambda d, a, st, through=None: {x.symbol: "ok" for x in a})
+    rc = cli.main(["fetch"], now=datetime(2026, 10, 8, 6, 22, tzinfo=timezone.utc))
+    out = capsys.readouterr().out
+    assert rc == 0
+    assert "WARNING: SPY newest candle 2026-03-01 is older than expected 2026-10-02" in out
+    assert "::warning::BTC-USD newest candle none" in out

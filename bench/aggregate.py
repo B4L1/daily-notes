@@ -64,6 +64,11 @@ def _ticker(prices, assets):
     return out
 
 
+def _skipped_stale(runs, run_date):
+    todays = [r for r in runs if r.get("run_date") == run_date]
+    return list(todays[-1].get("skipped_stale") or []) if todays else []
+
+
 def _row(eq, led, runs, settings, rand, run_date):
     n_days = len(eq)
     equities, rets = eq["equity"].tolist(), eq["day_return"].tolist()
@@ -74,6 +79,7 @@ def _row(eq, led, runs, settings, rand, run_date):
     edge = scoring.edge_vs_control(dict(zip(eq["date"], rets)), rand)
     return {
         "status": _status_for(runs, run_date),
+        "skipped_stale": _skipped_stale(runs, run_date),
         "balance": round(balance, 2),
         "day_return": rets[-1] if n_days else None,
         "day_change": round(balance - prev, 2) if n_days else 0.0,

@@ -44,6 +44,10 @@ def build_message(summary, run_date):
         parts.append(f"{beat} of {len(active)} beat random.")
     if problems:
         parts.append("Problem: " + ", ".join(problems) + ".")
+    stale = sorted(set(summary.get("stale_assets") or {}) | {
+        a for r in rows.values() for a in r.get("skipped_stale") or []})
+    if stale:
+        parts.append("Stale data, not predicted: " + ", ".join(stale) + ".")
     return f"Prediction bench {run_date}", " ".join(parts)
 
 

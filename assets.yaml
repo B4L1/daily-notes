@@ -22,9 +22,9 @@ assets:
   - {symbol: WMT,    group: stock,     max_gap_days: 5}
   - {symbol: JNJ,    group: stock,     max_gap_days: 5}
   - {symbol: AMD,    group: stock,     max_gap_days: 5}
-  - {symbol: BTC-USD, group: crypto,    max_gap_days: 2}
-  - {symbol: ETH-USD, group: crypto,    max_gap_days: 2}
-  - {symbol: SOL-USD, group: crypto,    max_gap_days: 2}
+  - {symbol: BTC-USD, group: crypto,    max_gap_days: 0}
+  - {symbol: ETH-USD, group: crypto,    max_gap_days: 0}
+  - {symbol: SOL-USD, group: crypto,    max_gap_days: 0}
   - {symbol: GLD,    group: commodity, max_gap_days: 5}
   - {symbol: SLV,    group: commodity, max_gap_days: 5}
   - {symbol: USO,    group: commodity, max_gap_days: 5}

@@ -12,7 +12,7 @@ def test_real_config_loads():
     assert len(assets) == 21
     assert settings.start_equity == 10000
     assert settings.cost_round_trip == 0.001
-    assert Asset("BTC-USD", "crypto", 2) in assets
+    assert Asset("BTC-USD", "crypto", 0) in assets
 
 
 def test_unknown_setting_rejected(tmp_path):

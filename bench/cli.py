@@ -6,7 +6,7 @@ from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 
 from bench.config import load_config
-from bench.data import load_prices, update_prices
+from bench.data import load_prices, stale_assets, update_prices
 from bench.runner import run_estimator_day
 from bench.store import Store
 from estimators import registry
@@ -54,6 +54,9 @@ def cmd_fetch(args, now):
         _data() / "prices", assets, settings.history_start,
         through=(date.fromisoformat(_run_date(None, now)) - timedelta(days=1)).isoformat(),
     )
+    run_date = _run_date(None, now)
+    for line in freshness_warnings(load_prices(_data() / "prices", assets), assets, run_date):
+        print(line)
     split = False
     for symbol, s in status.items():
         print(f"{symbol}: {s}")
@@ -61,6 +64,25 @@ def cmd_fetch(args, now):
             print(line)
         split = split or bool(getattr(s, "split_like", False))
     return 1 if split or all(s != "ok" for s in status.values()) else 0
+
+
+def freshness_warnings(prices, assets, run_date):
+    """WARNING lines (plus GitHub annotations) for assets whose newest stored candle is too old.
+
+    Crypto trades every day, so its newest candle must be run_date - 1; other groups may lag by
+    their max_gap_days. Does not fail the run: the runner skips such assets (see run_estimator_day).
+    """
+    cutoff = date.fromisoformat(run_date) - timedelta(days=1)
+    by_symbol = {a.symbol: a for a in assets}
+    lines = []
+    for symbol in stale_assets(prices, assets, run_date):
+        df = prices.get(symbol)
+        newest = df["date"].iloc[-1] if df is not None and len(df) else "none"
+        expected = (cutoff - timedelta(days=by_symbol[symbol].max_gap_days)).isoformat()
+        msg = f"{symbol} newest candle {newest} is older than expected {expected}"
+        lines.append(f"WARNING: {msg}")
+        lines.append(f"::warning::{msg}; it will not be predicted today")
+    return lines
 
 
 def revision_warnings(symbol, s, max_examples=3):
@@ -89,7 +111,7 @@ def cmd_run(args, now):
     prices = load_prices(_data() / "prices", assets)
     estimator = registry.build(args.estimator)
     rec = run_estimator_day(
-        Store(_data() / "live"), estimator, prices, _run_date(args.run_date, now), settings, now=now
+        Store(_data() / "live"), estimator, prices, _run_date(args.run_date, now), settings, now=now, assets=assets
     )
     print(json.dumps(rec))
     return 0 if rec["status"] in ("ok", "skipped_late") else 1
@@ -107,7 +129,7 @@ def cmd_backfill(args, now):
     for i, d in enumerate(days):
         if i % stride and i != len(days) - 1:
             continue
-        rec = run_estimator_day(store, estimator, prices, d, settings)
+        rec = run_estimator_day(store, estimator, prices, d, settings, assets=assets)
         failed += rec["status"] == "failed"
         if i % 25 == 0:
             print(f"backfill {args.estimator}: {d} ({rec['status']})", file=sys.stderr)

@@ -245,3 +245,55 @@ def test_non_finite_confidence_or_path_is_a_recorded_failure(tmp_path, pred):
     rec = run_estimator_day(st, Fixed(), prices, "2026-01-06", S)
     assert rec["status"] == "failed" and "non-finite" in rec["error"]
     assert st.load_predictions("fixed") == {}
+
+
+# ---- freshness guard: never predict a session that may already be complete -------------------
+
+from bench.config import Asset  # noqa: E402
+
+GUARD_ASSETS = [Asset("CRY", "crypto", 0), Asset("STK", "stock", 5)]
+
+
+def _guard_prices(crypto_last, stock_last):
+    return {
+        "CRY": candles([("2026-01-03", 1, 1, 1, 1), (crypto_last, 1, 1, 1, 1)]),
+        "STK": candles([("2026-01-02", 1, 1, 1, 1), (stock_last, 1, 1, 1, 1)]),
+    }
+
+
+def test_crypto_with_cutoff_bar_is_predicted(tmp_path):
+    st, spy = Store(tmp_path), Spy()
+    rec = run_estimator_day(st, spy, _guard_prices("2026-01-05", "2026-01-05"), "2026-01-06", S, assets=GUARD_ASSETS)
+    assert set(spy.asked) == {"CRY", "STK"} and "skipped_stale" not in rec
+
+
+def test_crypto_missing_cutoff_bar_is_skipped_and_reported(tmp_path):
+    st, spy = Store(tmp_path), Spy()
+    rec = run_estimator_day(st, spy, _guard_prices("2026-01-04", "2026-01-05"), "2026-01-06", S, assets=GUARD_ASSETS)
+    assert spy.asked == ["STK"] and rec["skipped_stale"] == ["CRY"]
+    assert "CRY" not in st.load_predictions("spy")["2026-01-06"]["predictions"]
+    assert st.load_runs("spy")[-1]["skipped_stale"] == ["CRY"]
+
+
+def test_stock_stale_beyond_max_gap_is_skipped(tmp_path):
+    spy = Spy()
+    rec = run_estimator_day(Store(tmp_path), spy, _guard_prices("2026-01-05", "2025-12-25"), "2026-01-06", S,
+                            assets=GUARD_ASSETS)
+    assert spy.asked == ["CRY"] and rec["skipped_stale"] == ["STK"]
+
+
+def test_weekend_stock_run_is_still_predicted(tmp_path):
+    # Monday 2026-01-12 run: newest stock candle is Friday 01-09 (gap 2 days), crypto has Sunday
+    prices = _guard_prices("2026-01-11", "2026-01-09")
+    spy = Spy()
+    rec = run_estimator_day(Store(tmp_path), spy, prices, "2026-01-12", S, assets=GUARD_ASSETS)
+    assert set(spy.asked) == {"CRY", "STK"} and "skipped_stale" not in rec
+
+
+def test_existing_predictions_kept_even_when_asset_later_goes_stale(tmp_path):
+    st = Store(tmp_path)
+    run_estimator_day(st, Spy(), _guard_prices("2026-01-05", "2026-01-05"), "2026-01-06", S, assets=GUARD_ASSETS)
+    first = st.load_predictions("spy")["2026-01-06"]["predictions"]["CRY"]
+    spy = Spy()
+    run_estimator_day(st, spy, _guard_prices("2026-01-05", "2026-01-05"), "2026-01-06", S, assets=GUARD_ASSETS)
+    assert spy.asked == [] and st.load_predictions("spy")["2026-01-06"]["predictions"]["CRY"] == first

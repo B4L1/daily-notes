@@ -2,6 +2,7 @@ import math
 from datetime import date, datetime, timedelta, timezone
 
 from bench.broker import settle_estimator
+from bench.data import stale_assets
 from bench.store import SCHEMA_VERSION
 
 # Worst case: window (11 h) + predict job (up to 45 min) + aggregate/commit (up to 20 min) is about 12h05,
@@ -46,10 +47,15 @@ def _validate(asset, p):
         raise ValueError(f"non-finite path for {asset}")
 
 
-def run_estimator_day(store, estimator, prices, run_date, settings, now=None):
+def run_estimator_day(store, estimator, prices, run_date, settings, now=None, assets=None):
     """Settle everything that can be settled, then predict. Used by live runs and backfill.
 
     now=None means a backtest replay: the live-window check is skipped.
+
+    Freshness guard: when `assets` is given, an asset whose newest candle at or before the cutoff
+    (run_date - 1) is older than its max_gap_days (0 for crypto = exactly the cutoff) is NOT
+    predicted and is recorded as `skipped_stale` on the run record. A prediction made for a
+    session that may already be complete would be retroactive.
     """
     name = estimator.name
     history = cut_history(prices, run_date)
@@ -61,7 +67,11 @@ def run_estimator_day(store, estimator, prices, run_date, settings, now=None):
         store.record_run(name, rec)
         return rec
 
-    need = assets_needing_prediction(store, name, history, run_date)
+    stale = stale_assets(prices, assets, run_date) if assets is not None else {}
+    skipped = sorted(a for a in stale if len(history.get(a, ())))
+    if skipped:
+        rec["skipped_stale"] = skipped
+    need = [a for a in assets_needing_prediction(store, name, history, run_date) if a not in stale]
     existing = store.load_predictions(name).get(run_date)
     kept = {}
     if existing:
