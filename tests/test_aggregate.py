@@ -187,3 +187,21 @@ def test_summary_meta_exposes_backfill_stride(out):
     s = load(out / "summary.json")
     assert {e["name"]: e["backfill_stride"] for e in s["estimators"]}["kronos"] == 1
     assert all(isinstance(e["backfill_stride"], int) and e["backfill_stride"] >= 1 for e in s["estimators"])
+
+
+def test_ticker_uses_last_two_closes_and_skips_bad_assets(tmp_path):
+    px = prices()
+    assets = ASSETS + [Asset("CCC", "stock", 5), Asset("DDD", "stock", 5), Asset("EEE", "stock", 5)]
+    px["CCC"] = candles([("2026-01-05", 10, 11, 9, 10)])  # one candle: skipped
+    px["DDD"] = candles([("2026-01-02", 5, 6, 4, 5), ("2026-01-05", 5, 6, 4, 0)])  # zero close: skipped
+    px["EEE"] = candles([("2026-01-02", 5, 6, 4, float("nan")), ("2026-01-05", 5, 6, 4, 5)])  # NaN: skipped
+    # FFF is configured but has no prices at all
+    assets.append(Asset("FFF", "crypto", 2))
+    _seed(tmp_path, "live", {"AAA": 1.0}, prices())
+    s = _build(tmp_path, px, assets=assets)
+    t = {x["symbol"]: x for x in s["ticker"]}
+    assert set(t) == {"AAA", "BBB"}
+    assert t["AAA"] == {"symbol": "AAA", "label": "AAA", "close": 102.0, "change_pct": pytest.approx(2.0), "date": "2026-01-05"}
+    assert t["BBB"]["close"] == 49.0 and t["BBB"]["change_pct"] == pytest.approx(-2.0)
+    assert [x["symbol"] for x in s["ticker"]] == ["AAA", "BBB"]  # config order; sorting is the client's job
+    json.dumps(s, allow_nan=False)

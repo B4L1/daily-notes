@@ -46,3 +46,29 @@ svg.chart text{fill:var(--dim);font-size:10px;font-family:var(--font)}
 @media (prefers-reduced-motion:no-preference){.tile{transition:border-color .15s}}
 @media (max-width:600px){.heat-label{flex-basis:110px}}
 .sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+.ticker{max-width:1200px;margin:0 auto 8px;padding:0 16px}
+.ticker[hidden]{display:none}
+.tk-window{position:relative;overflow:hidden;background:#05070a;border:1px solid var(--line);border-radius:6px;padding:6px 0}
+.tk-window::after{content:"";position:absolute;inset:0;pointer-events:none;background-image:radial-gradient(circle at center,transparent 0,transparent .8px,rgba(5,7,10,.78) 1.3px);background-size:3px 3px}
+.tk-track{display:flex;width:max-content;animation:tk-scroll 50s linear infinite}
+.tk-window:hover .tk-track,.tk-window:focus-within .tk-track,.tk-window:active .tk-track{animation-play-state:paused}
+.tk-copy{display:flex;flex:0 0 auto;align-items:center;white-space:nowrap}
+.tk-item{font:600 14px/1.6 var(--font);text-transform:uppercase;letter-spacing:.14em;color:var(--text);text-shadow:0 0 6px currentColor;padding:0 18px}
+.tk-item b{color:var(--amber);font-weight:600}
+.tk-item.up .tk-chg{color:var(--pos)}
+.tk-item.down .tk-chg{color:var(--neg)}
+.tk-item.flat .tk-chg{color:var(--dim)}
+.tk-sep{color:var(--line);font:14px/1.6 var(--font);padding:0 6px;text-shadow:none}
+.tk-note{margin:2px 0 0;font-size:11px;color:var(--dim)}
+@keyframes tk-scroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+@media (prefers-reduced-motion:reduce){.tk-track{animation:none}.tk-window{overflow-x:auto}.tk-dup{display:none}}
+/* Terminal-style scrollbars: thin, visible, thumb in the muted accent (contrast >3:1 on the dark panels). */
+html,body,nav,.tablewrap,.heat,.cal,.tk-window{scrollbar-width:thin;scrollbar-color:var(--dim) transparent}
+html::-webkit-scrollbar,body::-webkit-scrollbar,nav::-webkit-scrollbar,.tablewrap::-webkit-scrollbar,.heat::-webkit-scrollbar,.cal::-webkit-scrollbar,.tk-window::-webkit-scrollbar{width:8px;height:8px}
+html::-webkit-scrollbar-track,body::-webkit-scrollbar-track,nav::-webkit-scrollbar-track,.tablewrap::-webkit-scrollbar-track,.heat::-webkit-scrollbar-track,.cal::-webkit-scrollbar-track,.tk-window::-webkit-scrollbar-track{background:transparent}
+html::-webkit-scrollbar-thumb,body::-webkit-scrollbar-thumb,nav::-webkit-scrollbar-thumb,.tablewrap::-webkit-scrollbar-thumb,.heat::-webkit-scrollbar-thumb,.cal::-webkit-scrollbar-thumb,.tk-window::-webkit-scrollbar-thumb{background:var(--dim);border-radius:4px}
+html::-webkit-scrollbar-thumb:hover,body::-webkit-scrollbar-thumb:hover,nav::-webkit-scrollbar-thumb:hover,.tablewrap::-webkit-scrollbar-thumb:hover,.heat::-webkit-scrollbar-thumb:hover,.cal::-webkit-scrollbar-thumb:hover,.tk-window::-webkit-scrollbar-thumb:hover,
+html::-webkit-scrollbar-thumb:active,body::-webkit-scrollbar-thumb:active,nav::-webkit-scrollbar-thumb:active,.tablewrap::-webkit-scrollbar-thumb:active,.heat::-webkit-scrollbar-thumb:active,.cal::-webkit-scrollbar-thumb:active,.tk-window::-webkit-scrollbar-thumb:active{background:var(--amber)}
+html::-webkit-scrollbar-corner,body::-webkit-scrollbar-corner,nav::-webkit-scrollbar-corner,.tablewrap::-webkit-scrollbar-corner,.heat::-webkit-scrollbar-corner,.cal::-webkit-scrollbar-corner,.tk-window::-webkit-scrollbar-corner{background:transparent}
+html::-webkit-scrollbar-button,body::-webkit-scrollbar-button,nav::-webkit-scrollbar-button,.tablewrap::-webkit-scrollbar-button,.heat::-webkit-scrollbar-button,.cal::-webkit-scrollbar-button,.tk-window::-webkit-scrollbar-button{display:none}

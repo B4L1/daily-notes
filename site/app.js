@@ -1,5 +1,5 @@
 import { cellColor, signMark, fmtPct, fmtUsd, calendarCells, luckText, hitDeviation, dayHit,
-  testedCount, staleness, freshnessText, updatedLine, validPalette, strideNote, HOLD_LABEL } from "./lib.js";
+  testedCount, staleness, freshnessText, updatedLine, validPalette, tickerItems, strideNote, HOLD_LABEL } from "./lib.js";
 import { lineChart, sparkline } from "./charts.js";
 
 const COLORS = ["#58a6ff", "#d29922", "#3fb950", "#bc8cff", "#f778ba", "#39c5cf", "#ff7b72", "#ffa657", "#7ee787", "#a5d6ff"];
@@ -307,6 +307,31 @@ async function renderEstimator(view, name) {
   view.append(el("h2", {}, "Day by day"), dayList(mode.days, isControl));
 }
 
+function renderTicker() {
+  const host = document.getElementById("ticker");
+  const items = tickerItems(state.summary?.ticker);
+  host.textContent = "";
+  host.hidden = !items.length;
+  if (!items.length) return;
+  const firstDown = items.findIndex((i) => i.dir === "down");
+  const copy = (dup) => {
+    const track = el("div", { class: "tk-copy" });
+    items.forEach((i, idx) => {
+      if (idx === firstDown && idx > 0) track.append(el("span", { class: "tk-sep" }, "┃"));
+      track.append(el("span", { class: `tk-item ${i.dir}` },
+        el("b", {}, i.symbol), " ", i.price, " ", el("span", { class: "tk-chg" }, `${i.mark} ${i.change}`)));
+    });
+    track.append(el("span", { class: "tk-sep" }, "┃"));
+    if (dup) track.classList.add("tk-dup");
+    return track;
+  };
+  host.append(
+    el("div", { class: "tk-window" }, el("div", { class: "tk-track", "aria-hidden": "true" }, copy(false), copy(true))),
+    el("p", { class: "tk-note" }, "Previous-day price moves of the tracked assets. Not advice."),
+    el("ul", { class: "sr-only" }, ...items.map((i) => el("li", {}, i.text))),
+  );
+}
+
 function applyPalette() {
   document.documentElement.dataset.palette = state.palette;
   document.getElementById("palette").setAttribute("aria-pressed", String(state.palette === "cvd"));
@@ -320,6 +345,7 @@ async function boot() {
   } catch {
     return showError("Couldn't load the data. Check your connection, then retry.", boot);
   }
+  renderTicker();
   render();
 }
 

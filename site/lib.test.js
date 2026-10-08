@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { cellColor, signMark, fmtPct, fmtUsd, calendarCells, luckText, hitDeviation, dayHit,
-  testedCount, luckThreshold, staleness, freshnessText, updatedLine, validPalette, strideNote, HOLD_LABEL } from "./lib.js";
+  testedCount, luckThreshold, staleness, freshnessText, updatedLine, validPalette, strideNote, tickerItems, HOLD_LABEL } from "./lib.js";
 
 test("fmtPct keeps the sign and handles missing values", () => {
   assert.equal(fmtPct(0.0123), "+1.23%");
@@ -148,4 +148,43 @@ test("updatedLine shows update time, live day count and the fixed backtest end, 
   assert.match(updatedLine({ generated_at: "2026-10-08T06:24:35Z", modes: { live: { dates: [] }, backtest: { dates: [] } } }), /Live: no settled days yet · Backtest: none/);
   assert.match(updatedLine(null), /^Updated unknown · Live: no settled days yet/);
   assert.match(updatedLine({ generated_at: "garbage" }), /^Updated unknown/);
+});
+
+test("tickerItems sorts winners first and formats price, mark and signed change", () => {
+  const items = tickerItems([
+    { symbol: "tsla", close: 240.5, change_pct: -1.5 },
+    { symbol: "NVDA", close: 182.4, change_pct: 2.314 },
+    { symbol: "BTC-USD", close: 67123.456, change_pct: 0.001 },
+  ]);
+  assert.deepEqual(items.map((i) => i.symbol), ["NVDA", "BTC-USD", "TSLA"]);
+  assert.equal(items[0].text, "NVDA 182.40 ▲ +2.31%");
+  assert.equal(items[0].dir, "up");
+  assert.equal(items[2].text, "TSLA 240.50 ▼ -1.50%");
+  assert.equal(items[2].dir, "down");
+  assert.equal(items[1].price, "67,123.46");
+});
+
+test("tickerItems shows no sign for a zero (or rounds-to-zero) move", () => {
+  const [a, b] = tickerItems([{ symbol: "A", close: 10, change_pct: 0 }, { symbol: "B", close: 10, change_pct: -0.004 }]);
+  assert.equal(a.text, "A 10.00 • 0.00%");
+  assert.equal(a.dir, "flat");
+  assert.equal(b.change, "0.00%");
+  assert.equal(b.dir, "flat");
+});
+
+test("tickerItems rounds to two decimals and keeps cheap prices precise", () => {
+  const [a] = tickerItems([{ symbol: "X", close: 0.12345, change_pct: 1.005 }]);
+  assert.equal(a.price, "0.1235");
+  assert.match(a.change, /^\+1\.0[01]%$/);
+});
+
+test("tickerItems tolerates missing, null and NaN data", () => {
+  assert.deepEqual(tickerItems(undefined), []);
+  assert.deepEqual(tickerItems(null), []);
+  assert.deepEqual(tickerItems("nope"), []);
+  assert.deepEqual(tickerItems([
+    null, {}, { symbol: "A" }, { symbol: "B", close: null, change_pct: 1 }, { symbol: "C", close: 5, change_pct: null },
+    { symbol: "D", close: NaN, change_pct: 1 }, { symbol: "E", close: 5, change_pct: NaN }, { symbol: "F", close: 0, change_pct: 1 },
+    { symbol: "G", close: -3, change_pct: 1 }, { symbol: "H", close: Infinity, change_pct: 1 },
+  ]), []);
 });

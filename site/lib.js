@@ -122,3 +122,25 @@ export function dayHit(d) {
   const hits = (d?.trades ?? []).map((t) => t.hit).filter((h) => h !== null && h !== undefined);
   return hits.length ? hits.reduce((a, b) => a + b, 0) / hits.length : null;
 }
+
+// Ticker strip: previous-day move per asset. Sorted by change, biggest gain first; unusable rows are dropped.
+export function tickerItems(ticker) {
+  if (!Array.isArray(ticker)) return [];
+  const rows = [];
+  for (const t of ticker) {
+    if (!t || typeof t.symbol !== "string" || !t.symbol) continue;
+    const close = Number(t.close), chg = Number(t.change_pct);
+    if (t.close === null || t.change_pct === null || t.close === undefined || t.change_pct === undefined) continue;
+    if (!Number.isFinite(close) || !Number.isFinite(chg) || close <= 0) continue;
+    const rounded = Number(chg.toFixed(2));
+    const dir = rounded > 0 ? "up" : rounded < 0 ? "down" : "flat";
+    const sign = dir === "up" ? "+" : dir === "down" ? "-" : "";
+    const price = close.toLocaleString("en-US", { minimumFractionDigits: close < 1 ? 4 : 2, maximumFractionDigits: close < 1 ? 4 : 2 });
+    const mark = signMark(rounded);
+    const change = `${sign}${Math.abs(rounded).toFixed(2)}%`;
+    rows.push({ chg, symbol: t.symbol.toUpperCase(), price, mark, change, dir,
+      text: `${t.symbol.toUpperCase()} ${price} ${mark} ${change}` });
+  }
+  rows.sort((a, b) => b.chg - a.chg);
+  return rows.map(({ chg, ...rest }) => rest);
+}

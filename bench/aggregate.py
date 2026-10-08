@@ -47,6 +47,23 @@ def _hold_curve(prices, dates, start_equity):
     return out
 
 
+def _ticker(prices, assets):
+    """Last completed day's close-to-close move per asset (raw prices). Ordering is left to the client."""
+    out = []
+    for a in assets:
+        df = prices.get(a.symbol)
+        if df is None or len(df) < 2:
+            continue
+        prev, cur = float(df["close"].iloc[-2]), float(df["close"].iloc[-1])
+        if not (prev > 0 and cur > 0 and math.isfinite(prev) and math.isfinite(cur)):
+            continue
+        out.append({
+            "symbol": a.symbol, "label": a.symbol, "close": round(cur, 4),
+            "change_pct": round((cur / prev - 1.0) * 100.0, 4), "date": str(df["date"].iloc[-1]),
+        })
+    return out
+
+
 def _row(eq, led, runs, settings, rand, run_date):
     n_days = len(eq)
     equities, rets = eq["equity"].tolist(), eq["day_return"].tolist()
@@ -141,6 +158,7 @@ def build_all(data_dir, out_dir, prices, settings, assets, run_date, generated_a
         "stale_assets": stale_assets(prices, assets, run_date),
         "estimators": meta,
         "modes": modes,
+        "ticker": _ticker(prices, assets),
     }
     (out / "summary.json").write_text(json.dumps(summary, default=_default), encoding="utf-8")
     for n, d in details.items():
