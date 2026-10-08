@@ -120,6 +120,7 @@ There is one secret: `NTFY_TOPIC`, the name of the ntfy topic that receives the 
 3. **Shorting accounts:** sell at the open and buy back at the close on predicted drops, with borrow fees. Crypto shorts need derivatives.
 4. **Copy-trading estimators** from public disclosures: SEC Form 4 insider filings first, then Congress STOCK Act filings and 13F holdings. Keyed on the disclosure date, not the trade date, so the estimator only acts on what was public.
 5. **Inverse-tipster estimator:** needs a named tipster with readable, timestamped posts.
+6. **Dashboard navigation rework:** replace the scrolling tab bar with a side menu: Live and Backtest at the top, then a drop-down of all models sorted by wallet size, largest first, with each wallet amount shown in its box.
 
 ## Estimators
 
