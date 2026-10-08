@@ -137,6 +137,20 @@ def cmd_backfill(args, now):
     return 0
 
 
+def cmd_score(args, now):
+    from bench.runner import cut_history
+    from bench.scorer import score_store
+
+    settings, assets = load_config(_assets_file())
+    run_date = _run_date(args.run_date, now)
+    prices = cut_history(load_prices(_data() / "prices", assets), run_date)
+    modes = ("live", "backtest") if args.mode == "all" else (args.mode,)
+    for mode in modes:
+        done = score_store(Store(_data() / mode), prices, assets, settings, registry.REGISTRY)
+        print(json.dumps({"mode": mode, "accounts": len(done), "settled_days": sum(done.values())}))
+    return 0
+
+
 def cmd_aggregate(args, now):
     from bench.aggregate import build_all
 
@@ -174,6 +188,9 @@ def main(argv=None, now=None):
     b.add_argument("--estimator", required=True)
     b.add_argument("--days", type=int, default=365)
     b.add_argument("--end")
+    s = sub.add_parser("score")
+    s.add_argument("--mode", choices=["live", "backtest", "all"], default="all")
+    s.add_argument("--run-date")
     a = sub.add_parser("aggregate")
     a.add_argument("--run-date")
     n = sub.add_parser("notify")
@@ -182,7 +199,7 @@ def main(argv=None, now=None):
     args = p.parse_args(argv)
     commands = {
         "list": cmd_list, "requirements": cmd_requirements, "setup": cmd_setup, "fetch": cmd_fetch, "run": cmd_run,
-        "backfill": cmd_backfill, "aggregate": cmd_aggregate, "notify": cmd_notify,
+        "backfill": cmd_backfill, "score": cmd_score, "aggregate": cmd_aggregate, "notify": cmd_notify,
     }
     return commands[args.cmd](args, now)
 

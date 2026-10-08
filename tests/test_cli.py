@@ -104,3 +104,24 @@ def test_fetch_prints_the_freshness_warning_and_does_not_fail(env, monkeypatch, 
     assert rc == 0
     assert "WARNING: SPY newest candle 2026-03-01 is older than expected 2026-10-02" in out
     assert "::warning::BTC-USD newest candle none" in out
+
+
+def test_score_command_writes_accounts(tmp_path, monkeypatch):
+    data = tmp_path / "data"
+    (data / "prices").mkdir(parents=True)
+    random_walk(40, start="2026-01-01").to_csv(data / "prices" / "AAA.csv", index=False)
+    assets = tmp_path / "assets.yaml"
+    assets.write_text("assets:\n  - {symbol: AAA, group: stock, max_gap_days: 5, cost_round_trip: 0.001}\n", encoding="utf-8")
+    monkeypatch.setenv("BENCH_DATA", str(data))
+    monkeypatch.setenv("BENCH_ASSETS", str(assets))
+    pred = data / "backtest" / "estimators" / "control_always_long" / "predictions"
+    pred.mkdir(parents=True)
+    pred.joinpath("2026-01-11.json").write_text(json.dumps({
+        "schema_version": 1, "estimator": "control_always_long", "run_date": "2026-01-11", "created_at": None,
+        "predictions": {"AAA": {"asof": "2026-01-10", "expected_return": 1.0, "confidence": None, "path": None}},
+    }), encoding="utf-8")
+    now = datetime(2026, 2, 9, 1, 0, tzinfo=timezone.utc)
+    assert cli.main(["score", "--mode", "backtest"], now=now) == 0
+    assert (data / "backtest" / "accounts" / "control_always_long" / "hold" / "equity.csv").exists()
+    # live mode with nothing in it is fine
+    assert cli.main(["score", "--mode", "all"], now=now) == 0
