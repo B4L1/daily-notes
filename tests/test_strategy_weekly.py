@@ -80,3 +80,30 @@ def test_model_without_paths_has_no_weekly_account():
 def test_short_path_is_ignored():
     p = {("AAA", "2026-01-05"): {"asof": "2026-01-05", "expected_return": 0.5, "path": [101.0, 102.0]}}
     assert weekly.weekly(p, px(), Costs(A), 10000.0) is None
+
+
+def test_short_path_with_non_finite_value_is_ignored():
+    for bad in (None, float("nan")):
+        p = {("AAA", "2026-01-05"): {"asof": "2026-01-05", "expected_return": 0.5,
+                                     "path": [100.0, 100.0, 100.0, 100.0, bad]}}
+        assert weekly.weekly(p, px(), Costs(A), 10000.0) is None
+
+
+def test_n_open_counts_assets_without_a_candle_that_day():
+    assets = [Asset("AAA", "stock", 5, 0.002, 0.0), Asset("BBB", "crypto", 5, 0.002, 0.0)]
+    days = ["2026-01-05", "2026-01-06", "2026-01-07", "2026-01-08", "2026-01-09", "2026-01-10", "2026-01-11"]
+
+    def frame(ds):
+        return candles([(d, 100, 100, 100, 100) for d in ds])
+
+    prices = {"AAA": frame(days[:5]), "BBB": frame(days)}  # the stock has no weekend candles
+
+    def pred(asset, asof):
+        return {(asset, asof): {"asof": asof, "expected_return": 0.0, "path": [100.0] * 4 + [105.0]}}
+
+    preds = {**pred("AAA", days[0]), **pred("BBB", days[3])}
+    r = weekly.weekly(preds, prices, Costs(assets), 10000.0)
+    n_open = {x["date"]: x["n_open"] for x in r.equity}
+    assert n_open[days[5]] == 2  # Saturday: the stock slot is still open though AAA has no candle
+    assert n_open[days[6]] == 2
+    assert r.equity[-1]["n_open"] == len(r.positions) == 2

@@ -1,7 +1,19 @@
+import math
+
 from bench.strategies.common import Result, finish, hit_flag, row
 
 HORIZON = 5
 WEIGHT = 1.0 / HORIZON
+
+
+def _usable(p):
+    path = p.get("path")
+    if not path or len(path) < HORIZON:
+        return False
+    try:
+        return math.isfinite(float(path[HORIZON - 1]))
+    except (TypeError, ValueError):
+        return False
 
 
 def weekly(preds, prices, costs, start_equity):
@@ -9,10 +21,10 @@ def weekly(preds, prices, costs, start_equity):
 
     Returns None for a model whose predictions carry no 5-day path.
     """
-    usable = {k: p for k, p in preds.items() if p.get("path") and len(p["path"]) >= HORIZON}
+    usable = {k: p for k, p in preds.items() if _usable(p)}
     if not usable:
         return None
-    rows, positions, open_after = [], [], {}
+    rows, positions, spans = [], [], []  # spans: (entry date, close date or None) of traded slots
     for asset in sorted(prices):
         df = prices[asset]
         d, o, c = df["date"].tolist(), [float(x) for x in df["open"]], [float(x) for x in df["close"]]
@@ -23,6 +35,8 @@ def weekly(preds, prices, costs, start_equity):
             if p is not None:
                 exp5 = float(p["path"][HORIZON - 1]) / c[i - 1] - 1.0
                 slots.append((i, exp5, exp5 > rt, p["asof"]))
+                if exp5 > rt:
+                    spans.append((d[i], d[i + HORIZON - 1] if i + HORIZON - 1 < len(d) else None))
             actual_cc = c[i] / c[i - 1] - 1.0
             for start, exp5, traded, asof in slots:
                 age = i - start
@@ -47,8 +61,7 @@ def weekly(preds, prices, costs, start_equity):
                 else:
                     rows.append(row(d[i], asset, costs, asof, "long", "hold", c[i - 1], c[i], exp5, 1,
                                     actual_cc, 0.0, actual_cc, None, None, WEIGHT))
-            still = sum(1 for start, _e, traded, _a in slots if traded and 0 <= i - start < HORIZON - 1)
-            open_after[d[i]] = open_after.get(d[i], 0) + still
+            slots = [s for s in slots if i - s[0] < HORIZON - 1]  # a slot's last session is done
         n = len(d) - 1
         for start, exp5, traded, asof in slots:
             if traded and n - start < HORIZON - 1:
@@ -57,5 +70,14 @@ def weekly(preds, prices, costs, start_equity):
                     "entry": o[start], "last_date": d[n], "last": c[n],
                     "unrealised": c[n] / o[start] - 1.0 - half,
                 })
+    delta = {}
+    for entry, close in spans:
+        delta[entry] = delta.get(entry, 0) + 1
+        if close is not None:
+            delta[close] = delta.get(close, 0) - 1
+    open_after, running = {}, 0
+    for dt in sorted({x for df in prices.values() for x in df["date"].tolist()}):
+        running += delta.get(dt, 0)
+        open_after[dt] = running
     rows.sort(key=lambda r: (r["date"], r["asset"], r["asof"]))
     return Result(rows, finish(rows, prices, start_equity, open_after), positions)
