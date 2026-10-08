@@ -92,3 +92,61 @@ def test_flat_cost_reproduces_the_v1_equity_of_the_random_control():
     want = pd.read_csv(fixture, dtype={"date": str})
     got = pd.DataFrame(r.equity).set_index("date").loc[want["date"]]
     assert (got["equity"].to_numpy() - want["equity"].to_numpy()).__abs__().max() < 1e-6
+
+
+def test_short_earns_when_the_price_falls():
+    # BBB falls 50 -> 49: gross -0.02. cost 0.0001 + borrow 0.36/360 = 0.001
+    r = daily.one_day_short(preds(BBB=-0.01), px(), Costs(A), 10000.0)
+    row = r.ledger[0]
+    assert row["side"] == "short" and row["traded"] == 1 and row["hit"] == 1
+    assert row["net_ret"] == pytest.approx(0.02 - 0.0001 - 0.001)
+    assert row["cost"] == pytest.approx(0.0011)
+
+
+def test_short_loses_when_the_price_rises():
+    r = daily.one_day_short(preds(AAA=-0.01), px(), Costs(A), 10000.0)
+    assert r.ledger[0]["net_ret"] == pytest.approx(-0.02 - 0.001 - 0.001)
+
+
+def test_short_account_still_goes_long_on_up_calls():
+    r = daily.one_day_short(preds(AAA=0.01), px(), Costs(A), 10000.0)
+    assert r.ledger[0]["side"] == "long" and r.ledger[0]["net_ret"] == pytest.approx(0.019)
+
+
+def test_small_down_call_does_not_short():
+    r = daily.one_day_short(preds(AAA=-0.0005), px(), Costs(A), 10000.0)
+    assert r.ledger[0]["traded"] == 0
+
+
+def test_long_only_account_ignores_down_calls():
+    assert daily.one_day(preds(BBB=-0.01), px(), Costs(A), 10000.0).ledger[0]["traded"] == 0
+
+
+def four():
+    assets = [Asset(s, "stock", 5, 0.001, 0.0) for s in ("A1", "A2", "A3", "A4")]
+    prices = {s: candles([("2026-01-05", 100, 100, 100, 100), ("2026-01-06", 100, 101, 99, 101)]) for s in ("A1", "A2", "A3", "A4")}
+    return assets, prices
+
+
+def test_top_picks_takes_the_three_strongest():
+    assets, prices = four()
+    p = {(s, "2026-01-05"): {"asof": "2026-01-05", "expected_return": e, "path": None}
+         for s, e in (("A1", 0.01), ("A2", 0.04), ("A3", 0.02), ("A4", 0.03))}
+    r = daily.top_picks(p, prices, Costs(assets), 10000.0)
+    assert sorted(x["asset"] for x in r.ledger if x["traded"]) == ["A2", "A3", "A4"]
+    assert len(r.ledger) == 4  # the unpicked call still gets a row
+
+
+def test_top_picks_with_fewer_than_three_qualifying():
+    assets, prices = four()
+    p = {(s, "2026-01-05"): {"asof": "2026-01-05", "expected_return": e, "path": None}
+         for s, e in (("A1", 0.01), ("A2", 0.0005), ("A3", -0.02), ("A4", 0.0))}
+    r = daily.top_picks(p, prices, Costs(assets), 10000.0)
+    assert [x["asset"] for x in r.ledger if x["traded"]] == ["A1"]
+
+
+def test_top_picks_ties_break_by_symbol():
+    assets, prices = four()
+    p = {(s, "2026-01-05"): {"asof": "2026-01-05", "expected_return": 0.01, "path": None} for s in ("A1", "A2", "A3", "A4")}
+    r = daily.top_picks(p, prices, Costs(assets), 10000.0)
+    assert sorted(x["asset"] for x in r.ledger if x["traded"]) == ["A1", "A2", "A3"]

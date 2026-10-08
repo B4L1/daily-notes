@@ -31,3 +31,16 @@ def _run(preds, prices, costs, start_equity, short=False, top_n=None):
 def one_day(preds, prices, costs, start_equity):
     """Buy at the open, sell at the close, when the expected gain beats the asset's cost."""
     return _run(preds, prices, costs, start_equity)
+
+
+TOP_N = 3
+
+
+def one_day_short(preds, prices, costs, start_equity):
+    """As one_day, and also short at the open when the expected fall beats the asset's cost."""
+    return _run(preds, prices, costs, start_equity, short=True)
+
+
+def top_picks(preds, prices, costs, start_equity):
+    """As one_day, but only the day's three strongest calls."""
+    return _run(preds, prices, costs, start_equity, top_n=TOP_N)
