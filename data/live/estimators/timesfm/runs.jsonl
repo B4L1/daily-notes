@@ -1,3 +1,4 @@
 {"error": "run started outside the live window", "estimator": "timesfm", "run_date": "2026-10-07", "status": "skipped_late"}
 {"estimator": "timesfm", "n_predictions": 21, "run_date": "2026-10-08", "status": "ok"}
 {"error": "run started outside the live window", "estimator": "timesfm", "run_date": "2026-10-08", "status": "skipped_late"}
+{"error": "run started outside the live window", "estimator": "timesfm", "run_date": "2026-10-08", "status": "skipped_late"}
