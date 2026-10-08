@@ -20,8 +20,6 @@ class Asset:
 @dataclass(frozen=True)
 class Settings:
     start_equity: float = 10000.0
-    cost_round_trip: float = 0.001
-    trade_threshold: float = 0.001
     min_live_days: int = 60
     sanity_day_pct: float = 0.10
     sanity_week_pct: float = 0.50

@@ -3,10 +3,9 @@ import json
 import pytest
 
 from bench.aggregate import build_all
-from bench.broker import settle_estimator
 from bench.config import Asset, Settings
 from bench.store import Store
-from tests.helpers import candles
+from tests.helpers import candles, score
 
 S = Settings()
 ASSETS = [Asset("AAA", "stock", 5), Asset("BBB", "stock", 5)]
@@ -30,8 +29,8 @@ def out(tmp_path):
         "AAA": pred("2026-01-02", 1.0), "BBB": pred("2026-01-02", 1.0)}})
     live.save_prediction("control_random", "2026-01-03", {"predictions": {
         "AAA": pred("2026-01-02", 1.0), "BBB": pred("2026-01-02", -1.0)}})
+    score(live, prices())
     for n in ("control_always_long", "control_random"):
-        settle_estimator(live, n, prices(), S)
         live.record_run(n, {"run_date": "2026-01-06", "estimator": n, "status": "ok"})
     live.record_run("analog", {"run_date": "2026-01-06", "estimator": "analog", "status": "failed", "error": "x"})
     target = tmp_path / "site" / "data"
@@ -60,7 +59,7 @@ def test_summary_shape_and_numbers(out):
 
 def test_hold_reference_line(out):
     live = load(out / "summary.json")["modes"]["live"]
-    assert live["hold"] == [["2026-01-05", 10000.0]]  # +2% and -2% cancel
+    assert live["hold"] == [["2026-01-05", 9995.0]]  # +2% and -2% cancel; each leg pays half of 0.1% on entry
 
 
 def test_failed_and_unrun_estimators(out):
@@ -93,7 +92,7 @@ def _seed(tmp_path, mode, exps, px):
     for n in ("control_always_long", "control_random"):
         st.save_prediction(n, "2026-01-03", {"predictions": {
             a: pred("2026-01-02", e) for a, e in exps.items()}})
-        settle_estimator(st, n, px, S)
+    score(st, px)
     return st
 
 
@@ -155,8 +154,7 @@ def _walk_store(tmp_path, n_days, mode="live"):
         st.save_prediction("control_random", days[i + 1], {"predictions": {"AAA": pred(asof, 1.0)}})
         st.save_prediction("control_always_long", days[i + 1], {"predictions": {
             "AAA": pred(asof, 1.0), "BBB": pred(asof, 1.0)}})
-    for n in ("control_random", "control_always_long"):
-        settle_estimator(st, n, px, S)
+    score(st, px)
     return px
 
 
@@ -179,7 +177,7 @@ def test_zero_close_does_not_break_hold(tmp_path):
     px["BBB"] = candles([("2026-01-02", 50, 51, 49, 0), ("2026-01-05", 50, 51, 48, 49)])
     _seed(tmp_path, "live", {"AAA": 1.0}, prices())
     s = _build(tmp_path, px)
-    assert s["modes"]["live"]["hold"] == [["2026-01-05", 10200.0]]  # only AAA's +2% step counts
+    assert s["modes"]["live"]["hold"] == [["2026-01-05", 10097.5]]  # only AAA is held: +2% less half of 0.1%, spread over both assets with a session
     json.dumps(s, allow_nan=False)
 
 
@@ -205,3 +203,54 @@ def test_ticker_uses_last_two_closes_and_skips_bad_assets(tmp_path):
     assert t["BBB"]["close"] == 49.0 and t["BBB"]["change_pct"] == pytest.approx(-2.0)
     assert [x["symbol"] for x in s["ticker"]] == ["AAA", "BBB"]  # config order; sorting is the client's job
     json.dumps(s, allow_nan=False)
+
+
+def test_summary_has_strategies_accounts_groups_and_the_ensemble(tmp_path):
+    from estimators.registry import REGISTRY
+
+    assets = [Asset("AAA", "stock", 5, 0.001, 0.0), Asset("BBB", "crypto", 5, 0.001, 0.0)]
+    px = {
+        "AAA": candles([("2026-01-05", 100, 100, 100, 100), ("2026-01-06", 100, 103, 99, 102), ("2026-01-07", 102, 104, 101, 103)]),
+        "BBB": candles([("2026-01-05", 10, 10, 10, 10), ("2026-01-06", 10, 11, 9, 9), ("2026-01-07", 9, 9, 9, 9)]),
+    }
+    st = Store(tmp_path / "data" / "live")
+    for n in REGISTRY:
+        st.save_prediction(n, "2026-01-06", {
+            "schema_version": 1, "estimator": n, "run_date": "2026-01-06", "created_at": None,
+            "predictions": {s: {"asof": "2026-01-05", "expected_return": 0.01, "confidence": None, "path": None} for s in px},
+        })
+    st.save_prediction("control_always_long", "2026-01-07", {  # still long on the 7th, so the position stays open
+        "schema_version": 1, "estimator": "control_always_long", "run_date": "2026-01-07", "created_at": None,
+        "predictions": {s: {"asof": "2026-01-06", "expected_return": 1.0, "confidence": None, "path": None} for s in px},
+    })
+    score(st, px, assets)
+    Store(tmp_path / "data" / "backtest")
+    out = tmp_path / "site"
+    build_all(tmp_path / "data", out, px, S, assets, "2026-01-08", generated_at="2026-01-08T00:00:00Z")
+    s = json.loads((out / "summary.json").read_text())
+    assert s["strategies"] == ["one_day", "one_day_short", "hold", "top_picks", "weekly"]
+    assert s["estimators"][-1] == {"name": "ensemble", "label": "Ensemble (majority vote)", "kind": "derived", "backfill_stride": 1}
+    live = s["modes"]["live"]
+    assert set(live["rows"]) == set(REGISTRY) | {"ensemble"}
+    row = live["accounts"]["one_day"]["analog"]
+    assert row["groups"]["stock"]["trades"] == 1 and row["groups"]["crypto"]["trades"] == 1
+    assert row["groups"]["stock"]["net_sum"] > 0 > row["groups"]["crypto"]["net_sum"]
+    assert "weekly" not in live["accounts"] or "analog" not in live["accounts"]["weekly"]
+    assert live["hold"] and live["hold"][0][0] == "2026-01-06"  # always-long under the hold rule
+    d = json.loads((out / "estimators" / "analog.json").read_text())
+    assert set(d["modes"]["live"]["accounts"]) >= {"one_day", "hold"}
+    held = json.loads((out / "estimators" / "control_always_long.json").read_text())["modes"]["live"]["accounts"]["hold"]
+    assert {p["asset"] for p in held["positions"]} == {"AAA", "BBB"}
+    assert json.loads((out / "estimators" / "ensemble.json").read_text())["name"] == "ensemble"
+
+
+def test_missing_accounts_are_skipped(tmp_path):
+    Store(tmp_path / "data" / "live")
+    Store(tmp_path / "data" / "backtest")
+    out = tmp_path / "site"
+    build_all(tmp_path / "data", out, {}, S, [], "2026-01-08", generated_at="2026-01-08T00:00:00Z")
+    text = (out / "summary.json").read_text()
+    s = json.loads(text)
+    assert "NaN" not in text and "Infinity" not in text
+    assert s["modes"]["live"]["accounts"] == {} and s["modes"]["live"]["hold"] == []
+    assert s["modes"]["live"]["rows"]["analog"]["balance"] == 10000.0

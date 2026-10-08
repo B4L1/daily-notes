@@ -49,7 +49,7 @@ export function calendarCells(dates) {
   return cells;
 }
 
-export const HOLD_LABEL = "Equal-weight daily rebalanced hold (assets with a session that day, no costs)";
+export const HOLD_LABEL = "Buy and hold, fees paid (always long under the hold rule)";
 export const STALE_HOURS = 36;
 const ALPHA = 0.05;
 

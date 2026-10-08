@@ -27,3 +27,13 @@ def random_walk(n, start="2024-01-01", seed=0, daily_vol=0.01):
     return pd.DataFrame(
         {"date": dates, "open": open_, "high": high, "low": low, "close": close, "volume": 1000}
     )
+
+
+def score(store, prices, assets=None, registry=None):
+    """Score a test store the way the daily run does. Assets default to one flat-cost stock per price series."""
+    from bench.config import Asset, Settings
+    from bench.scorer import score_store
+    from estimators.registry import REGISTRY
+
+    assets = assets or [Asset(s, "stock", 5, 0.001, 0.0) for s in prices]
+    return score_store(store, prices, assets, Settings(), registry or REGISTRY)

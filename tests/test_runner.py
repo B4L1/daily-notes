@@ -133,7 +133,7 @@ def test_live_window():
     assert not live_window_ok(d, late) and not live_window_ok(d, early)
 
 
-def test_late_run_settles_but_does_not_predict(tmp_path):
+def test_late_run_does_not_predict(tmp_path):
     st = Store(tmp_path)
     prices = {"AAA": candles([("2026-01-02", 1, 1, 1, 1), ("2026-01-05", 1, 1, 1, 1)])}
     late = datetime(2026, 1, 6, 13, 0, tzinfo=timezone.utc)
@@ -142,15 +142,18 @@ def test_late_run_settles_but_does_not_predict(tmp_path):
     assert st.load_predictions("spy") == {}
 
 
-def test_settles_incrementally_across_runs(tmp_path):
+def test_scoring_after_incremental_runs(tmp_path):
     st = Store(tmp_path)
     prices = {"AAA": candles([
         ("2026-01-02", 99, 101, 98, 100), ("2026-01-05", 100, 103, 99, 102),
     ])}
     run_estimator_day(st, Spy(), prices, "2026-01-03", S)   # predicts for the 5th
     run_estimator_day(st, Spy(), prices, "2026-01-06", S)   # settles the 5th
-    assert len(st.load_equity("spy")) == 1
-    assert st.load_equity("spy")["equity"].iloc[0] == pytest.approx(10190.0)
+    from tests.helpers import score
+    score(st, prices, registry={"spy": {"kind": "ml"}})
+    eq = st.load_account("spy", "one_day")[0]
+    assert len(eq) == 1
+    assert eq["equity"].iloc[0] == pytest.approx(10190.0)
 
 
 class Flaky(Estimator):
@@ -166,7 +169,7 @@ class Flaky(Estimator):
         return {a: Prediction(0.001 * self.calls) for a in assets if len(history[a])}
 
 
-def test_late_run_still_settles_before_skipping(tmp_path):
+def test_late_run_skips_but_earlier_predictions_still_score(tmp_path):
     st = Store(tmp_path)
     st.save_prediction("spy", "2026-01-03", {"predictions": {
         "AAA": {"asof": "2026-01-02", "expected_return": 0.01, "confidence": None, "path": None}}})
@@ -174,7 +177,9 @@ def test_late_run_still_settles_before_skipping(tmp_path):
     late = datetime(2026, 1, 6, 13, 0, tzinfo=timezone.utc)
     rec = run_estimator_day(st, Spy(), prices, "2026-01-06", S, now=late)
     assert rec["status"] == "skipped_late"
-    assert st.load_equity("spy")["equity"].iloc[0] == pytest.approx(10190.0)
+    from tests.helpers import score
+    score(st, prices, registry={"spy": {"kind": "ml"}})
+    assert st.load_account("spy", "one_day")[0]["equity"].iloc[0] == pytest.approx(10190.0)
     assert "2026-01-06" not in st.load_predictions("spy")
 
 
@@ -297,3 +302,12 @@ def test_existing_predictions_kept_even_when_asset_later_goes_stale(tmp_path):
     spy = Spy()
     run_estimator_day(st, spy, _guard_prices("2026-01-05", "2026-01-05"), "2026-01-06", S, assets=GUARD_ASSETS)
     assert spy.asked == [] and st.load_predictions("spy")["2026-01-06"]["predictions"]["CRY"] == first
+
+
+def test_runner_no_longer_settles(tmp_path):
+    st = Store(tmp_path)
+    prices = {"SPY": candles([("2026-01-05", 100, 100, 100, 100), ("2026-01-06", 100, 103, 99, 102)])}
+    run_estimator_day(st, Spy(), prices, "2026-01-06", Settings())
+    run_estimator_day(st, Spy(), prices, "2026-01-07", Settings())
+    assert not (tmp_path / "accounts").exists()
+    assert not (tmp_path / "estimators" / "spy" / "equity.csv").exists()

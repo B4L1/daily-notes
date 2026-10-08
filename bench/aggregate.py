@@ -3,12 +3,16 @@ import math
 from datetime import datetime, timezone
 from pathlib import Path
 
-from bench import scoring
+from bench import ensemble, scoring
 from bench.data import stale_assets
+from bench.scorer import models as all_models
 from bench.store import SCHEMA_VERSION, Store
+from bench.strategies import STRATEGIES
 from estimators.registry import REGISTRY
 
+MAIN = "one_day"
 CONTROL_RANDOM = "control_random"
+CONTROL_LONG = "control_always_long"
 PUBLIC_META_SKIP = ("target", "requirements")
 
 
@@ -23,28 +27,6 @@ def _default(o):
 def _status_for(runs, run_date):
     todays = [r for r in runs if r.get("run_date") == run_date]
     return todays[-1]["status"] if todays else "no_run"
-
-
-def _hold_curve(prices, dates, start_equity):
-    """Equal-weight daily rebalanced hold (mean return of the assets with a session that day, no costs).
-
-    Not a true buy-and-hold of a fixed basket. A reference line, not an account.
-    """
-    per_date = {}
-    for df in prices.values():
-        d, c = df["date"].tolist(), df["close"].tolist()
-        for i in range(1, len(d)):
-            prev, cur = c[i - 1], c[i]
-            if not (prev > 0 and cur > 0 and math.isfinite(prev) and math.isfinite(cur)):
-                continue
-            per_date.setdefault(d[i], []).append(cur / prev - 1.0)
-    eq, out = float(start_equity), []
-    for day in dates:
-        rets = per_date.get(day)
-        if rets:
-            eq *= 1.0 + sum(rets) / len(rets)
-        out.append([day, round(eq, 2)])
-    return out
 
 
 def _ticker(prices, assets):
@@ -99,11 +81,11 @@ def _row(eq, led, runs, settings, rand, run_date):
 
 
 def _detail(eq, led, row):
-    trades_by_date = {d: g for d, g in led.groupby("settle_date")}
+    trades_by_date = {d: g for d, g in led.groupby("date")}
     days = []
     for rec in _records(eq):
         g = trades_by_date.get(rec["date"])
-        trades = [] if g is None else _records(g.drop(columns=["settle_date"]))
+        trades = [] if g is None else _records(g.drop(columns=["date"]))
         days.append({**rec, "trades": trades})
     per_asset = {}
     for asset, g in led.groupby("asset"):
@@ -116,27 +98,71 @@ def _detail(eq, led, row):
     return {"stats": row, "equity": equity, "days": days, "per_asset": per_asset}
 
 
+def _series(eq):
+    return [[d, round(float(e), 2)] for d, e in zip(eq["date"], eq["equity"])]
+
+
+def _groups(led):
+    """Per asset category: fee-paying trades, summed weighted net return, 1-day hit rate."""
+    out = {}
+    if led.empty:
+        return out
+    fee = led[led["action"].isin(["day", "open", "close"]) & (led["traded"] == 1)]
+    for group, g in led.groupby("group"):
+        out[group] = {
+            "trades": int((fee["group"] == group).sum()),
+            "net_sum": float((g["net_ret"] * g["weight"]).sum()),
+            "hit_rate": scoring.hit_rate(g["hit"].dropna().tolist()),
+        }
+    return out
+
+
+def _runs(store, name, run_date):
+    """The ensemble is derived, so it has no run log: it ran if it has predictions for the run date."""
+    if name != ensemble.NAME:
+        return store.load_runs(name)
+    return [{"run_date": run_date, "status": "ok"}] if run_date in store.load_predictions(name) else []
+
+
 def _mode_block(data_dir, mode, prices, settings, run_date):
     store = Store(Path(data_dir) / mode)
-    eqs = {n: store.load_equity(n) for n in REGISTRY}
-    leds = {n: store.load_ledger(n) for n in REGISTRY}
-    runs = {n: store.load_runs(n) for n in REGISTRY}
+    names = all_models(REGISTRY)
+    accts = {(n, s): store.load_account(n, s) for n in names for s in STRATEGIES}
+    runs = {n: _runs(store, n, run_date) for n in names}
+    eqs = {n: accts[(n, MAIN)][0] for n in names}
+    leds = {n: accts[(n, MAIN)][1] for n in names}
     dates = sorted({d for eq in eqs.values() for d in eq["date"]})
-    rand = dict(zip(eqs[CONTROL_RANDOM]["date"], eqs[CONTROL_RANDOM]["day_return"]))
+
+    def rand(strategy):
+        eq = accts[(CONTROL_RANDOM, strategy)][0]
+        return dict(zip(eq["date"], eq["day_return"]))
+
     rows, pnl, hit, equity = {}, {}, {}, {}
-    for n in REGISTRY:
-        rows[n] = _row(eqs[n], leds[n], runs[n], settings, rand, run_date)
+    for n in names:
+        rows[n] = _row(eqs[n], leds[n], runs[n], settings, rand(MAIN), run_date)
         by_date = dict(zip(eqs[n]["date"], eqs[n]["day_return"]))
         pnl[n] = [by_date.get(d) for d in dates]
         scored = leds[n].dropna(subset=["hit"])
-        hits = {} if scored.empty else scored.groupby("settle_date")["hit"].mean().to_dict()
+        hits = {} if scored.empty else scored.groupby("date")["hit"].mean().to_dict()
         hit[n] = [hits.get(d) for d in dates]
-        equity[n] = [[d, round(float(e), 2)] for d, e in zip(eqs[n]["date"], eqs[n]["equity"])]
+        equity[n] = _series(eqs[n])
+    accounts, extra = {}, {}
+    for s in STRATEGIES:
+        for n in names:
+            eq, led = accts[(n, s)]
+            if eq.empty:
+                continue
+            row = _row(eq, led, runs[n], settings, rand(s), run_date)
+            row["groups"] = _groups(led)
+            row["hit_rate_5d"] = scoring.hit_rate(led["hit5"].dropna().tolist())
+            accounts.setdefault(s, {})[n] = row
+            extra[(n, s)] = {"stats": row, "equity": _series(eq), "positions": store.load_positions(n, s)}
     block = {
         "dates": dates, "rows": rows, "pnl": pnl, "hit": hit, "equity": equity,
-        "hold": _hold_curve(prices, dates, settings.start_equity),
+        "hold": _series(accts[(CONTROL_LONG, "hold")][0]),
+        "accounts": accounts,
     }
-    return block, eqs, leds
+    return block, eqs, leds, extra
 
 
 def build_all(data_dir, out_dir, prices, settings, assets, run_date, generated_at=None):
@@ -146,23 +172,28 @@ def build_all(data_dir, out_dir, prices, settings, assets, run_date, generated_a
         {"name": n, "backfill_stride": 1, **{k: v for k, v in m.items() if k not in PUBLIC_META_SKIP}}
         for n, m in REGISTRY.items()
     ]
+    meta.append({"name": ensemble.NAME, "label": ensemble.LABEL, "kind": "derived", "backfill_stride": 1})
     meta_by_name = {m["name"]: m for m in meta}
+    names = [m["name"] for m in meta]
     details = {
         n: {"schema_version": SCHEMA_VERSION, "name": n, "meta": meta_by_name[n], "modes": {}}
-        for n in REGISTRY
+        for n in names
     }
     modes = {}
     for mode in ("live", "backtest"):
-        block, eqs, leds = _mode_block(data_dir, mode, prices, settings, run_date)
+        block, eqs, leds, extra = _mode_block(data_dir, mode, prices, settings, run_date)
         modes[mode] = block
-        for n in REGISTRY:
-            details[n]["modes"][mode] = _detail(eqs[n], leds[n], block["rows"][n])
+        for n in names:
+            d = _detail(eqs[n], leds[n], block["rows"][n])
+            d["accounts"] = {s: extra[(n, s)] for s in STRATEGIES if (n, s) in extra}
+            details[n]["modes"][mode] = d
     summary = {
         "schema_version": SCHEMA_VERSION,
         "generated_at": generated_at or datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
         "run_date": run_date,
         "stale_assets": stale_assets(prices, assets, run_date),
         "estimators": meta,
+        "strategies": list(STRATEGIES),
         "modes": modes,
         "ticker": _ticker(prices, assets),
     }

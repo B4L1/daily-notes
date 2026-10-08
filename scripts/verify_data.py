@@ -35,7 +35,7 @@ def check(data_dir="data", assets_file="assets.yaml"):
                 for asset, p in payload["predictions"].items():
                     if not p["asof"] < run_date:
                         problems.append(f"{where}/{run_date}/{asset}: asof {p['asof']} is not before the run date")
-            eq = store.load_equity(name)
+            eq = pd.DataFrame()  # Task 9: read accounts instead
             if len(eq):
                 if not _finite(eq, list(eq.columns.drop("date"))):
                     problems.append(f"{where}: equity.csv has missing or non-finite values")
@@ -50,7 +50,7 @@ def check(data_dir="data", assets_file="assets.yaml"):
                 expected = settings.start_equity * (1 + eq["day_return"]).cumprod()
                 if (expected - eq["equity"]).abs().max() > 1e-6:
                     problems.append(f"{where}: equity does not compound from day returns")
-            led = store.load_ledger(name)
+            led = pd.DataFrame()  # Task 9: read accounts instead
             if len(led):
                 if not _finite(led, LEDGER_NUMERIC):
                     problems.append(f"{where}: ledger.csv has missing or non-finite values")

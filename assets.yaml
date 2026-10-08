@@ -1,7 +1,5 @@
 settings:
   start_equity: 10000
-  cost_round_trip: 0.001
-  trade_threshold: 0.001
   min_live_days: 60
   sanity_day_pct: 0.10
   sanity_week_pct: 0.50

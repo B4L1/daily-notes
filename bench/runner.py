@@ -1,7 +1,6 @@
 import math
 from datetime import date, datetime, timedelta, timezone
 
-from bench.broker import settle_estimator
 from bench.data import stale_assets
 from bench.store import SCHEMA_VERSION
 
@@ -48,7 +47,7 @@ def _validate(asset, p):
 
 
 def run_estimator_day(store, estimator, prices, run_date, settings, now=None, assets=None):
-    """Settle everything that can be settled, then predict. Used by live runs and backfill.
+    """Predict for one run date. Used by live runs and backfill. Scoring is a separate step (bench.scorer).
 
     now=None means a backtest replay: the live-window check is skipped.
 
@@ -59,7 +58,6 @@ def run_estimator_day(store, estimator, prices, run_date, settings, now=None, as
     """
     name = estimator.name
     history = cut_history(prices, run_date)
-    settle_estimator(store, name, history, settings)
 
     rec = {"run_date": run_date, "estimator": name}
     if now is not None and not live_window_ok(run_date, now):

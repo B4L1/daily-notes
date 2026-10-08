@@ -62,7 +62,7 @@ def test_backfill_replays_days_into_the_backtest_store(env, capsys):
     assert code == 0
     base = env / "data" / "backtest" / "estimators" / "control_always_long"
     assert len(list((base / "predictions").glob("*.json"))) >= 1
-    assert (base / "equity.csv").exists()
+    assert not (base / "equity.csv").exists() and not (env / "data" / "backtest" / "accounts").exists()  # scoring is a separate step
     assert not (env / "data" / "live" / "estimators").exists()
 
 

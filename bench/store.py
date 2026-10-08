@@ -7,11 +7,6 @@ import pandas as pd
 from bench.strategies.common import EQUITY_COLS as ACCT_EQUITY_COLS, LEDGER_COLS as ACCT_LEDGER_COLS
 
 SCHEMA_VERSION = 1
-EQUITY_COLS = ["date", "equity", "day_return", "n_universe", "n_traded"]
-LEDGER_COLS = [
-    "settle_date", "asset", "asof", "entry", "exit", "expected_return",
-    "traded", "gross_ret", "net_ret", "actual_cc", "hit",
-]
 
 
 class SchemaMismatch(RuntimeError):
@@ -51,18 +46,6 @@ class Store:
         for f in sorted(d.glob("*.json")):
             out[f.stem] = json.loads(f.read_text(encoding="utf-8"))
         return out
-
-    def load_equity(self, name):
-        return self._load(name, "equity.csv", EQUITY_COLS)
-
-    def load_ledger(self, name):
-        return self._load(name, "ledger.csv", LEDGER_COLS)
-
-    def append_equity(self, name, rows):
-        self._append(name, "equity.csv", EQUITY_COLS, rows)
-
-    def append_ledger(self, name, rows):
-        self._append(name, "ledger.csv", LEDGER_COLS, rows)
 
     def record_run(self, name, rec):
         with open(self.est_dir(name) / "runs.jsonl", "a", encoding="utf-8") as f:
@@ -131,20 +114,3 @@ class Store:
                     f.unlink()
         for run_date, payload in by_run_date.items():
             self.save_prediction(model, run_date, payload)
-
-    def _load(self, name, fname, cols):
-        p = self.est_dir(name) / fname
-        if not p.exists():
-            return pd.DataFrame(columns=cols)
-        df = pd.read_csv(p, dtype={"date": str, "settle_date": str, "asof": str})
-        if list(df.columns) != cols:
-            raise SchemaMismatch(f"{p} has columns {list(df.columns)}, expected {cols}")
-        return df
-
-    def _append(self, name, fname, cols, rows):
-        if not rows:
-            return
-        new = pd.DataFrame(rows, columns=cols)
-        old = self._load(name, fname, cols)
-        out = new if old.empty else pd.concat([old, new], ignore_index=True)
-        out.to_csv(self.est_dir(name) / fname, index=False, lineterminator="\n")

@@ -139,7 +139,7 @@ test("strideNote warns only when an estimator is evaluated every Nth day", () =>
 });
 
 test("the reference line is named for what it computes", () => {
-  assert.match(HOLD_LABEL, /^Equal-weight daily rebalanced hold/);
+  assert.match(HOLD_LABEL, /^Buy and hold, fees paid/);
 });
 
 test("updatedLine shows update time, live day count and the fixed backtest end, null-safe", () => {
