@@ -71,6 +71,7 @@ function thresholdText(n) {
 
 export function luckText(row, nTests = 1) {
   if (!row.n_days) return "no data";
+  if (row.p_value === null || row.p_value === undefined) return "no random baseline for this account";
   if (row.too_early) return `too early to tell (${row.n_days} day${row.n_days === 1 ? "" : "s"} so far)`;
   const limit = thresholdText(nTests);
   return row.p_value < luckThreshold(nTests)

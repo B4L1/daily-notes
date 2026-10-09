@@ -222,3 +222,7 @@ test("predictedText: controls and derived votes show a label, models show the nu
   assert.equal(predictedText(0, "derived"), "• no majority");
   assert.equal(predictedText(0.0123, "ml"), "▲ +1.23%");
 });
+
+test("luckText says so when an account has no baseline", () => {
+  assert.equal(luckText({ n_days: 40, too_early: false, p_value: null }, 9), "no random baseline for this account");
+});
