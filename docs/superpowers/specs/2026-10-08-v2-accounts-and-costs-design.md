@@ -57,7 +57,7 @@ New code units, each with one job:
 
 ## 4. Strategies
 
-Shared definitions. A prediction with as-of date L targets the next candle after L (day T). `cost(asset)` is the round-trip cost of that asset (section 5). An account's day return is the sum of its position returns for the day divided by the number of assets with a session that day, so cash dilutes the result as in V1. Equity compounds and never resets.
+Shared definitions. A prediction with as-of date L targets the next candle after L (day T). `cost(asset)` is the round-trip cost of that asset (section 5). An account's day return is the sum of its position returns for the day divided by a universe count, so cash dilutes the result as in V1. For the one-day rules the count is the assets with a session that day. For `hold` and `weekly`, which keep positions over days when their asset has no session, the count is every asset listed by that date, so each asset has a fixed equal share and the account is never more than 100% invested (amended 2026-10-09 after the final review found weekend over-exposure). Equity compounds and never resets.
 
 ### 4.1 `one_day` (the V1 rule under new costs)
 
