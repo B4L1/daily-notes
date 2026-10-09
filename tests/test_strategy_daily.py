@@ -150,3 +150,20 @@ def test_top_picks_ties_break_by_symbol():
     p = {(s, "2026-01-05"): {"asof": "2026-01-05", "expected_return": 0.01, "path": None} for s in ("A1", "A2", "A3", "A4")}
     r = daily.top_picks(p, prices, Costs(assets), 10000.0)
     assert sorted(x["asset"] for x in r.ledger if x["traded"]) == ["A1", "A2", "A3"]
+
+
+def test_top_picks_ties_on_expected_return_break_by_confidence_then_symbol():
+    assets, prices = four()
+    conf = {"A1": 0.5, "A2": 1.0, "A3": 0.75, "A4": 0.6}
+    p = {(s, "2026-01-05"): {"asof": "2026-01-05", "expected_return": 1.0, "confidence": conf[s], "path": None}
+         for s in conf}
+    r = daily.top_picks(p, prices, Costs(assets), 10000.0)
+    assert sorted(x["asset"] for x in r.ledger if x["traded"]) == ["A2", "A3", "A4"]
+
+
+def test_missing_confidence_ranks_after_any_confidence_on_a_tie():
+    assets, prices = four()
+    p = {(s, "2026-01-05"): {"asof": "2026-01-05", "expected_return": 0.01, "confidence": c, "path": None}
+         for s, c in (("A1", None), ("A2", 0.1), ("A3", None), ("A4", 0.2))}
+    r = daily.top_picks(p, prices, Costs(assets), 10000.0)
+    assert sorted(x["asset"] for x in r.ledger if x["traded"]) == ["A1", "A2", "A4"]

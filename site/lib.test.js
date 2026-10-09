@@ -211,3 +211,14 @@ test("easeSpeed: dt=0 leaves it unchanged, huge dt lands on target, inputs are c
   // about 0.7 s to be nearly stopped with tau 0.25 (e^-2.8 ~ 6%)
   assert.ok(easeSpeed(1, 0, 0.7, 0.25) < 0.07);
 });
+
+import { predictedText } from "./lib.js";
+
+test("predictedText: controls and derived votes show a label, models show the number", () => {
+  assert.equal(predictedText(1, "control"), "▲ long");
+  assert.equal(predictedText(-1, "control"), "▼ down");
+  assert.equal(predictedText(1, "derived"), "▲ up");
+  assert.equal(predictedText(-1, "derived"), "▼ down");
+  assert.equal(predictedText(0, "derived"), "• no majority");
+  assert.equal(predictedText(0.0123, "ml"), "▲ +1.23%");
+});

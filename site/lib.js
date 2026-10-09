@@ -153,3 +153,10 @@ export function easeSpeed(current, target, dtSeconds, tau = 0.25) {
   if (!(tau > 0)) return tgt;
   return cur + (tgt - cur) * (1 - Math.exp(-dtSeconds / tau));
 }
+
+// What the "Predicted" column shows. Controls and the ensemble hold a vote (+1 / -1), not a return.
+export function predictedText(v, kind) {
+  if (kind === "control") return v > 0 ? "▲ long" : "▼ down";
+  if (kind === "derived") return v > 0 ? "▲ up" : v < 0 ? "▼ down" : "• no majority";
+  return `${signMark(v)} ${fmtPct(v)}`;
+}

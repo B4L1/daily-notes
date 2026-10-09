@@ -1,4 +1,4 @@
-import { cellColor, signMark, fmtPct, fmtUsd, calendarCells, luckText, hitDeviation, dayHit,
+import { predictedText, cellColor, signMark, fmtPct, fmtUsd, calendarCells, luckText, hitDeviation, dayHit,
   testedCount, staleness, freshnessText, updatedLine, validPalette, tickerItems, easeSpeed, strideNote, HOLD_LABEL } from "./lib.js";
 import { lineChart, sparkline } from "./charts.js";
 
@@ -232,7 +232,7 @@ function assetTable(perAsset) {
     el("tbody", {}, ...rows.map(([a, p]) => el("tr", {}, el("td", {}, a), el("td", {}, String(p.n)), el("td", {}, String(p.traded)), el("td", {}, hitText(p.hit_rate)), el("td", { class: trend(p.net_return_sum) }, `${signMark(p.net_return_sum)} ${fmtPct(p.net_return_sum)}`))))));
 }
 
-function dayList(days, isControl) {
+function dayList(days, kind) {
   const wrap = el("div", {});
   const draw = (limit) => {
     wrap.textContent = "";
@@ -241,7 +241,7 @@ function dayList(days, isControl) {
         el("thead", {}, el("tr", {}, ...["Asset", "Predicted", "Actual", "Hit", "Traded", "Net return"].map((h) => el("th", {}, h)))),
         el("tbody", {}, ...d.trades.map((t) => el("tr", {},
           el("td", {}, t.asset),
-          el("td", {}, isControl ? (t.expected_return > 0 ? "▲ long" : "▼ down") : `${signMark(t.expected_return)} ${fmtPct(t.expected_return)}`),
+          el("td", {}, predictedText(t.expected_return, kind)),
           el("td", {}, `${signMark(t.actual_cc)} ${fmtPct(t.actual_cc)}`),
           el("td", {}, t.hit === null || t.hit === undefined ? "n/a" : t.hit ? "yes" : "no"),
           el("td", {}, t.traded ? "yes" : "no (cash)"),
@@ -279,7 +279,6 @@ async function renderEstimator(view, name) {
     return showError(`The data for ${m.label} looks damaged. Retry, or check back after the next update.`, render);
   }
   view.textContent = "";
-  const isControl = m.kind === "control";
   view.append(el("h2", {}, m.label));
   view.append(el("p", { class: "dim" }, `${m.kind} · ${m.source} · licence: ${m.license} · ${m.original_code ? "original code" : "our own implementation"}`));
   if (state.mode === "backtest") view.append(el("p", { class: "note" }, "Backtest: each day replayed using only earlier data. Pretrained models may have seen this period in training, so their backtest numbers may be optimistic."));
@@ -304,7 +303,7 @@ async function renderEstimator(view, name) {
   view.append(el("h2", {}, "Direction hit rate"), calendar(mode.days, dayHit, HIT_SCALE, "hit rate", hitDeviation, (v, dev) => `${signMark(dev)} ${(v * 100).toFixed(0)}% correct`));
   view.append(el("p", { class: "note" }, "Each square is one calendar day, oldest at the left. Empty squares are days with no session or no calls."));
   view.append(el("h2", {}, "By asset"), assetTable(mode.per_asset));
-  view.append(el("h2", {}, "Day by day"), dayList(mode.days, isControl));
+  view.append(el("h2", {}, "Day by day"), dayList(mode.days, m.kind));
 }
 
 const TICKER_LOOP_SECONDS = 50;

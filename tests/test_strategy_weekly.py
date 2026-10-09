@@ -107,3 +107,19 @@ def test_n_open_counts_assets_without_a_candle_that_day():
     assert n_open[days[5]] == 2  # Saturday: the stock slot is still open though AAA has no candle
     assert n_open[days[6]] == 2
     assert r.equity[-1]["n_open"] == len(r.positions) == 2
+
+
+def test_weekend_day_counts_every_listed_asset_not_only_those_with_a_candle():
+    from bench.config import Asset as As
+    stock_dates = ["2026-01-08", "2026-01-09", "2026-01-12", "2026-01-13", "2026-01-14", "2026-01-15"]
+    crypto_dates = ["2026-01-08", "2026-01-09", "2026-01-10", "2026-01-11", "2026-01-12", "2026-01-13"]
+    prices = {
+        "AAA": candles([(d, 100, 100, 100, 100) for d in stock_dates]),
+        "CCC": candles([(d, 50 + i, 51 + i, 50 + i, 50 + i) for i, d in enumerate(crypto_dates)]),
+    }
+    costs = Costs([As("AAA", "stock", 5, 0.002, 0.0), As("CCC", "crypto", 0, 0.002, 0.0)])
+    preds = {("CCC", "2026-01-08"): {"asof": "2026-01-08", "expected_return": 0.0, "path": [50.0] * 4 + [60.0]}}
+    r = weekly.weekly(preds, prices, costs, 10000.0)
+    sat = [e for e in r.equity if e["date"] == "2026-01-10"][0]
+    assert sat["n_universe"] == 2
+    assert sat["day_return"] == pytest.approx(0.2 * (52 / 51 - 1) / 2)

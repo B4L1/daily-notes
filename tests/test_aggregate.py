@@ -260,3 +260,45 @@ def test_missing_accounts_are_skipped(tmp_path):
     assert "NaN" not in text and "Infinity" not in text
     assert s["modes"]["live"]["accounts"] == {} and s["modes"]["live"]["hold"] == []
     assert s["modes"]["live"]["rows"]["analog"]["balance"] == 10000.0
+
+
+def _weekly_store(tmp_path):
+    from datetime import date, timedelta
+    days = [(date(2026, 1, 1) + timedelta(days=i)).isoformat() for i in range(12)]
+    px = {"AAA": candles([(d, 100 + i, 101 + i, 99 + i, 100 + i) for i, d in enumerate(days)])}
+    assets = [Asset("AAA", "stock", 5, 0.001, 0.0)]
+    st = Store(tmp_path / "data" / "live")
+    for i in range(len(days) - 1):
+        last = 100.0 + i
+        st.save_prediction("kronos", days[i + 1], {"predictions": {"AAA": {
+            "asof": days[i], "expected_return": 0.01, "confidence": None, "path": [last] * 4 + [last * 1.05]}}})
+        st.save_prediction("control_random", days[i + 1], {"predictions": {"AAA": pred(days[i], 1.0)}})
+    score(st, px, assets)
+    return px, assets
+
+
+def test_weekly_has_no_random_baseline_so_edge_is_null_and_vs_one_day_is_reported(tmp_path):
+    px, assets = _weekly_store(tmp_path)
+    s = _build(tmp_path, px, assets=assets, run_date="2026-01-13")
+    acc = s["modes"]["live"]["accounts"]
+    wk, od = acc["weekly"]["kronos"], acc["one_day"]["kronos"]
+    assert "control_random" not in acc["weekly"]
+    assert wk["edge"] is None and wk["p_value"] is None
+    assert od["edge"] is not None and od["p_value"] is not None  # one_day keeps its baseline
+    eqw = Store(tmp_path / "data" / "live").load_account("kronos", "weekly")[0]
+    eqd = Store(tmp_path / "data" / "live").load_account("kronos", "one_day")[0]
+    w, d = dict(zip(eqw["date"], eqw["day_return"])), dict(zip(eqd["date"], eqd["day_return"]))
+    common = sorted(set(w) & set(d))
+    assert common
+    assert wk["vs_one_day"] == pytest.approx(sum(w[x] - d[x] for x in common) / len(common))
+    assert "vs_one_day" not in od
+    json.dumps(s, allow_nan=False)
+
+
+def test_vs_one_day_is_null_without_common_dates(tmp_path):
+    from bench.aggregate import _vs_one_day
+    import pandas as pd
+    a = pd.DataFrame({"date": ["2026-01-01"], "day_return": [0.1]})
+    b = pd.DataFrame({"date": ["2026-01-02"], "day_return": [0.1]})
+    assert _vs_one_day(a, b) is None
+    assert _vs_one_day(a, a.iloc[0:0]) is None

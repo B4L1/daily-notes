@@ -80,4 +80,4 @@ def weekly(preds, prices, costs, start_equity):
         running += delta.get(dt, 0)
         open_after[dt] = running
     rows.sort(key=lambda r: (r["date"], r["asset"], r["asof"]))
-    return Result(rows, finish(rows, prices, start_equity, open_after), positions)
+    return Result(rows, finish(rows, prices, start_equity, open_after, universe="listed"), positions)

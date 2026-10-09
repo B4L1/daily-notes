@@ -29,7 +29,8 @@ def derive(saved_by_model, costs):
             up = sum(1 for e in exps if e > rt)
             down = sum(1 for e in exps if e < -rt)
             value = 1.0 if up > len(exps) / 2 else (-1.0 if down > len(exps) / 2 else 0.0)
-            preds[asset] = {"asof": newest, "expected_return": value, "confidence": None, "path": None}
+            share = up / len(exps) if value > 0 else (down / len(exps) if value < 0 else None)
+            preds[asset] = {"asof": newest, "expected_return": value, "confidence": share, "path": None}
         if preds:
             out[rd] = {
                 "schema_version": SCHEMA_VERSION, "estimator": NAME, "run_date": rd,

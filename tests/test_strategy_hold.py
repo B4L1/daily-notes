@@ -86,3 +86,35 @@ def test_future_candles_do_not_change_past_decisions():
     later["AAA"] = pd.concat([later["AAA"], candles([("2026-01-09", 900, 900, 900, 900)])], ignore_index=True)
     again = hold.hold(preds, later, Costs(A), 10000.0)
     assert again.ledger[: len(base.ledger)] == base.ledger
+
+
+def weekend_px():
+    # the stock has no Saturday candle; the crypto asset trades every day
+    return {
+        "AAA": candles([
+            ("2026-01-08", 100, 100, 100, 100), ("2026-01-09", 100, 101, 100, 101), ("2026-01-12", 101, 103, 101, 103),
+        ]),
+        "CCC": candles([
+            ("2026-01-08", 50, 50, 50, 50), ("2026-01-09", 50, 52, 50, 52),
+            ("2026-01-10", 52, 55, 52, 55), ("2026-01-11", 55, 56, 55, 56), ("2026-01-12", 56, 57, 56, 57),
+        ]),
+    }
+
+
+def test_weekend_day_counts_every_listed_asset_not_only_those_with_a_candle():
+    preds = {**P([("2026-01-08", 0.01), ("2026-01-09", 0.01)], "AAA"), **P([("2026-01-08", 0.01), ("2026-01-09", 0.01)], "CCC")}
+    r = hold.hold(preds, weekend_px(), Costs(A), 10000.0)
+    sat = [e for e in r.equity if e["date"] == "2026-01-10"][0]
+    assert sat["n_universe"] == 2
+    assert sat["day_return"] == pytest.approx((55 / 52 - 1) / 2)
+
+
+def test_asset_is_not_counted_before_its_first_candle():
+    px2 = {
+        "AAA": candles([
+            ("2026-01-05", 100, 100, 100, 100), ("2026-01-06", 100, 102, 100, 102), ("2026-01-07", 102, 104, 102, 104),
+        ]),
+        "CCC": candles([("2026-01-07", 50, 50, 50, 50), ("2026-01-08", 50, 51, 50, 51)]),
+    }
+    r = hold.hold(P([("2026-01-05", 0.01)], "AAA"), px2, Costs(A), 10000.0)
+    assert [(e["date"], e["n_universe"]) for e in r.equity] == [("2026-01-06", 1), ("2026-01-07", 2)]

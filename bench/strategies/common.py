@@ -70,15 +70,22 @@ def row(date, asset, costs, asof, side, action, entry, exit_, expected, traded, 
     }
 
 
-def finish(rows, prices, start_equity, open_after=None):
-    """Ledger rows -> equity rows. One row per date that has a ledger row."""
+def finish(rows, prices, start_equity, open_after=None, universe="session"):
+    """Ledger rows -> equity rows. One row per date that has a ledger row.
+
+    universe="session": a day's return is spread over the assets with a candle that day (accounts
+    that hold nothing overnight). universe="listed": over every asset whose first candle is on or
+    before that day, so a position kept over a day when its asset has no candle (a stock over a
+    weekend) never makes the others count for more than their fixed share.
+    """
     sess = sessions(prices)
+    firsts = sorted(df["date"].iloc[0] for df in prices.values() if len(df))
     by_date = {}
     for r in rows:
         by_date.setdefault(r["date"], []).append(r)
     eq, out = float(start_equity), []
     for d in sorted(by_date):
-        n = len(sess[d])
+        n = len(sess[d]) if universe == "session" else sum(1 for f in firsts if f <= d)
         total = sum(r["net_ret"] * r["weight"] for r in by_date[d])
         day = max(total / n, -1.0)
         eq *= 1.0 + day

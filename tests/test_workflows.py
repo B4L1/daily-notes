@@ -242,3 +242,10 @@ def test_accounts_are_scored_before_they_are_verified():
         assert score < verify < commit, name
     _, bf = load("backfill.yml")
     assert any("score --mode backtest" in s.get("run", "") for s in bf["jobs"]["commit"]["steps"])
+
+
+def test_daily_scores_only_the_live_store():
+    _, wf = load("daily.yml")
+    runs = [s.get("run", "") for s in wf["jobs"]["aggregate"]["steps"]]
+    assert any("score --mode live" in r for r in runs)
+    assert not any("score --mode all" in r or "score --mode backtest" in r for r in runs)

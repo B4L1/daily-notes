@@ -57,4 +57,4 @@ def hold(preds, prices, costs, start_equity):
         }
         for a in sorted(held)
     ]
-    return Result(rows, finish(rows, prices, start_equity, open_after), positions)
+    return Result(rows, finish(rows, prices, start_equity, open_after, universe="listed"), positions)

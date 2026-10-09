@@ -1,3 +1,5 @@
+import pytest
+
 from bench.config import Asset
 from bench.costs import Costs
 from bench.ensemble import NAME, derive
@@ -31,7 +33,18 @@ def test_exactly_half_is_not_a_majority():
 def test_payload_shape():
     p = derive({"m0": model(0.01)}, C)["2026-01-06"]
     assert p["estimator"] == NAME and p["run_date"] == "2026-01-06" and p["schema_version"] == 2
-    assert p["predictions"]["AAA"] == {"asof": "2026-01-05", "expected_return": 1.0, "confidence": None, "path": None}
+    assert p["predictions"]["AAA"] == {"asof": "2026-01-05", "expected_return": 1.0, "confidence": 1.0, "path": None}
+
+
+def conf(*exps):
+    out = derive({f"m{i}": model(e) for i, e in enumerate(exps)}, C)
+    return out["2026-01-06"]["predictions"]["AAA"]["confidence"]
+
+
+def test_confidence_is_the_vote_share_of_the_winning_side():
+    assert conf(0.01, 0.02, -0.01) == pytest.approx(2 / 3)
+    assert conf(-0.01, -0.02, -0.03, 0.01) == pytest.approx(3 / 4)
+    assert conf(0.01, -0.01) is None  # no majority
 
 
 def test_votes_only_count_for_the_newest_asof():

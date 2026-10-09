@@ -148,7 +148,7 @@ def test_scoring_after_incremental_runs(tmp_path):
         ("2026-01-02", 99, 101, 98, 100), ("2026-01-05", 100, 103, 99, 102),
     ])}
     run_estimator_day(st, Spy(), prices, "2026-01-03", S)   # predicts for the 5th
-    run_estimator_day(st, Spy(), prices, "2026-01-06", S)   # settles the 5th
+    run_estimator_day(st, Spy(), prices, "2026-01-06", S)   # the scorer settles the 5th
     from tests.helpers import score
     score(st, prices, registry={"spy": {"kind": "ml"}})
     eq = st.load_account("spy", "one_day")[0]

@@ -51,6 +51,14 @@ def _skipped_stale(runs, run_date):
     return list(todays[-1].get("skipped_stale") or []) if todays else []
 
 
+def _vs_one_day(weekly_eq, one_day_eq):
+    """Mean daily return of the weekly account minus the same model's one-day account, on shared dates."""
+    w = dict(zip(weekly_eq["date"], weekly_eq["day_return"]))
+    d = dict(zip(one_day_eq["date"], one_day_eq["day_return"]))
+    common = sorted(set(w) & set(d))
+    return float(sum(w[x] - d[x] for x in common) / len(common)) if common else None
+
+
 def _row(eq, led, runs, settings, rand, run_date):
     n_days = len(eq)
     equities, rets = eq["equity"].tolist(), eq["day_return"].tolist()
@@ -58,7 +66,7 @@ def _row(eq, led, runs, settings, rand, run_date):
     prev = equities[-2] if n_days > 1 else float(settings.start_equity)
     calls = led["hit"].dropna().tolist()
     down = led.loc[led["expected_return"] < 0, "hit"].dropna().tolist()
-    edge = scoring.edge_vs_control(dict(zip(eq["date"], rets)), rand)
+    edge = scoring.edge_vs_control(dict(zip(eq["date"], rets)), rand) if rand is not None else {"edge": None, "p_value": None}
     return {
         "status": _status_for(runs, run_date),
         "skipped_stale": _skipped_stale(runs, run_date),
@@ -135,6 +143,8 @@ def _mode_block(data_dir, mode, settings, run_date):
 
     def rand(strategy):
         eq = accts[(CONTROL_RANDOM, strategy)][0]
+        if eq.empty and strategy != MAIN:
+            return None  # the random control has no account under this strategy: no baseline
         return dict(zip(eq["date"], eq["day_return"]))
 
     rows, pnl, hit, equity = {}, {}, {}, {}
@@ -155,6 +165,8 @@ def _mode_block(data_dir, mode, settings, run_date):
             row = _row(eq, led, runs[n], settings, rand(s), run_date)
             row["groups"] = _groups(led)
             row["hit_rate_5d"] = scoring.hit_rate(led["hit5"].dropna().tolist())
+            if s == "weekly":
+                row["vs_one_day"] = _vs_one_day(eq, accts[(n, "one_day")][0])
             accounts.setdefault(s, {})[n] = row
             extra[(n, s)] = {"stats": row, "equity": _series(eq), "positions": store.load_positions(n, s)}
     block = {

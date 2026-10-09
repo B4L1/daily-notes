@@ -8,7 +8,7 @@ def _run(preds, prices, costs, start_equity, short=False, top_n=None):
         day = days[t]
         longs = {a for a, (p, *_x) in day.items() if p["expected_return"] > costs.round_trip(a)}
         if top_n is not None:
-            ranked = sorted(longs, key=lambda a: (-day[a][0]["expected_return"], a))
+            ranked = sorted(longs, key=lambda a: (-day[a][0]["expected_return"], -(day[a][0].get("confidence") or 0.0), a))
             longs = set(ranked[:top_n])
         for asset in sorted(day):
             p, o, c, prev_c = day[asset]
