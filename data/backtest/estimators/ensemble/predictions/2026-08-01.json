@@ -16,7 +16,7 @@
   },
   "AMZN": {
    "asof": "2026-07-31",
-   "confidence": null,
+   "confidence": 0.625,
    "expected_return": -1.0,
    "path": null
   },
@@ -46,19 +46,19 @@
   },
   "JNJ": {
    "asof": "2026-07-31",
-   "confidence": null,
+   "confidence": 0.625,
    "expected_return": 1.0,
    "path": null
   },
   "JPM": {
    "asof": "2026-07-31",
-   "confidence": null,
+   "confidence": 0.625,
    "expected_return": 1.0,
    "path": null
   },
   "META": {
    "asof": "2026-07-31",
-   "confidence": null,
+   "confidence": 0.625,
    "expected_return": 1.0,
    "path": null
   },
@@ -100,13 +100,13 @@
   },
   "TSLA": {
    "asof": "2026-07-31",
-   "confidence": null,
+   "confidence": 0.625,
    "expected_return": 1.0,
    "path": null
   },
   "USO": {
    "asof": "2026-07-31",
-   "confidence": null,
+   "confidence": 0.625,
    "expected_return": -1.0,
    "path": null
   },
@@ -118,7 +118,7 @@
   },
   "WMT": {
    "asof": "2026-07-31",
-   "confidence": null,
+   "confidence": 0.625,
    "expected_return": 1.0,
    "path": null
   },

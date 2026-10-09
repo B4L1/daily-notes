@@ -4,7 +4,7 @@
  "predictions": {
   "AAPL": {
    "asof": "2026-01-09",
-   "confidence": null,
+   "confidence": 0.75,
    "expected_return": 1.0,
    "path": null
   },
@@ -46,7 +46,7 @@
   },
   "JNJ": {
    "asof": "2026-01-09",
-   "confidence": null,
+   "confidence": 0.625,
    "expected_return": 1.0,
    "path": null
   },
@@ -58,13 +58,13 @@
   },
   "META": {
    "asof": "2026-01-09",
-   "confidence": null,
+   "confidence": 0.625,
    "expected_return": 1.0,
    "path": null
   },
   "MSFT": {
    "asof": "2026-01-09",
-   "confidence": null,
+   "confidence": 0.625,
    "expected_return": 1.0,
    "path": null
   },
@@ -112,7 +112,7 @@
   },
   "V": {
    "asof": "2026-01-09",
-   "confidence": null,
+   "confidence": 0.875,
    "expected_return": 1.0,
    "path": null
   },

@@ -4,7 +4,7 @@
  "predictions": {
   "AAPL": {
    "asof": "2026-03-05",
-   "confidence": null,
+   "confidence": 0.625,
    "expected_return": 1.0,
    "path": null
   },
@@ -58,7 +58,7 @@
   },
   "META": {
    "asof": "2026-03-05",
-   "confidence": null,
+   "confidence": 0.625,
    "expected_return": 1.0,
    "path": null
   },
@@ -100,7 +100,7 @@
   },
   "TSLA": {
    "asof": "2026-03-05",
-   "confidence": null,
+   "confidence": 0.625,
    "expected_return": 1.0,
    "path": null
   },
@@ -124,7 +124,7 @@
   },
   "XOM": {
    "asof": "2026-03-05",
-   "confidence": null,
+   "confidence": 0.625,
    "expected_return": 1.0,
    "path": null
   }

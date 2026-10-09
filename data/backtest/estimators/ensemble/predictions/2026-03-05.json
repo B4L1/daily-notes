@@ -4,13 +4,13 @@
  "predictions": {
   "AAPL": {
    "asof": "2026-03-04",
-   "confidence": null,
+   "confidence": 0.625,
    "expected_return": 1.0,
    "path": null
   },
   "AMD": {
    "asof": "2026-03-04",
-   "confidence": null,
+   "confidence": 0.625,
    "expected_return": -1.0,
    "path": null
   },
@@ -94,7 +94,7 @@
   },
   "SPY": {
    "asof": "2026-03-04",
-   "confidence": null,
+   "confidence": 0.75,
    "expected_return": 1.0,
    "path": null
   },

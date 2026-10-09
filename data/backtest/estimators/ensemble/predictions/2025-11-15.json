@@ -16,7 +16,7 @@
   },
   "AMZN": {
    "asof": "2025-11-14",
-   "confidence": null,
+   "confidence": 0.875,
    "expected_return": 1.0,
    "path": null
   },
@@ -40,7 +40,7 @@
   },
   "GOOGL": {
    "asof": "2025-11-14",
-   "confidence": null,
+   "confidence": 0.625,
    "expected_return": 1.0,
    "path": null
   },
@@ -58,13 +58,13 @@
   },
   "META": {
    "asof": "2025-11-14",
-   "confidence": null,
+   "confidence": 0.625,
    "expected_return": 1.0,
    "path": null
   },
   "MSFT": {
    "asof": "2025-11-14",
-   "confidence": null,
+   "confidence": 0.625,
    "expected_return": 1.0,
    "path": null
   },
@@ -76,7 +76,7 @@
   },
   "QQQ": {
    "asof": "2025-11-14",
-   "confidence": null,
+   "confidence": 0.625,
    "expected_return": 1.0,
    "path": null
   },
@@ -94,7 +94,7 @@
   },
   "SPY": {
    "asof": "2025-11-14",
-   "confidence": null,
+   "confidence": 0.75,
    "expected_return": 1.0,
    "path": null
   },
@@ -112,7 +112,7 @@
   },
   "V": {
    "asof": "2025-11-14",
-   "confidence": null,
+   "confidence": 0.75,
    "expected_return": 1.0,
    "path": null
   },

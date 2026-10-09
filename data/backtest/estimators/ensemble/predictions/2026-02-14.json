@@ -16,7 +16,7 @@
   },
   "AMZN": {
    "asof": "2026-02-13",
-   "confidence": null,
+   "confidence": 0.75,
    "expected_return": 1.0,
    "path": null
   },
@@ -58,7 +58,7 @@
   },
   "META": {
    "asof": "2026-02-13",
-   "confidence": null,
+   "confidence": 0.625,
    "expected_return": 1.0,
    "path": null
   },
@@ -70,13 +70,13 @@
   },
   "NVDA": {
    "asof": "2026-02-13",
-   "confidence": null,
+   "confidence": 0.75,
    "expected_return": 1.0,
    "path": null
   },
   "QQQ": {
    "asof": "2026-02-13",
-   "confidence": null,
+   "confidence": 0.625,
    "expected_return": 1.0,
    "path": null
   },
@@ -94,13 +94,13 @@
   },
   "SPY": {
    "asof": "2026-02-13",
-   "confidence": null,
+   "confidence": 0.75,
    "expected_return": 1.0,
    "path": null
   },
   "TSLA": {
    "asof": "2026-02-13",
-   "confidence": null,
+   "confidence": 0.625,
    "expected_return": 1.0,
    "path": null
   },

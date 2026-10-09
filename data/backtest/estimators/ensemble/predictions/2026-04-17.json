@@ -10,7 +10,7 @@
   },
   "AMD": {
    "asof": "2026-04-16",
-   "confidence": null,
+   "confidence": 0.75,
    "expected_return": 1.0,
    "path": null
   },
@@ -34,7 +34,7 @@
   },
   "GLD": {
    "asof": "2026-04-16",
-   "confidence": null,
+   "confidence": 0.625,
    "expected_return": 1.0,
    "path": null
   },
@@ -52,7 +52,7 @@
   },
   "JPM": {
    "asof": "2026-04-16",
-   "confidence": null,
+   "confidence": 0.625,
    "expected_return": 1.0,
    "path": null
   },
@@ -64,7 +64,7 @@
   },
   "MSFT": {
    "asof": "2026-04-16",
-   "confidence": null,
+   "confidence": 0.625,
    "expected_return": 1.0,
    "path": null
   },
@@ -94,7 +94,7 @@
   },
   "SPY": {
    "asof": "2026-04-16",
-   "confidence": null,
+   "confidence": 0.75,
    "expected_return": 1.0,
    "path": null
   },
@@ -106,7 +106,7 @@
   },
   "USO": {
    "asof": "2026-04-16",
-   "confidence": null,
+   "confidence": 0.75,
    "expected_return": 1.0,
    "path": null
   },

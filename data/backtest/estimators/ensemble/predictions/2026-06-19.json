@@ -4,7 +4,7 @@
  "predictions": {
   "AAPL": {
    "asof": "2026-06-18",
-   "confidence": null,
+   "confidence": 0.75,
    "expected_return": 1.0,
    "path": null
   },
@@ -16,7 +16,7 @@
   },
   "AMZN": {
    "asof": "2026-06-18",
-   "confidence": null,
+   "confidence": 0.625,
    "expected_return": 1.0,
    "path": null
   },
@@ -40,7 +40,7 @@
   },
   "GOOGL": {
    "asof": "2026-06-18",
-   "confidence": null,
+   "confidence": 0.625,
    "expected_return": 1.0,
    "path": null
   },
@@ -64,7 +64,7 @@
   },
   "MSFT": {
    "asof": "2026-06-18",
-   "confidence": null,
+   "confidence": 0.625,
    "expected_return": 1.0,
    "path": null
   },
@@ -94,7 +94,7 @@
   },
   "SPY": {
    "asof": "2026-06-18",
-   "confidence": null,
+   "confidence": 0.75,
    "expected_return": 1.0,
    "path": null
   },
@@ -112,13 +112,13 @@
   },
   "V": {
    "asof": "2026-06-18",
-   "confidence": null,
+   "confidence": 0.75,
    "expected_return": 1.0,
    "path": null
   },
   "WMT": {
    "asof": "2026-06-18",
-   "confidence": null,
+   "confidence": 0.625,
    "expected_return": 1.0,
    "path": null
   },

@@ -28,13 +28,13 @@
   },
   "ETH-USD": {
    "asof": "2026-02-26",
-   "confidence": null,
+   "confidence": 0.625,
    "expected_return": 1.0,
    "path": null
   },
   "GLD": {
    "asof": "2026-02-26",
-   "confidence": null,
+   "confidence": 0.625,
    "expected_return": 1.0,
    "path": null
   },
@@ -58,7 +58,7 @@
   },
   "META": {
    "asof": "2026-02-26",
-   "confidence": null,
+   "confidence": 0.625,
    "expected_return": 1.0,
    "path": null
   },
@@ -94,13 +94,13 @@
   },
   "SPY": {
    "asof": "2026-02-26",
-   "confidence": null,
+   "confidence": 0.625,
    "expected_return": 1.0,
    "path": null
   },
   "TSLA": {
    "asof": "2026-02-26",
-   "confidence": null,
+   "confidence": 0.75,
    "expected_return": 1.0,
    "path": null
   },

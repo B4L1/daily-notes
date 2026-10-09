@@ -4,7 +4,7 @@
  "predictions": {
   "AAPL": {
    "asof": "2025-12-12",
-   "confidence": null,
+   "confidence": 0.625,
    "expected_return": 1.0,
    "path": null
   },
@@ -16,7 +16,7 @@
   },
   "AMZN": {
    "asof": "2025-12-12",
-   "confidence": null,
+   "confidence": 0.75,
    "expected_return": 1.0,
    "path": null
   },
@@ -70,7 +70,7 @@
   },
   "NVDA": {
    "asof": "2025-12-12",
-   "confidence": null,
+   "confidence": 0.625,
    "expected_return": 1.0,
    "path": null
   },
@@ -82,7 +82,7 @@
   },
   "SLV": {
    "asof": "2025-12-12",
-   "confidence": null,
+   "confidence": 0.75,
    "expected_return": -1.0,
    "path": null
   },
@@ -94,7 +94,7 @@
   },
   "SPY": {
    "asof": "2025-12-12",
-   "confidence": null,
+   "confidence": 0.625,
    "expected_return": 1.0,
    "path": null
   },
@@ -106,7 +106,7 @@
   },
   "USO": {
    "asof": "2025-12-12",
-   "confidence": null,
+   "confidence": 0.625,
    "expected_return": 1.0,
    "path": null
   },

@@ -4,7 +4,7 @@
  "predictions": {
   "AAPL": {
    "asof": "2026-02-11",
-   "confidence": null,
+   "confidence": 0.625,
    "expected_return": 1.0,
    "path": null
   },
@@ -16,13 +16,13 @@
   },
   "AMZN": {
    "asof": "2026-02-11",
-   "confidence": null,
+   "confidence": 0.625,
    "expected_return": 1.0,
    "path": null
   },
   "BTC-USD": {
    "asof": "2026-02-11",
-   "confidence": null,
+   "confidence": 0.75,
    "expected_return": 1.0,
    "path": null
   },
@@ -34,7 +34,7 @@
   },
   "GLD": {
    "asof": "2026-02-11",
-   "confidence": null,
+   "confidence": 0.75,
    "expected_return": 1.0,
    "path": null
   },
@@ -52,7 +52,7 @@
   },
   "JPM": {
    "asof": "2026-02-11",
-   "confidence": null,
+   "confidence": 0.625,
    "expected_return": 1.0,
    "path": null
   },
@@ -76,7 +76,7 @@
   },
   "QQQ": {
    "asof": "2026-02-11",
-   "confidence": null,
+   "confidence": 0.625,
    "expected_return": 1.0,
    "path": null
   },
@@ -94,7 +94,7 @@
   },
   "SPY": {
    "asof": "2026-02-11",
-   "confidence": null,
+   "confidence": 0.625,
    "expected_return": 1.0,
    "path": null
   },
@@ -118,13 +118,13 @@
   },
   "WMT": {
    "asof": "2026-02-11",
-   "confidence": null,
+   "confidence": 0.625,
    "expected_return": 1.0,
    "path": null
   },
   "XOM": {
    "asof": "2026-02-11",
-   "confidence": null,
+   "confidence": 0.625,
    "expected_return": 1.0,
    "path": null
   }

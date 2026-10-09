@@ -16,7 +16,7 @@
   },
   "AMZN": {
    "asof": "2026-09-29",
-   "confidence": null,
+   "confidence": 0.75,
    "expected_return": 1.0,
    "path": null
   },
@@ -40,19 +40,19 @@
   },
   "GOOGL": {
    "asof": "2026-09-29",
-   "confidence": null,
+   "confidence": 0.625,
    "expected_return": 1.0,
    "path": null
   },
   "JNJ": {
    "asof": "2026-09-29",
-   "confidence": null,
+   "confidence": 0.625,
    "expected_return": 1.0,
    "path": null
   },
   "JPM": {
    "asof": "2026-09-29",
-   "confidence": null,
+   "confidence": 0.625,
    "expected_return": 1.0,
    "path": null
   },
@@ -64,7 +64,7 @@
   },
   "MSFT": {
    "asof": "2026-09-29",
-   "confidence": null,
+   "confidence": 0.625,
    "expected_return": 1.0,
    "path": null
   },
@@ -82,7 +82,7 @@
   },
   "SLV": {
    "asof": "2026-09-29",
-   "confidence": null,
+   "confidence": 0.625,
    "expected_return": 1.0,
    "path": null
   },
@@ -100,7 +100,7 @@
   },
   "TSLA": {
    "asof": "2026-09-29",
-   "confidence": null,
+   "confidence": 0.875,
    "expected_return": 1.0,
    "path": null
   },
@@ -118,13 +118,13 @@
   },
   "WMT": {
    "asof": "2026-09-29",
-   "confidence": null,
+   "confidence": 0.625,
    "expected_return": 1.0,
    "path": null
   },
   "XOM": {
    "asof": "2026-09-29",
-   "confidence": null,
+   "confidence": 0.625,
    "expected_return": 1.0,
    "path": null
   }

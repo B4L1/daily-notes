@@ -16,7 +16,7 @@
   },
   "SOL-USD": {
    "asof": "2026-08-29",
-   "confidence": null,
+   "confidence": 0.625,
    "expected_return": 1.0,
    "path": null
   }

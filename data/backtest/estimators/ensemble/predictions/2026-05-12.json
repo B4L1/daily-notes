@@ -40,7 +40,7 @@
   },
   "GOOGL": {
    "asof": "2026-05-11",
-   "confidence": null,
+   "confidence": 0.625,
    "expected_return": 1.0,
    "path": null
   },
@@ -52,7 +52,7 @@
   },
   "JPM": {
    "asof": "2026-05-11",
-   "confidence": null,
+   "confidence": 0.625,
    "expected_return": 1.0,
    "path": null
   },
@@ -94,7 +94,7 @@
   },
   "SPY": {
    "asof": "2026-05-11",
-   "confidence": null,
+   "confidence": 0.625,
    "expected_return": 1.0,
    "path": null
   },

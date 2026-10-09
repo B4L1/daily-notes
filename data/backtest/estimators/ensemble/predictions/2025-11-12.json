@@ -58,7 +58,7 @@
   },
   "META": {
    "asof": "2025-11-11",
-   "confidence": null,
+   "confidence": 0.625,
    "expected_return": 1.0,
    "path": null
   },
@@ -106,7 +106,7 @@
   },
   "USO": {
    "asof": "2025-11-11",
-   "confidence": null,
+   "confidence": 0.625,
    "expected_return": 1.0,
    "path": null
   },

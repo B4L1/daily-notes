@@ -4,7 +4,7 @@
  "predictions": {
   "BTC-USD": {
    "asof": "2026-02-01",
-   "confidence": null,
+   "confidence": 0.75,
    "expected_return": 1.0,
    "path": null
   },
@@ -16,7 +16,7 @@
   },
   "SOL-USD": {
    "asof": "2026-02-01",
-   "confidence": null,
+   "confidence": 0.625,
    "expected_return": 1.0,
    "path": null
   }

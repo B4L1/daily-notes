@@ -4,13 +4,13 @@
  "predictions": {
   "AAPL": {
    "asof": "2026-06-15",
-   "confidence": null,
+   "confidence": 0.625,
    "expected_return": 1.0,
    "path": null
   },
   "AMD": {
    "asof": "2026-06-15",
-   "confidence": null,
+   "confidence": 0.625,
    "expected_return": -1.0,
    "path": null
   },
@@ -40,13 +40,13 @@
   },
   "GOOGL": {
    "asof": "2026-06-15",
-   "confidence": null,
+   "confidence": 0.625,
    "expected_return": 1.0,
    "path": null
   },
   "JNJ": {
    "asof": "2026-06-15",
-   "confidence": null,
+   "confidence": 0.625,
    "expected_return": -1.0,
    "path": null
   },
@@ -64,13 +64,13 @@
   },
   "MSFT": {
    "asof": "2026-06-15",
-   "confidence": null,
+   "confidence": 0.625,
    "expected_return": 1.0,
    "path": null
   },
   "NVDA": {
    "asof": "2026-06-15",
-   "confidence": null,
+   "confidence": 0.625,
    "expected_return": 1.0,
    "path": null
   },

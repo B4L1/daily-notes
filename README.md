@@ -74,20 +74,20 @@ Backtest over 365 settled days with the V2 costs and account rules. Final value 
 
 | Model | One-day | One-day short | Hold | Top picks | Weekly |
 |---|---|---|---|---|---|
-| Analog candle matching | 8,840 | 7,593 | 10,475 | 9,334 | – |
-| Candlestick pattern rules | 10,103 | 10,066 | 10,135 | 10,095 | – |
-| Chronos-Bolt Tiny (pretrained) | 7,729 | 5,479 | 10,020 | 8,545 | 10,731 |
-| Always long (control) | 6,771 | 6,771 | 12,713 | 8,186 | – |
-| Tomorrow = today (control) | 8,876 | 7,046 | 10,356 | 9,407 | – |
-| Random coin (control) | 9,156 | 7,614 | 11,222 | 9,375 | – |
-| Ensemble (majority vote) | 9,549 | 9,551 | 9,955 | 9,795 | – |
-| Kronos | 8,455 | 6,370 | 9,846 | 8,964 | 11,086 |
-| LSTM on candle shape | 9,060 | 8,976 | 11,271 | 9,011 | – |
-| AutoETS (statsforecast) | 9,953 | 9,686 | 11,551 | 10,119 | 10,961 |
-| TimesFM | 9,188 | 7,475 | 11,233 | 9,208 | 10,782 |
-| XGBoost on indicators | 8,399 | 7,547 | 11,168 | 8,306 | – |
+| Analog candle matching | 8,840 | 7,593 | 10,100 | 9,334 | – |
+| Candlestick pattern rules | 10,103 | 10,066 | 10,150 | 10,095 | – |
+| Chronos-Bolt Tiny (pretrained) | 7,729 | 5,479 | 10,102 | 8,545 | 10,165 |
+| Always long (control) | 6,771 | 6,771 | 12,075 | 8,186 | – |
+| Tomorrow = today (control) | 8,876 | 7,046 | 10,592 | 9,407 | – |
+| Random coin (control) | 9,156 | 7,614 | 10,346 | 9,375 | – |
+| Ensemble (majority vote) | 9,549 | 9,551 | 10,018 | 9,882 | – |
+| Kronos | 8,455 | 6,370 | 9,840 | 8,964 | 10,235 |
+| LSTM on candle shape | 9,060 | 8,976 | 11,544 | 9,011 | – |
+| AutoETS (statsforecast) | 9,953 | 9,686 | 11,004 | 10,119 | 10,683 |
+| TimesFM | 9,188 | 7,475 | 11,083 | 9,208 | 11,148 |
+| XGBoost on indicators | 8,399 | 7,547 | 11,796 | 8,306 | – |
 
-Buy and hold with fees (the always-long control under the hold rule) ended at 12,713, and no model's hold account beat it. Under the one-day rules no model clearly beats the random control (9,156): two finished higher, the candlestick rules and AutoETS, but not by a margin that can be told apart from luck. These are backtest figures on one year of data. They say nothing certain about the future. Backtest figures are fixed between backfills, because the daily run scores only the live store. They change when a backfill is re-run or data is corrected; the dashboard is the current source of truth, and `data/` is the record.
+Buy and hold with fees (the always-long control under the hold rule) ended at 12,075, and no model's hold account beat it; the best, XGBoost on indicators, ended at 11,796. Four hold accounts finished above the random control's 10,346 (XGBoost, the LSTM, TimesFM and AutoETS), but all of them stayed below plain buy and hold. Under the one-day rules no model clearly beats the random control (9,156): four finished higher (the candlestick rules at 10,103, AutoETS at 9,953, the ensemble at 9,549 and TimesFM at 9,188), but not by a margin that can be told apart from luck. The weekly accounts (four models with a 5-day path, between 10,165 and 11,148) have no random baseline yet, so they cannot be told apart from luck. These are backtest figures on one year of data. They say nothing certain about the future. Backtest figures are fixed between backfills, because the daily run scores only the live store. They change when a backfill is re-run or data is corrected; the dashboard is the current source of truth, and `data/` is the record.
 
 These are simple estimators on one year of one market regime. The result says these particular tools, on these rules, showed no skill. It does not say prediction is impossible. The live record, which starts with the first scheduled run, is the real test.
 

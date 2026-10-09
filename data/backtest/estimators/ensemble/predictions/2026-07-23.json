@@ -40,7 +40,7 @@
   },
   "GOOGL": {
    "asof": "2026-07-22",
-   "confidence": null,
+   "confidence": 0.625,
    "expected_return": 1.0,
    "path": null
   },
@@ -52,13 +52,13 @@
   },
   "JPM": {
    "asof": "2026-07-22",
-   "confidence": null,
+   "confidence": 0.625,
    "expected_return": 1.0,
    "path": null
   },
   "META": {
    "asof": "2026-07-22",
-   "confidence": null,
+   "confidence": 0.625,
    "expected_return": 1.0,
    "path": null
   },
@@ -70,13 +70,13 @@
   },
   "NVDA": {
    "asof": "2026-07-22",
-   "confidence": null,
+   "confidence": 0.625,
    "expected_return": 1.0,
    "path": null
   },
   "QQQ": {
    "asof": "2026-07-22",
-   "confidence": null,
+   "confidence": 0.625,
    "expected_return": 1.0,
    "path": null
   },
@@ -100,7 +100,7 @@
   },
   "TSLA": {
    "asof": "2026-07-22",
-   "confidence": null,
+   "confidence": 0.625,
    "expected_return": 1.0,
    "path": null
   },
@@ -112,13 +112,13 @@
   },
   "V": {
    "asof": "2026-07-22",
-   "confidence": null,
+   "confidence": 0.625,
    "expected_return": 1.0,
    "path": null
   },
   "WMT": {
    "asof": "2026-07-22",
-   "confidence": null,
+   "confidence": 0.625,
    "expected_return": 1.0,
    "path": null
   },

@@ -64,7 +64,7 @@
   },
   "MSFT": {
    "asof": "2026-09-04",
-   "confidence": null,
+   "confidence": 0.625,
    "expected_return": 1.0,
    "path": null
   },

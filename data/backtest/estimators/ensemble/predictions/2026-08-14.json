@@ -40,7 +40,7 @@
   },
   "GOOGL": {
    "asof": "2026-08-13",
-   "confidence": null,
+   "confidence": 0.625,
    "expected_return": 1.0,
    "path": null
   },
@@ -64,7 +64,7 @@
   },
   "MSFT": {
    "asof": "2026-08-13",
-   "confidence": null,
+   "confidence": 0.625,
    "expected_return": 1.0,
    "path": null
   },
@@ -76,7 +76,7 @@
   },
   "QQQ": {
    "asof": "2026-08-13",
-   "confidence": null,
+   "confidence": 0.625,
    "expected_return": -1.0,
    "path": null
   },
@@ -100,7 +100,7 @@
   },
   "TSLA": {
    "asof": "2026-08-13",
-   "confidence": null,
+   "confidence": 0.625,
    "expected_return": 1.0,
    "path": null
   },

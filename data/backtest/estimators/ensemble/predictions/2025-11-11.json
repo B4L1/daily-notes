@@ -10,7 +10,7 @@
   },
   "AMD": {
    "asof": "2025-11-10",
-   "confidence": null,
+   "confidence": 0.625,
    "expected_return": -1.0,
    "path": null
   },
@@ -46,7 +46,7 @@
   },
   "JNJ": {
    "asof": "2025-11-10",
-   "confidence": null,
+   "confidence": 0.625,
    "expected_return": 1.0,
    "path": null
   },
@@ -64,7 +64,7 @@
   },
   "MSFT": {
    "asof": "2025-11-10",
-   "confidence": null,
+   "confidence": 0.625,
    "expected_return": 1.0,
    "path": null
   },

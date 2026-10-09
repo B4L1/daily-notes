@@ -4,7 +4,7 @@
  "predictions": {
   "AAPL": {
    "asof": "2025-12-23",
-   "confidence": null,
+   "confidence": 0.625,
    "expected_return": 1.0,
    "path": null
   },
@@ -16,7 +16,7 @@
   },
   "AMZN": {
    "asof": "2025-12-23",
-   "confidence": null,
+   "confidence": 0.625,
    "expected_return": 1.0,
    "path": null
   },
@@ -58,7 +58,7 @@
   },
   "META": {
    "asof": "2025-12-23",
-   "confidence": null,
+   "confidence": 0.75,
    "expected_return": 1.0,
    "path": null
   },
@@ -76,13 +76,13 @@
   },
   "QQQ": {
    "asof": "2025-12-23",
-   "confidence": null,
+   "confidence": 0.625,
    "expected_return": 1.0,
    "path": null
   },
   "SLV": {
    "asof": "2025-12-23",
-   "confidence": null,
+   "confidence": 0.625,
    "expected_return": 1.0,
    "path": null
   },

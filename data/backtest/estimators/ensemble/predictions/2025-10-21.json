@@ -16,7 +16,7 @@
   },
   "AMZN": {
    "asof": "2025-10-20",
-   "confidence": null,
+   "confidence": 0.625,
    "expected_return": 1.0,
    "path": null
   },
@@ -34,7 +34,7 @@
   },
   "GLD": {
    "asof": "2025-10-20",
-   "confidence": null,
+   "confidence": 0.625,
    "expected_return": 1.0,
    "path": null
   },
@@ -46,19 +46,19 @@
   },
   "JNJ": {
    "asof": "2025-10-20",
-   "confidence": null,
+   "confidence": 0.625,
    "expected_return": 1.0,
    "path": null
   },
   "JPM": {
    "asof": "2025-10-20",
-   "confidence": null,
+   "confidence": 0.625,
    "expected_return": 1.0,
    "path": null
   },
   "META": {
    "asof": "2025-10-20",
-   "confidence": null,
+   "confidence": 0.625,
    "expected_return": 1.0,
    "path": null
   },
@@ -106,25 +106,25 @@
   },
   "USO": {
    "asof": "2025-10-20",
-   "confidence": null,
+   "confidence": 0.625,
    "expected_return": 1.0,
    "path": null
   },
   "V": {
    "asof": "2025-10-20",
-   "confidence": null,
+   "confidence": 0.75,
    "expected_return": 1.0,
    "path": null
   },
   "WMT": {
    "asof": "2025-10-20",
-   "confidence": null,
+   "confidence": 0.625,
    "expected_return": 1.0,
    "path": null
   },
   "XOM": {
    "asof": "2025-10-20",
-   "confidence": null,
+   "confidence": 0.75,
    "expected_return": 1.0,
    "path": null
   }

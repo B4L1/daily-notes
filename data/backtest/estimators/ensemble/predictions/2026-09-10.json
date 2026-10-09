@@ -4,7 +4,7 @@
  "predictions": {
   "AAPL": {
    "asof": "2026-09-09",
-   "confidence": null,
+   "confidence": 0.625,
    "expected_return": 1.0,
    "path": null
   },
@@ -46,7 +46,7 @@
   },
   "JNJ": {
    "asof": "2026-09-09",
-   "confidence": null,
+   "confidence": 0.625,
    "expected_return": 1.0,
    "path": null
   },
@@ -82,7 +82,7 @@
   },
   "SLV": {
    "asof": "2026-09-09",
-   "confidence": null,
+   "confidence": 0.625,
    "expected_return": 1.0,
    "path": null
   },
@@ -94,7 +94,7 @@
   },
   "SPY": {
    "asof": "2026-09-09",
-   "confidence": null,
+   "confidence": 0.625,
    "expected_return": 1.0,
    "path": null
   },
@@ -118,13 +118,13 @@
   },
   "WMT": {
    "asof": "2026-09-09",
-   "confidence": null,
+   "confidence": 0.625,
    "expected_return": 1.0,
    "path": null
   },
   "XOM": {
    "asof": "2026-09-09",
-   "confidence": null,
+   "confidence": 0.625,
    "expected_return": 1.0,
    "path": null
   }

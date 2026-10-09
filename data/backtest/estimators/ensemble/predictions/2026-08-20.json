@@ -34,7 +34,7 @@
   },
   "GLD": {
    "asof": "2026-08-19",
-   "confidence": null,
+   "confidence": 0.625,
    "expected_return": 1.0,
    "path": null
   },
@@ -46,19 +46,19 @@
   },
   "JNJ": {
    "asof": "2026-08-19",
-   "confidence": null,
+   "confidence": 0.625,
    "expected_return": 1.0,
    "path": null
   },
   "JPM": {
    "asof": "2026-08-19",
-   "confidence": null,
+   "confidence": 0.75,
    "expected_return": 1.0,
    "path": null
   },
   "META": {
    "asof": "2026-08-19",
-   "confidence": null,
+   "confidence": 0.75,
    "expected_return": 1.0,
    "path": null
   },
@@ -76,7 +76,7 @@
   },
   "QQQ": {
    "asof": "2026-08-19",
-   "confidence": null,
+   "confidence": 0.625,
    "expected_return": 1.0,
    "path": null
   },
@@ -112,7 +112,7 @@
   },
   "V": {
    "asof": "2026-08-19",
-   "confidence": null,
+   "confidence": 0.625,
    "expected_return": 1.0,
    "path": null
   },

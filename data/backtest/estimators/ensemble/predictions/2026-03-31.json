@@ -4,7 +4,7 @@
  "predictions": {
   "AAPL": {
    "asof": "2026-03-30",
-   "confidence": null,
+   "confidence": 0.625,
    "expected_return": 1.0,
    "path": null
   },
@@ -40,43 +40,43 @@
   },
   "GOOGL": {
    "asof": "2026-03-30",
-   "confidence": null,
+   "confidence": 0.625,
    "expected_return": 1.0,
    "path": null
   },
   "JNJ": {
    "asof": "2026-03-30",
-   "confidence": null,
+   "confidence": 0.625,
    "expected_return": 1.0,
    "path": null
   },
   "JPM": {
    "asof": "2026-03-30",
-   "confidence": null,
+   "confidence": 0.625,
    "expected_return": 1.0,
    "path": null
   },
   "META": {
    "asof": "2026-03-30",
-   "confidence": null,
+   "confidence": 0.625,
    "expected_return": 1.0,
    "path": null
   },
   "MSFT": {
    "asof": "2026-03-30",
-   "confidence": null,
+   "confidence": 0.75,
    "expected_return": 1.0,
    "path": null
   },
   "NVDA": {
    "asof": "2026-03-30",
-   "confidence": null,
+   "confidence": 0.75,
    "expected_return": 1.0,
    "path": null
   },
   "QQQ": {
    "asof": "2026-03-30",
-   "confidence": null,
+   "confidence": 0.75,
    "expected_return": 1.0,
    "path": null
   },
@@ -94,13 +94,13 @@
   },
   "SPY": {
    "asof": "2026-03-30",
-   "confidence": null,
+   "confidence": 0.875,
    "expected_return": 1.0,
    "path": null
   },
   "TSLA": {
    "asof": "2026-03-30",
-   "confidence": null,
+   "confidence": 0.875,
    "expected_return": 1.0,
    "path": null
   },
@@ -112,7 +112,7 @@
   },
   "V": {
    "asof": "2026-03-30",
-   "confidence": null,
+   "confidence": 0.625,
    "expected_return": 1.0,
    "path": null
   },

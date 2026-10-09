@@ -4,13 +4,13 @@
  "predictions": {
   "AAPL": {
    "asof": "2026-06-30",
-   "confidence": null,
+   "confidence": 0.625,
    "expected_return": 1.0,
    "path": null
   },
   "AMD": {
    "asof": "2026-06-30",
-   "confidence": null,
+   "confidence": 0.625,
    "expected_return": 1.0,
    "path": null
   },
@@ -52,7 +52,7 @@
   },
   "JPM": {
    "asof": "2026-06-30",
-   "confidence": null,
+   "confidence": 0.75,
    "expected_return": 1.0,
    "path": null
   },
@@ -82,7 +82,7 @@
   },
   "SLV": {
    "asof": "2026-06-30",
-   "confidence": null,
+   "confidence": 0.625,
    "expected_return": 1.0,
    "path": null
   },
@@ -106,7 +106,7 @@
   },
   "USO": {
    "asof": "2026-06-30",
-   "confidence": null,
+   "confidence": 0.625,
    "expected_return": -1.0,
    "path": null
   },

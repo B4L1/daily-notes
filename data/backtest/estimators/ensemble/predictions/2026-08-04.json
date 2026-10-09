@@ -34,7 +34,7 @@
   },
   "GLD": {
    "asof": "2026-08-03",
-   "confidence": null,
+   "confidence": 0.625,
    "expected_return": 1.0,
    "path": null
   },
@@ -82,7 +82,7 @@
   },
   "SLV": {
    "asof": "2026-08-03",
-   "confidence": null,
+   "confidence": 0.625,
    "expected_return": 1.0,
    "path": null
   },
@@ -100,7 +100,7 @@
   },
   "TSLA": {
    "asof": "2026-08-03",
-   "confidence": null,
+   "confidence": 0.625,
    "expected_return": 1.0,
    "path": null
   },
@@ -112,7 +112,7 @@
   },
   "V": {
    "asof": "2026-08-03",
-   "confidence": null,
+   "confidence": 0.625,
    "expected_return": 1.0,
    "path": null
   },

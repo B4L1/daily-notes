@@ -58,7 +58,7 @@
   },
   "META": {
    "asof": "2026-04-20",
-   "confidence": null,
+   "confidence": 0.625,
    "expected_return": -1.0,
    "path": null
   },

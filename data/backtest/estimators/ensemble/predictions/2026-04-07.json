@@ -46,13 +46,13 @@
   },
   "JNJ": {
    "asof": "2026-04-06",
-   "confidence": null,
+   "confidence": 0.625,
    "expected_return": 1.0,
    "path": null
   },
   "JPM": {
    "asof": "2026-04-06",
-   "confidence": null,
+   "confidence": 0.625,
    "expected_return": 1.0,
    "path": null
   },
@@ -124,7 +124,7 @@
   },
   "XOM": {
    "asof": "2026-04-06",
-   "confidence": null,
+   "confidence": 0.625,
    "expected_return": 1.0,
    "path": null
   }

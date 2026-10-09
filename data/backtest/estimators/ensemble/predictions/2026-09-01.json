@@ -52,7 +52,7 @@
   },
   "JPM": {
    "asof": "2026-08-31",
-   "confidence": null,
+   "confidence": 0.625,
    "expected_return": 1.0,
    "path": null
   },
@@ -70,7 +70,7 @@
   },
   "NVDA": {
    "asof": "2026-08-31",
-   "confidence": null,
+   "confidence": 0.625,
    "expected_return": -1.0,
    "path": null
   },
@@ -94,7 +94,7 @@
   },
   "SPY": {
    "asof": "2026-08-31",
-   "confidence": null,
+   "confidence": 0.625,
    "expected_return": 1.0,
    "path": null
   },

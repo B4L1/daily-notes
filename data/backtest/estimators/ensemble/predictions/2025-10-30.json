@@ -4,7 +4,7 @@
  "predictions": {
   "AAPL": {
    "asof": "2025-10-29",
-   "confidence": null,
+   "confidence": 0.625,
    "expected_return": 1.0,
    "path": null
   },
@@ -64,7 +64,7 @@
   },
   "MSFT": {
    "asof": "2025-10-29",
-   "confidence": null,
+   "confidence": 0.625,
    "expected_return": 1.0,
    "path": null
   },
@@ -112,13 +112,13 @@
   },
   "V": {
    "asof": "2025-10-29",
-   "confidence": null,
+   "confidence": 0.875,
    "expected_return": 1.0,
    "path": null
   },
   "WMT": {
    "asof": "2025-10-29",
-   "confidence": null,
+   "confidence": 0.625,
    "expected_return": 1.0,
    "path": null
   },

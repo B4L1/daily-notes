@@ -16,7 +16,7 @@
   },
   "AMZN": {
    "asof": "2025-12-30",
-   "confidence": null,
+   "confidence": 0.625,
    "expected_return": 1.0,
    "path": null
   },
@@ -34,7 +34,7 @@
   },
   "GLD": {
    "asof": "2025-12-30",
-   "confidence": null,
+   "confidence": 0.625,
    "expected_return": 1.0,
    "path": null
   },
@@ -46,7 +46,7 @@
   },
   "JNJ": {
    "asof": "2025-12-30",
-   "confidence": null,
+   "confidence": 0.625,
    "expected_return": 1.0,
    "path": null
   },
@@ -58,31 +58,31 @@
   },
   "META": {
    "asof": "2025-12-30",
-   "confidence": null,
+   "confidence": 0.625,
    "expected_return": 1.0,
    "path": null
   },
   "MSFT": {
    "asof": "2025-12-30",
-   "confidence": null,
+   "confidence": 0.625,
    "expected_return": 1.0,
    "path": null
   },
   "NVDA": {
    "asof": "2025-12-30",
-   "confidence": null,
+   "confidence": 0.625,
    "expected_return": 1.0,
    "path": null
   },
   "QQQ": {
    "asof": "2025-12-30",
-   "confidence": null,
+   "confidence": 0.625,
    "expected_return": 1.0,
    "path": null
   },
   "SLV": {
    "asof": "2025-12-30",
-   "confidence": null,
+   "confidence": 0.625,
    "expected_return": -1.0,
    "path": null
   },
@@ -94,13 +94,13 @@
   },
   "SPY": {
    "asof": "2025-12-30",
-   "confidence": null,
+   "confidence": 0.75,
    "expected_return": 1.0,
    "path": null
   },
   "TSLA": {
    "asof": "2025-12-30",
-   "confidence": null,
+   "confidence": 0.625,
    "expected_return": 1.0,
    "path": null
   },
@@ -118,7 +118,7 @@
   },
   "WMT": {
    "asof": "2025-12-30",
-   "confidence": null,
+   "confidence": 0.75,
    "expected_return": 1.0,
    "path": null
   },

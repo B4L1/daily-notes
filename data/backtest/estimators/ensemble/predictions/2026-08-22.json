@@ -4,7 +4,7 @@
  "predictions": {
   "AAPL": {
    "asof": "2026-08-21",
-   "confidence": null,
+   "confidence": 0.625,
    "expected_return": 1.0,
    "path": null
   },
@@ -22,7 +22,7 @@
   },
   "BTC-USD": {
    "asof": "2026-08-21",
-   "confidence": null,
+   "confidence": 0.625,
    "expected_return": 1.0,
    "path": null
   },
@@ -40,13 +40,13 @@
   },
   "GOOGL": {
    "asof": "2026-08-21",
-   "confidence": null,
+   "confidence": 0.75,
    "expected_return": 1.0,
    "path": null
   },
   "JNJ": {
    "asof": "2026-08-21",
-   "confidence": null,
+   "confidence": 0.75,
    "expected_return": 1.0,
    "path": null
   },
@@ -58,13 +58,13 @@
   },
   "META": {
    "asof": "2026-08-21",
-   "confidence": null,
+   "confidence": 0.625,
    "expected_return": 1.0,
    "path": null
   },
   "MSFT": {
    "asof": "2026-08-21",
-   "confidence": null,
+   "confidence": 0.75,
    "expected_return": 1.0,
    "path": null
   },
@@ -76,7 +76,7 @@
   },
   "QQQ": {
    "asof": "2026-08-21",
-   "confidence": null,
+   "confidence": 0.625,
    "expected_return": 1.0,
    "path": null
   },
@@ -88,7 +88,7 @@
   },
   "SOL-USD": {
    "asof": "2026-08-21",
-   "confidence": null,
+   "confidence": 0.625,
    "expected_return": 1.0,
    "path": null
   },
@@ -100,7 +100,7 @@
   },
   "TSLA": {
    "asof": "2026-08-21",
-   "confidence": null,
+   "confidence": 0.625,
    "expected_return": 1.0,
    "path": null
   },
@@ -118,13 +118,13 @@
   },
   "WMT": {
    "asof": "2026-08-21",
-   "confidence": null,
+   "confidence": 0.75,
    "expected_return": 1.0,
    "path": null
   },
   "XOM": {
    "asof": "2026-08-21",
-   "confidence": null,
+   "confidence": 0.625,
    "expected_return": 1.0,
    "path": null
   }

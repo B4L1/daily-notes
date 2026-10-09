@@ -10,7 +10,7 @@
   },
   "AMD": {
    "asof": "2026-07-21",
-   "confidence": null,
+   "confidence": 0.625,
    "expected_return": -1.0,
    "path": null
   },
@@ -40,7 +40,7 @@
   },
   "GOOGL": {
    "asof": "2026-07-21",
-   "confidence": null,
+   "confidence": 0.625,
    "expected_return": 1.0,
    "path": null
   },
@@ -52,13 +52,13 @@
   },
   "JPM": {
    "asof": "2026-07-21",
-   "confidence": null,
+   "confidence": 0.625,
    "expected_return": 1.0,
    "path": null
   },
   "META": {
    "asof": "2026-07-21",
-   "confidence": null,
+   "confidence": 0.75,
    "expected_return": 1.0,
    "path": null
   },
@@ -70,7 +70,7 @@
   },
   "NVDA": {
    "asof": "2026-07-21",
-   "confidence": null,
+   "confidence": 0.625,
    "expected_return": -1.0,
    "path": null
   },
@@ -82,7 +82,7 @@
   },
   "SLV": {
    "asof": "2026-07-21",
-   "confidence": null,
+   "confidence": 0.625,
    "expected_return": 1.0,
    "path": null
   },
@@ -112,13 +112,13 @@
   },
   "V": {
    "asof": "2026-07-21",
-   "confidence": null,
+   "confidence": 0.625,
    "expected_return": 1.0,
    "path": null
   },
   "WMT": {
    "asof": "2026-07-21",
-   "confidence": null,
+   "confidence": 0.625,
    "expected_return": 1.0,
    "path": null
   },

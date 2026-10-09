@@ -40,7 +40,7 @@
   },
   "GOOGL": {
    "asof": "2026-04-07",
-   "confidence": null,
+   "confidence": 0.625,
    "expected_return": 1.0,
    "path": null
   },
@@ -64,7 +64,7 @@
   },
   "MSFT": {
    "asof": "2026-04-07",
-   "confidence": null,
+   "confidence": 0.625,
    "expected_return": 1.0,
    "path": null
   },
@@ -106,7 +106,7 @@
   },
   "USO": {
    "asof": "2026-04-07",
-   "confidence": null,
+   "confidence": 0.625,
    "expected_return": -1.0,
    "path": null
   },
