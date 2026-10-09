@@ -27,6 +27,9 @@ Each model's stored predictions are scored under five rules, so every model has 
 - `hold`: buy when the expected gain beats the cost, keep the position while the newest prediction is still above zero, sell at the next open otherwise; overnight moves are earned and fees are paid only when the position changes.
 - `top_picks`: the 3 strongest calls of the day, traded as in `one_day`.
 - `weekly`: for models with a 5-day path; one fifth of the account enters each day and is sold at the close of its fifth session.
+- `full_equal`: as `one_day`, but the whole account is split equally across the day's qualifying calls, with nothing left in cash.
+- `full_weighted`: the whole account, split in proportion to each call's expected gain after costs.
+- `all_in`: the whole account on the single call with the highest expected gain after costs.
 
 Two more accounts are derived, not models: the **ensemble** (majority vote of the models; the controls do not vote) goes through the first four rules, and **buy-and-hold with fees** is the always-long control under `hold` (it buys every asset once, pays the entry cost once and holds). Buy-and-hold with fees is the honest baseline. The luck check compares each account with the random control under the same rule.
 
@@ -86,6 +89,25 @@ Backtest over 365 settled days with the V2 costs and account rules. Final value 
 | AutoETS (statsforecast) | 9,953 | 9,686 | 11,004 | 10,119 | 10,683 |
 | TimesFM | 9,188 | 7,475 | 11,083 | 9,208 | 11,148 |
 | XGBoost on indicators | 8,399 | 7,547 | 11,796 | 8,306 | – |
+
+The three fully invested accounts (same 365 days) compared with `one_day`. Final value, with the deepest fall from a peak in brackets:
+
+| Model | One-day | Full equal | Full weighted | All in |
+|---|---|---|---|---|
+| Analog candle matching | 8,840 (-24%) | 7,448 (-37%) | 6,987 (-42%) | 5,770 (-52%) |
+| Candlestick pattern rules | 10,103 (-1%) | 11,433 (-10%) | 11,497 (-10%) | 11,423 (-11%) |
+| Chronos-Bolt Tiny (pretrained) | 7,729 (-28%) | 6,592 (-43%) | 5,937 (-48%) | 4,770 (-58%) |
+| Always long (control) | 6,771 (-43%) | 6,771 (-43%) | 6,772 (-43%) | 8,074 (-32%) |
+| Tomorrow = today (control) | 8,876 (-18%) | 8,036 (-26%) | 8,462 (-30%) | 9,371 (-43%) |
+| Random coin (control) | 9,156 (-24%) | 7,983 (-41%) | 7,985 (-41%) | 10,466 (-32%) |
+| Ensemble (majority vote) | 9,549 (-7%) | 8,812 (-19%) | 8,812 (-19%) | 9,172 (-20%) |
+| Kronos | 8,455 (-25%) | 6,685 (-43%) | 5,684 (-45%) | 4,368 (-58%) |
+| LSTM on candle shape | 9,060 (-17%) | 9,112 (-24%) | 9,050 (-31%) | 6,031 (-54%) |
+| AutoETS (statsforecast) | 9,953 (-4%) | 8,832 (-17%) | 9,283 (-28%) | 9,719 (-37%) |
+| TimesFM | 9,188 (-16%) | 8,363 (-34%) | 8,115 (-39%) | 7,809 (-47%) |
+| XGBoost on indicators | 8,399 (-20%) | 7,705 (-27%) | 7,901 (-36%) | 9,285 (-54%) |
+
+Putting more money behind the calls made a losing model lose faster. Sizing by expected gain did not beat the equal split for most models, which means their larger predictions were not larger moves. The random control's all-in account ended at 10,466 by chance, which shows how little a single concentrated result proves.
 
 Buy and hold with fees (the always-long control under the hold rule) ended at 12,075, and no model's hold account beat it; the best, XGBoost on indicators, ended at 11,796. Four hold accounts finished above the random control's 10,346 (XGBoost, the LSTM, TimesFM and AutoETS), but all of them stayed below plain buy and hold. Under the one-day rules no model clearly beats the random control (9,156): four finished higher (the candlestick rules at 10,103, AutoETS at 9,953, the ensemble at 9,549 and TimesFM at 9,188), but not by a margin that can be told apart from luck. The weekly accounts (four models with a 5-day path, between 10,165 and 11,148) have no random baseline yet, so they cannot be told apart from luck. These are backtest figures on one year of data. They say nothing certain about the future. Backtest figures are fixed between backfills, because the daily run scores only the live store. They change when a backfill is re-run or data is corrected; the dashboard is the current source of truth, and `data/` is the record.
 

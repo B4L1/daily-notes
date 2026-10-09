@@ -167,3 +167,58 @@ def test_missing_confidence_ranks_after_any_confidence_on_a_tie():
          for s, c in (("A1", None), ("A2", 0.1), ("A3", None), ("A4", 0.2))}
     r = daily.top_picks(p, prices, Costs(assets), 10000.0)
     assert sorted(x["asset"] for x in r.ledger if x["traded"]) == ["A1", "A2", "A4"]
+
+
+def three():
+    assets = [Asset("A1", "stock", 5, 0.001, 0.0), Asset("A2", "stock", 5, 0.001, 0.0), Asset("A3", "stock", 5, 0.001, 0.0)]
+    prices = {
+        "A1": candles([("2026-01-05", 100, 100, 100, 100), ("2026-01-06", 100, 104, 99, 104)]),  # +4%
+        "A2": candles([("2026-01-05", 100, 100, 100, 100), ("2026-01-06", 100, 101, 98, 98)]),   # -2%
+        "A3": candles([("2026-01-05", 100, 100, 100, 100), ("2026-01-06", 100, 110, 99, 110)]),  # +10%
+    }
+    p = {(s, "2026-01-05"): {"asof": "2026-01-05", "expected_return": e, "path": None}
+         for s, e in (("A1", 0.031), ("A2", 0.011), ("A3", 0.0005))}
+    return assets, prices, p
+
+
+def test_full_equal_invests_the_whole_account_in_the_qualifying_calls():
+    assets, prices, p = three()
+    r = daily.full_equal(p, prices, Costs(assets), 10000.0)
+    # A1 and A2 qualify, half each: (0.039 - 0.021) / 2
+    assert r.equity[0]["day_return"] == pytest.approx((0.04 - 0.001) / 2 + (-0.02 - 0.001) / 2)
+    assert {x["asset"]: x["traded"] for x in r.ledger} == {"A1": 1, "A2": 1, "A3": 0}
+    # one_day leaves a third in cash on the same calls
+    assert daily.one_day(p, prices, Costs(assets), 10000.0).equity[0]["day_return"] == pytest.approx((0.039 - 0.021) / 3)
+
+
+def test_full_weighted_sizes_by_expected_gain_after_costs():
+    assets, prices, p = three()
+    r = daily.full_weighted(p, prices, Costs(assets), 10000.0)
+    # edges 0.030 and 0.010 -> shares 0.75 and 0.25
+    assert r.equity[0]["day_return"] == pytest.approx(0.75 * 0.039 + 0.25 * -0.021)
+    shares = {x["asset"]: x["weight"] / 3 for x in r.ledger if x["traded"]}
+    assert shares == pytest.approx({"A1": 0.75, "A2": 0.25})
+
+
+def test_all_in_puts_everything_on_the_strongest_call():
+    assets, prices, p = three()
+    r = daily.all_in(p, prices, Costs(assets), 10000.0)
+    assert [x["asset"] for x in r.ledger if x["traded"]] == ["A1"]
+    assert r.equity[0]["day_return"] == pytest.approx(0.039) and r.equity[0]["equity"] == pytest.approx(10390.0)
+
+
+def test_strongest_is_judged_after_costs():
+    assets = [Asset("CHEAP", "etf", 5, 0.0001, 0.0), Asset("DEAR", "crypto", 5, 0.01, 0.0)]
+    prices = {s: candles([("2026-01-05", 100, 100, 100, 100), ("2026-01-06", 100, 101, 99, 101)]) for s in ("CHEAP", "DEAR")}
+    p = {("CHEAP", "2026-01-05"): {"asof": "2026-01-05", "expected_return": 0.008, "path": None},
+         ("DEAR", "2026-01-05"): {"asof": "2026-01-05", "expected_return": 0.012, "path": None}}
+    r = daily.all_in(p, prices, Costs(assets), 10000.0)
+    assert [x["asset"] for x in r.ledger if x["traded"]] == ["CHEAP"]
+
+
+def test_fully_invested_accounts_stay_in_cash_when_nothing_qualifies():
+    assets, prices, _ = three()
+    p = {(s, "2026-01-05"): {"asof": "2026-01-05", "expected_return": -0.01, "path": None} for s in ("A1", "A2", "A3")}
+    for fn in (daily.full_equal, daily.full_weighted, daily.all_in):
+        r = fn(p, prices, Costs(assets), 10000.0)
+        assert r.equity[0]["equity"] == 10000.0 and len(r.ledger) == 3 and not any(x["traded"] for x in r.ledger)

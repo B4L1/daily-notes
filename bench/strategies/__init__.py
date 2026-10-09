@@ -6,4 +6,7 @@ STRATEGIES = {
     "hold": hold.hold,
     "top_picks": daily.top_picks,
     "weekly": weekly.weekly,
+    "full_equal": daily.full_equal,
+    "full_weighted": daily.full_weighted,
+    "all_in": daily.all_in,
 }

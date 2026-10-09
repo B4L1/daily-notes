@@ -12,7 +12,7 @@ from bench.data import load_prices
 from bench.store import Store
 
 ACCOUNT_NUMERIC = ["entry", "exit", "expected_return", "net_ret", "weight", "cost", "actual_cc"]
-CANDLE_STRATEGIES = ("one_day", "one_day_short", "top_picks")
+CANDLE_STRATEGIES = ("one_day", "one_day_short", "top_picks", "full_equal", "full_weighted", "all_in")
 
 
 def _finite(df, cols):

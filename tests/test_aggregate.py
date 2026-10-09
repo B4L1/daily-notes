@@ -231,7 +231,7 @@ def test_summary_has_strategies_accounts_groups_and_the_ensemble(tmp_path):
     out = tmp_path / "site"
     build_all(tmp_path / "data", out, px, S, assets, "2026-01-08", generated_at="2026-01-08T00:00:00Z")
     s = json.loads((out / "summary.json").read_text())
-    assert s["strategies"] == ["one_day", "one_day_short", "hold", "top_picks", "weekly"]
+    assert s["strategies"] == ["one_day", "one_day_short", "hold", "top_picks", "weekly", "full_equal", "full_weighted", "all_in"]
     from bench import ensemble
     assert s["estimators"][-1] == {"name": "ensemble", "backfill_stride": 1, **ensemble.META}
     public = set.intersection(*(set(m) for m in REGISTRY.values())) - set(PUBLIC_META_SKIP)  # keys every model has ('setup' is optional)
