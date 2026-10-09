@@ -1,0 +1,26 @@
+{
+ "created_at": null,
+ "estimator": "ensemble",
+ "predictions": {
+  "BTC-USD": {
+   "asof": "2026-08-02",
+   "confidence": null,
+   "expected_return": 0.0,
+   "path": null
+  },
+  "ETH-USD": {
+   "asof": "2026-08-02",
+   "confidence": null,
+   "expected_return": 0.0,
+   "path": null
+  },
+  "SOL-USD": {
+   "asof": "2026-08-02",
+   "confidence": null,
+   "expected_return": 0.0,
+   "path": null
+  }
+ },
+ "run_date": "2026-08-03",
+ "schema_version": 2
+}
