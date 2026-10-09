@@ -11,12 +11,12 @@ An inconclusive result ("nothing beats the random control") is a legitimate and 
 A scheduled GitHub Actions workflow (`.github/workflows/daily.yml`) runs at 00:30 UTC every day. That time is chosen so a prediction is always committed before the session it trades.
 
 1. **Fetch** the latest completed daily candles for about 21 assets (`assets.yaml`: 15 US stocks and ETFs, 3 crypto, 3 commodity ETFs). Source: `yfinance` (unofficial, see `docs/data-sources.md`).
-2. **Settle** the previous predictions against what actually happened and update each account.
-3. **Predict** the next session. One job per estimator runs in parallel; a failing estimator is recorded as failed and the others carry on.
+2. **Predict** the next session. One job per estimator runs in parallel; a failing estimator is recorded as failed and the others carry on. Predicting only stores predictions; it does not settle anything.
+3. **Score** every account from the stored predictions and the prices (`python -m bench.cli score --mode live`). Scoring is recomputed in full on every run, so a day whose candle arrives late is picked up on the next run.
 4. **Aggregate** the results into static JSON, verify the data, commit it, and deploy the dashboard to GitHub Pages.
 5. **Notify** through [ntfy](https://ntfy.sh): one low-priority message per day with the best and worst return, how many estimators beat the random control, and a link.
 
-The trading rules are the same for every account: the full balance carries over from day to day (no reset), the balance is split equally across assets that have a session, and a trade enters at a session's open. Every account pays the real cost of the asset it trades, and a model trades an asset only when its predicted return is above that asset's own round-trip cost.
+The trading rules are the same for every account: the full balance carries over from day to day (no reset) and a trade enters at a session's open. How a day's return is weighted depends on the account type. One-day accounts (`one_day`, `one_day_short`, `top_picks`) split the account equally across the assets that have a session that day. `hold` and `weekly` accounts give every asset in the universe an equal fixed share (an asset counts from its first candle), so they are never more than 100% invested: on a Saturday only crypto trades, and each crypto position still counts for its small fixed share, not for a larger one. Every account pays the real cost of the asset it trades, and a model trades an asset only when its predicted return is above that asset's own round-trip cost.
 
 ### Account types
 
@@ -53,17 +53,17 @@ Sources: [ETF spreads, etf.com](https://www.etf.com/sections/news/why-trading-sp
 Two stated approximations:
 
 - A crypto trade enters at the 00:00 UTC open, and its prediction is made up to 11 hours later (the cron fires at 00:30 UTC but GitHub can start it late; a run that starts after the 11-hour live window records `skipped_late`, so even the slowest accepted run commits before the US open at about 13:30 UTC), using only data from before that day.
-- Trading is open to close, so overnight gaps are ignored. That is why the hold line is drawn as a reference, not as an account.
+- One-day accounts trade open to close, so they ignore overnight gaps. `hold` and `weekly` accounts keep positions overnight and earn the overnight moves. The dashed line on the charts is the always-long control under the hold rule, fees paid.
 
 ## Reading the dashboard
 
 The dashboard is a static page (no login, no input). The ntfy message links to it; its address is `https://<owner>.github.io/<repo>/`.
 
-- **Live / Backtest switch.** Live is the real record: each prediction was committed before its session. Backtest replays the past year day by day, with each day seeing only earlier data. The two are separate accounts with separate charts, and are never combined. Pretrained models may have seen the backtest period in training, so their backtest numbers may be optimistic; live is the real verdict.
+- **Live / Backtest switch.** Live is the real record: each prediction was committed before its session. Live rows can be revised once: scoring is recomputed from predictions and prices on every run, so if a candle for a day arrives late (Yahoo's crypto candles have arrived a day late), that day's figures are recalculated on the next run. The predictions themselves are never changed. Backtest replays the past year day by day, with each day seeing only earlier data. The two are separate accounts with separate charts, and are never combined. Pretrained models may have seen the backtest period in training, so their backtest numbers may be optimistic; live is the real verdict.
 - **Wallet strip.** One tile per account: balance, today's change, a small sparkline. Sorted by balance. A "check this" badge appears on a gain of more than 10% in a day or 50% in a week, because returns that large are more likely a bug or a data leak than skill.
-- **Hold line.** The dashed grey line on the charts is an "Equal-weight daily rebalanced hold (assets with a session that day, no costs)": each day, the mean close-to-close return of the assets that had a session that day, compounded, with no costs. It is not a buy-and-hold of a fixed basket, and it is a reference, not an account.
+- **Hold line.** The dashed grey line on the charts is buy and hold with fees: the always-long control under the hold rule. It buys every asset once, pays the entry cost once, and keeps the position, with each asset holding an equal fixed share.
 - **Heatmaps.** One row per estimator, one column per day: (1) daily account return, (2) direction hit rate. Brighter means a bigger magnitude; green and red (or blue and orange, with the colour-blind palette button). Each cell also carries a sign marker in its tooltip.
-- **Luck check.** For each estimator, a one-sided sign-flip permutation test on its daily return minus the random control's. "Unlikely luck" means p below the corrected threshold; "consistent with luck" means it cannot be told apart from guessing. Many estimators are tested at once, so a single p<0.05 is expected by chance: with N estimators tested, we use 0.05/N (Bonferroni; N is the number of non-control estimators, currently 8, so 0.00625). The threshold is shown next to every verdict.
+- **Luck check.** For each estimator, a one-sided sign-flip permutation test on its daily return minus the random control's. "Unlikely luck" means p below the corrected threshold; "consistent with luck" means it cannot be told apart from guessing. Many estimators are tested at once, so a single p<0.05 is expected by chance: with N accounts tested, we use 0.05/N (Bonferroni; N is the number of non-control accounts shown, currently 9 with the ensemble, so about 0.0056). The threshold is shown next to every verdict.
 - **"Too early to tell".** Shown in place of the luck check until an estimator has 60 live trading days (`min_live_days` in `assets.yaml`).
 - **Ticker strip.** A scrolling LED-style strip at the top: each tracked asset's last close and its last completed day's change (close to close, raw prices), winners first, then losers. It pauses on hover, stands still (and scrolls by hand) if your system asks for reduced motion, and has a plain-text list for screen readers. Direction is also shown by the arrow and sign, not only the colour. Previous-day moves only, not advice. Data: the `ticker` list in `summary.json`.
 - **Estimator tabs.** Each estimator has its own tab: where it came from, its licence, its stats, calendar heatmaps, a per-asset breakdown, and a day-by-day table with predicted vs actual for every asset.
@@ -87,7 +87,7 @@ Backtest over 365 settled days with the V2 costs and account rules. Final value 
 | TimesFM | 9,188 | 7,475 | 11,233 | 9,208 | 10,782 |
 | XGBoost on indicators | 8,399 | 7,547 | 11,168 | 8,306 | – |
 
-Buy and hold with fees (the always-long control under the hold rule) ended at 12,713, and no model's hold account beat it. Under the one-day rules no model clearly beats the random control (9,156): two finished higher, the candlestick rules and AutoETS, but not by a margin that can be told apart from luck. These are backtest figures on one year of data. They say nothing certain about the future. The figures change when a backfill is re-run or data is corrected; the dashboard is the current source of truth, and `data/` is the record.
+Buy and hold with fees (the always-long control under the hold rule) ended at 12,713, and no model's hold account beat it. Under the one-day rules no model clearly beats the random control (9,156): two finished higher, the candlestick rules and AutoETS, but not by a margin that can be told apart from luck. These are backtest figures on one year of data. They say nothing certain about the future. Backtest figures are fixed between backfills, because the daily run scores only the live store. They change when a backfill is re-run or data is corrected; the dashboard is the current source of truth, and `data/` is the record.
 
 These are simple estimators on one year of one market regime. The result says these particular tools, on these rules, showed no skill. It does not say prediction is impossible. The live record, which starts with the first scheduled run, is the real test.
 

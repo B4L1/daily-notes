@@ -44,7 +44,7 @@ per-asset costs. The store schema marker in `data/live` and `data/backtest` goes
 Predictions, `runs.jsonl` and `data/prices` are untouched.
 
 **Added.** `accounts/<model>/<strategy>/` (ledger, equity, positions) for every model and the derived
-`ensemble`, rebuilt from the stored predictions. The live store has no settled day, so its accounts are empty.
+`ensemble`, rebuilt from the stored predictions. The live accounts hold the days settled so far, and the daily run rescores them.
 
 **Commands.**
 
