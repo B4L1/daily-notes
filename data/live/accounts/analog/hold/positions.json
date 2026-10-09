@@ -1,0 +1,102 @@
+[
+ {
+  "asset": "AMD",
+  "entry": 639.3599853515625,
+  "entry_date": "2026-10-08",
+  "group": "stock",
+  "last": 620.6799926757812,
+  "last_date": "2026-10-08",
+  "side": "long",
+  "unrealised": -0.029466705930556142
+ },
+ {
+  "asset": "GLD",
+  "entry": 377.8500061035156,
+  "entry_date": "2026-10-08",
+  "group": "commodity",
+  "last": 378.6199951171875,
+  "last_date": "2026-10-08",
+  "side": "long",
+  "unrealised": 0.0018878165971524087
+ },
+ {
+  "asset": "JPM",
+  "entry": 327.25,
+  "entry_date": "2026-10-08",
+  "group": "stock",
+  "last": 331.4200134277344,
+  "last_date": "2026-10-08",
+  "side": "long",
+  "unrealised": 0.012492592598118829
+ },
+ {
+  "asset": "META",
+  "entry": 724.5399780273438,
+  "entry_date": "2026-10-08",
+  "group": "stock",
+  "last": 720.8900146484375,
+  "last_date": "2026-10-08",
+  "side": "long",
+  "unrealised": -0.00528762868799007
+ },
+ {
+  "asset": "MSFT",
+  "entry": 529.8099975585938,
+  "entry_date": "2026-10-08",
+  "group": "stock",
+  "last": 522.6099853515625,
+  "last_date": "2026-10-08",
+  "side": "long",
+  "unrealised": -0.013839800570411037
+ },
+ {
+  "asset": "SLV",
+  "entry": 53.34000015258789,
+  "entry_date": "2026-10-08",
+  "group": "commodity",
+  "last": 53.45000076293945,
+  "last_date": "2026-10-08",
+  "side": "long",
+  "unrealised": 0.0019122536564844918
+ },
+ {
+  "asset": "TSLA",
+  "entry": 374.1199951171875,
+  "entry_date": "2026-10-08",
+  "group": "stock",
+  "last": 375.0,
+  "last_date": "2026-10-08",
+  "side": "long",
+  "unrealised": 0.002102199546396427
+ },
+ {
+  "asset": "USO",
+  "entry": 148.3300018310547,
+  "entry_date": "2026-10-08",
+  "group": "commodity",
+  "last": 147.5800018310547,
+  "last_date": "2026-10-08",
+  "side": "long",
+  "unrealised": -0.005206293337434403
+ },
+ {
+  "asset": "WMT",
+  "entry": 108.5999984741211,
+  "entry_date": "2026-10-08",
+  "group": "stock",
+  "last": 110.55999755859376,
+  "last_date": "2026-10-08",
+  "side": "long",
+  "unrealised": 0.01779787395959062
+ },
+ {
+  "asset": "XOM",
+  "entry": 167.11000061035156,
+  "entry_date": "2026-10-08",
+  "group": "stock",
+  "last": 168.5,
+  "last_date": "2026-10-08",
+  "side": "long",
+  "unrealised": 0.008067870771178404
+ }
+]

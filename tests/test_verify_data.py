@@ -133,3 +133,25 @@ def test_day_returns_must_follow_from_the_ledger(tmp_path):
     problems = check(tmp_path, ROOT / "assets.yaml")
     assert any("do not follow from the ledger" in x for x in problems)
     assert not any("compound" in x for x in problems)
+
+
+def test_forced_close_without_a_prediction_is_not_a_problem(tmp_path):
+    """A hold position sold because the model stopped predicting has no expected return."""
+    from bench.config import Asset
+    from bench.store import Store
+    from tests.helpers import candles, score
+
+    px = {"AAA": candles([("2026-01-05", 100, 100, 100, 100), ("2026-01-06", 100, 103, 99, 102), ("2026-01-07", 103, 104, 101, 103)])}
+    (tmp_path / "prices").mkdir()
+    px["AAA"].to_csv(tmp_path / "prices" / "AAA.csv", index=False)
+    assets = tmp_path / "assets.yaml"
+    assets.write_text("assets:\n  - {symbol: AAA, group: stock, max_gap_days: 5, cost_round_trip: 0.001}\n", encoding="utf-8")
+    st = Store(tmp_path / "live")
+    st.save_prediction("control_always_long", "2026-01-06", {
+        "schema_version": 2, "estimator": "control_always_long", "run_date": "2026-01-06", "created_at": None,
+        "predictions": {"AAA": {"asof": "2026-01-05", "expected_return": 1.0, "confidence": None, "path": None}},
+    })
+    score(st, px, [Asset("AAA", "stock", 5, 0.001, 0.0)])
+    led = st.load_account("control_always_long", "hold")[1]
+    assert led["action"].tolist() == ["open", "close"] and led["expected_return"].isna().tolist() == [False, True]
+    assert check(tmp_path, assets) == []

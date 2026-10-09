@@ -1,0 +1,72 @@
+[
+ {
+  "asset": "AAPL",
+  "entry": 336.82000732421875,
+  "entry_date": "2026-10-08",
+  "group": "stock",
+  "last": 340.4200134277344,
+  "last_date": "2026-10-08",
+  "side": "long",
+  "unrealised": 0.010438219301801416
+ },
+ {
+  "asset": "AMZN",
+  "entry": 259.739990234375,
+  "entry_date": "2026-10-08",
+  "group": "stock",
+  "last": 254.05999755859372,
+  "last_date": "2026-10-08",
+  "side": "long",
+  "unrealised": -0.02211799449193777
+ },
+ {
+  "asset": "GOOGL",
+  "entry": 353.1400146484375,
+  "entry_date": "2026-10-08",
+  "group": "stock",
+  "last": 348.2900085449219,
+  "last_date": "2026-10-08",
+  "side": "long",
+  "unrealised": -0.013983946600030467
+ },
+ {
+  "asset": "JNJ",
+  "entry": 256.2200012207031,
+  "entry_date": "2026-10-08",
+  "group": "stock",
+  "last": 256.4800109863281,
+  "last_date": "2026-10-08",
+  "side": "long",
+  "unrealised": 0.0007647910560700524
+ },
+ {
+  "asset": "MSFT",
+  "entry": 529.8099975585938,
+  "entry_date": "2026-10-08",
+  "group": "stock",
+  "last": 522.6099853515625,
+  "last_date": "2026-10-08",
+  "side": "long",
+  "unrealised": -0.013839800570411037
+ },
+ {
+  "asset": "V",
+  "entry": 371.3999938964844,
+  "entry_date": "2026-10-08",
+  "group": "stock",
+  "last": 375.1000061035156,
+  "last_date": "2026-10-08",
+  "side": "long",
+  "unrealised": 0.009712337824007905
+ },
+ {
+  "asset": "WMT",
+  "entry": 108.5999984741211,
+  "entry_date": "2026-10-08",
+  "group": "stock",
+  "last": 110.55999755859376,
+  "last_date": "2026-10-08",
+  "side": "long",
+  "unrealised": 0.01779787395959062
+ }
+]

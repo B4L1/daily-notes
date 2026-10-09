@@ -54,7 +54,10 @@ def check(data_dir="data", assets_file="assets.yaml"):
                 if not _finite(eq, list(eq.columns.drop("date"))):
                     problems.append(f"{where}: equity.csv has missing or non-finite values")
                     continue
-                if not _finite(led, ACCOUNT_NUMERIC):
+                # a hold position sold because the model made no prediction has no expected return
+                forced = (led["action"] == "close") & led["asof"].isna()
+                rest = [c for c in ACCOUNT_NUMERIC if c != "expected_return"]
+                if not _finite(led, rest) or not _finite(led[~forced], ["expected_return"]):
                     problems.append(f"{where}: ledger.csv has missing or non-finite values")
                     continue
                 if eq["date"].duplicated().any() or not eq["date"].is_monotonic_increasing:

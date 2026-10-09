@@ -1,62 +1,42 @@
 [
  {
   "asset": "AMD",
-  "entry": 635.9500122070312,
-  "entry_date": "2026-10-02",
-  "group": "stock",
-  "last": 645.8599853515625,
-  "last_date": "2026-10-07",
-  "side": "long",
-  "unrealised": 0.015332943555798145
- },
- {
-  "asset": "AMD",
   "entry": 630.6099853515625,
   "entry_date": "2026-10-05",
   "group": "stock",
-  "last": 645.8599853515625,
-  "last_date": "2026-10-07",
+  "last": 620.6799926757812,
+  "last_date": "2026-10-08",
   "side": "long",
-  "unrealised": 0.02393293454630005
+  "unrealised": -0.015996646749092208
  },
  {
   "asset": "AMD",
   "entry": 648.0399780273438,
   "entry_date": "2026-10-06",
   "group": "stock",
-  "last": 645.8599853515625,
-  "last_date": "2026-10-07",
+  "last": 620.6799926757812,
+  "last_date": "2026-10-08",
   "side": "long",
-  "unrealised": -0.003613978689119196
+  "unrealised": -0.04246959490037519
  },
  {
   "asset": "AMD",
   "entry": 634.77001953125,
   "entry_date": "2026-10-07",
   "group": "stock",
-  "last": 645.8599853515625,
-  "last_date": "2026-10-07",
+  "last": 620.6799926757812,
+  "last_date": "2026-10-08",
   "side": "long",
-  "unrealised": 0.01722084058648829
- },
- {
-  "asset": "JNJ",
-  "entry": 259.3800048828125,
-  "entry_date": "2026-10-02",
-  "group": "stock",
-  "last": 258.45001220703125,
-  "last_date": "2026-10-07",
-  "side": "long",
-  "unrealised": -0.0038354447462186914
+  "unrealised": -0.022447057866522485
  },
  {
   "asset": "JNJ",
   "entry": 256.0,
   "entry_date": "2026-10-05",
   "group": "stock",
-  "last": 258.45001220703125,
-  "last_date": "2026-10-07",
+  "last": 256.4800109863281,
+  "last_date": "2026-10-08",
   "side": "long",
-  "unrealised": 0.00932036018371582
+  "unrealised": 0.0016250429153442383
  }
 ]
