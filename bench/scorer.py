@@ -38,7 +38,10 @@ def score_store(store, prices, assets, settings, registry):
     for model in models(registry):
         preds = index_predictions(saved[model])
         for strategy, fn in STRATEGIES.items():
-            result = fn(preds, prices, costs, settings.start_equity) if preds else None
+            try:
+                result = fn(preds, prices, costs, settings.start_equity) if preds else None
+            except ZeroDivisionError as e:
+                raise ValueError(f"non-finite price (zero open or close) in {model}/{strategy}: {e}") from e
             if result is None:
                 result = Result([], [], [])
             _check(model, strategy, result)

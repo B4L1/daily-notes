@@ -124,7 +124,7 @@ def _runs(store, name, run_date):
     return [{"run_date": run_date, "status": "ok"}] if run_date in store.load_predictions(name) else []
 
 
-def _mode_block(data_dir, mode, prices, settings, run_date):
+def _mode_block(data_dir, mode, settings, run_date):
     store = Store(Path(data_dir) / mode)
     names = all_models(REGISTRY)
     accts = {(n, s): store.load_account(n, s) for n in names for s in STRATEGIES}
@@ -172,7 +172,7 @@ def build_all(data_dir, out_dir, prices, settings, assets, run_date, generated_a
         {"name": n, "backfill_stride": 1, **{k: v for k, v in m.items() if k not in PUBLIC_META_SKIP}}
         for n, m in REGISTRY.items()
     ]
-    meta.append({"name": ensemble.NAME, "label": ensemble.LABEL, "kind": "derived", "backfill_stride": 1})
+    meta.append({"name": ensemble.NAME, "backfill_stride": 1, **ensemble.META})
     meta_by_name = {m["name"]: m for m in meta}
     names = [m["name"] for m in meta]
     details = {
@@ -181,7 +181,7 @@ def build_all(data_dir, out_dir, prices, settings, assets, run_date, generated_a
     }
     modes = {}
     for mode in ("live", "backtest"):
-        block, eqs, leds, extra = _mode_block(data_dir, mode, prices, settings, run_date)
+        block, eqs, leds, extra = _mode_block(data_dir, mode, settings, run_date)
         modes[mode] = block
         for n in names:
             d = _detail(eqs[n], leds[n], block["rows"][n])
@@ -197,6 +197,6 @@ def build_all(data_dir, out_dir, prices, settings, assets, run_date, generated_a
         "modes": modes,
         "ticker": _ticker(prices, assets),
     }
-    (out / "summary.json").write_text(json.dumps(summary, default=_default), encoding="utf-8")
+    (out / "summary.json").write_text(json.dumps(summary, default=_default, allow_nan=False), encoding="utf-8")
     for n, d in details.items():
-        (out / "estimators" / f"{n}.json").write_text(json.dumps(d, default=_default), encoding="utf-8")
+        (out / "estimators" / f"{n}.json").write_text(json.dumps(d, default=_default, allow_nan=False), encoding="utf-8")

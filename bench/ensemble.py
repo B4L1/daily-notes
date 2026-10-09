@@ -2,6 +2,11 @@ from bench.store import SCHEMA_VERSION
 
 NAME = "ensemble"
 LABEL = "Ensemble (majority vote)"
+META = {
+    "label": LABEL, "kind": "derived",
+    "source": "majority vote of the non-control estimators",
+    "license": "n/a", "original_code": False,
+}
 
 
 def derive(saved_by_model, costs):

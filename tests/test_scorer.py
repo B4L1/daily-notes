@@ -105,3 +105,16 @@ def test_non_serialisable_positions_fail_before_anything_is_written(tmp_path, mo
         score_store(st, px(), ASSETS, Settings(), REG)
     assert not (tmp_path / "accounts").exists()
     assert not (tmp_path / "estimators" / "ensemble" / "predictions").exists() or not list((tmp_path / "estimators" / "ensemble" / "predictions").glob("*.json"))
+
+
+def test_zero_previous_close_fails_loudly_and_writes_nothing(tmp_path):
+    st = Store(tmp_path)
+    for m in ("m1", "m2", "m3"):
+        save(st, m, 0.01)
+    bad = px()
+    bad["AAA"].loc[0, "close"] = 0.0
+    with pytest.raises(ValueError, match="non-finite") as ei:
+        score_store(st, bad, ASSETS, Settings(), REG)
+    assert "m1" in str(ei.value)
+    assert not (tmp_path / "accounts").exists()
+    assert not (tmp_path / "estimators" / "ensemble" / "predictions").exists() or not list((tmp_path / "estimators" / "ensemble" / "predictions").glob("*.json"))

@@ -70,28 +70,26 @@ The dashboard is a static page (no login, no input). The ntfy message links to i
 
 ## What the backtest says so far
 
-Backtest of 364 days (2025-10-08 to 2026-10-06), computed from the committed data on 2026-10-07. Eight accounts have a full backtest; Kronos and TimesFM are being re-run at stride 1 (every day) and are not in the table yet. Final value of $10,000, with the luck-check p-value against the random control:
+Backtest over 365 settled days with the V2 costs and account rules. Final value of a 10,000 start, per model and account type:
 
-| Account | Final value of $10,000 | Luck check (p) |
-|---|---|---|
-| Equal-weight daily rebalanced hold (assets with a session that day, no costs) | about $12,860 | n/a |
-| Candlestick pattern rules | about $10,040 | 0.44 |
-| AutoETS (statsforecast) | about $9,770 | 0.51 |
-| Random coin (control) | about $9,730 | n/a |
-| Tomorrow = today (control) | about $9,550 | n/a |
-| LSTM on candle shape | about $9,000 | 0.69 |
-| Analog candle matching | about $8,940 | 0.80 |
-| XGBoost on indicators | about $8,240 | 0.91 |
-| Chronos-Bolt Tiny (pretrained) | about $7,630 | 0.98 |
-| Always long (control) | about $7,520 | n/a |
+| Model | One-day | One-day short | Hold | Top picks | Weekly |
+|---|---|---|---|---|---|
+| Analog candle matching | 8,840 | 7,593 | 10,475 | 9,334 | – |
+| Candlestick pattern rules | 10,103 | 10,066 | 10,135 | 10,095 | – |
+| Chronos-Bolt Tiny (pretrained) | 7,729 | 5,479 | 10,020 | 8,545 | 10,731 |
+| Always long (control) | 6,771 | 6,771 | 12,713 | 8,186 | – |
+| Tomorrow = today (control) | 8,876 | 7,046 | 10,356 | 9,407 | – |
+| Random coin (control) | 9,156 | 7,614 | 11,222 | 9,375 | – |
+| Ensemble (majority vote) | 9,549 | 9,551 | 9,955 | 9,795 | – |
+| Kronos | 8,455 | 6,370 | 9,846 | 8,964 | 11,086 |
+| LSTM on candle shape | 9,060 | 8,976 | 11,271 | 9,011 | – |
+| AutoETS (statsforecast) | 9,953 | 9,686 | 11,551 | 10,119 | 10,961 |
+| TimesFM | 9,188 | 7,475 | 11,233 | 9,208 | 10,782 |
+| XGBoost on indicators | 8,399 | 7,547 | 11,168 | 8,306 | – |
 
-These figures were computed under the earlier flat 0.1% cost and predate the V2 accounts; the rescored V2 backtest is in the committed data and shows on the dashboard in part 2. These numbers change whenever a backfill is re-run or data is corrected; the live dashboard is the current source of truth, and `data/` is the record.
+Buy and hold with fees (the always-long control under the hold rule) ended at 12,713, and no model's hold account beat it. Under the one-day rules no model clearly beats the random control (9,156): two finished higher, the candlestick rules and AutoETS, but not by a margin that can be told apart from luck. These are backtest figures on one year of data. They say nothing certain about the future. The figures change when a backfill is re-run or data is corrected; the dashboard is the current source of truth, and `data/` is the record.
 
-The honest reading:
-
-- **No estimator beats the random control.** Every luck-check p-value is far above the corrected threshold of 0.05/8 = 0.00625 (see the luck check above), and edge over the random control is about zero or negative. The candlestick rules finish near flat only because they trade rarely (under one trade a day, so they sit in cash most days).
-- **Always-long loses to the hold reference** by a wide margin. The 0.1% cost is charged on every trade every day, which on its own is roughly a 22% drag over a year of trading days, and open-to-close trading skips the overnight gains that the reference keeps. This is the cost model working as designed, and it is why "just be long" is not a free baseline here.
-- These are simple estimators on one year of one market regime. The result says these particular tools, on these rules, showed no skill. It does not say prediction is impossible. The live record, which starts with the first scheduled run, is the real test.
+These are simple estimators on one year of one market regime. The result says these particular tools, on these rules, showed no skill. It does not say prediction is impossible. The live record, which starts with the first scheduled run, is the real test.
 
 ## Adding an estimator
 

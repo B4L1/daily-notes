@@ -172,12 +172,14 @@ def test_spark_edge_and_too_early_with_many_days(tmp_path):
     assert rnd["edge"] == 0.0 and rnd["p_value"] == 1.0
 
 
-def test_zero_close_does_not_break_hold(tmp_path):
+def test_zero_close_in_prices_does_not_break_the_summary(tmp_path):
     px = prices()
     px["BBB"] = candles([("2026-01-02", 50, 51, 49, 0), ("2026-01-05", 50, 51, 48, 49)])
-    _seed(tmp_path, "live", {"AAA": 1.0}, prices())
+    _seed(tmp_path, "live", {"AAA": 1.0}, prices())  # accounts were scored on clean prices
     s = _build(tmp_path, px)
-    assert s["modes"]["live"]["hold"] == [["2026-01-05", 10097.5]]  # only AAA is held: +2% less half of 0.1%, spread over both assets with a session
+    assert [t["symbol"] for t in s["ticker"]] == ["AAA"]  # the zero-close asset is left out of the ticker
+    text = (tmp_path / "site" / "data" / "summary.json").read_text(encoding="utf-8")
+    assert "NaN" not in text and "Infinity" not in text
     json.dumps(s, allow_nan=False)
 
 
@@ -206,6 +208,7 @@ def test_ticker_uses_last_two_closes_and_skips_bad_assets(tmp_path):
 
 
 def test_summary_has_strategies_accounts_groups_and_the_ensemble(tmp_path):
+    from bench.aggregate import PUBLIC_META_SKIP
     from estimators.registry import REGISTRY
 
     assets = [Asset("AAA", "stock", 5, 0.001, 0.0), Asset("BBB", "crypto", 5, 0.001, 0.0)]
@@ -229,7 +232,10 @@ def test_summary_has_strategies_accounts_groups_and_the_ensemble(tmp_path):
     build_all(tmp_path / "data", out, px, S, assets, "2026-01-08", generated_at="2026-01-08T00:00:00Z")
     s = json.loads((out / "summary.json").read_text())
     assert s["strategies"] == ["one_day", "one_day_short", "hold", "top_picks", "weekly"]
-    assert s["estimators"][-1] == {"name": "ensemble", "label": "Ensemble (majority vote)", "kind": "derived", "backfill_stride": 1}
+    from bench import ensemble
+    assert s["estimators"][-1] == {"name": "ensemble", "backfill_stride": 1, **ensemble.META}
+    public = set.intersection(*(set(m) for m in REGISTRY.values())) - set(PUBLIC_META_SKIP)  # keys every model has ('setup' is optional)
+    assert public <= set(s["estimators"][-1])
     live = s["modes"]["live"]
     assert set(live["rows"]) == set(REGISTRY) | {"ensemble"}
     row = live["accounts"]["one_day"]["analog"]
