@@ -2,3 +2,4 @@
 {"estimator": "chronos", "n_predictions": 21, "run_date": "2026-10-08", "status": "ok"}
 {"error": "run started outside the live window", "estimator": "chronos", "run_date": "2026-10-08", "status": "skipped_late"}
 {"error": "run started outside the live window", "estimator": "chronos", "run_date": "2026-10-08", "status": "skipped_late"}
+{"estimator": "chronos", "n_predictions": 18, "run_date": "2026-10-09", "skipped_stale": ["BTC-USD", "ETH-USD", "SOL-USD"], "status": "ok"}
