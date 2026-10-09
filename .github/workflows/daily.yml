@@ -131,6 +131,10 @@ jobs:
             mkdir -p "data/live/estimators/$n"
             cp -r "$d"/. "data/live/estimators/$n"/
           done
+      - name: Score accounts
+        env:
+          RUN_DATE: ${{ needs.fetch.outputs.run_date }}
+        run: python -m bench.cli score --mode all --run-date "$RUN_DATE"
       - name: Verify data
         run: python scripts/verify_data.py data
       - name: Commit data

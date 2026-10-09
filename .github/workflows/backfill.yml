@@ -124,6 +124,8 @@ jobs:
             mkdir -p "data/backtest/estimators/$n"
             cp -r "$d"/. "data/backtest/estimators/$n"/
           done
+      - name: Score accounts
+        run: python -m bench.cli score --mode backtest
       - name: Verify data
         run: python scripts/verify_data.py data
       - name: Commit data

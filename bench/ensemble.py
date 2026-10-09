@@ -1,6 +1,7 @@
+from bench.store import SCHEMA_VERSION
+
 NAME = "ensemble"
 LABEL = "Ensemble (majority vote)"
-SCHEMA_VERSION = 2
 
 
 def derive(saved_by_model, costs):

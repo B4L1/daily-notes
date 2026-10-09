@@ -4,9 +4,7 @@ import sys
 from pathlib import Path
 
 import pandas as pd
-import pytest
 
-from bench.config import Settings
 from bench.store import Store
 from scripts.verify_data import check
 from tests.helpers import candles, score
@@ -26,6 +24,10 @@ def setup(tmp_path):
     return st
 
 
+def acct(st, strategy="one_day"):
+    return st.acct_dir("e", strategy)
+
+
 def test_clean_data_passes(tmp_path):
     setup(tmp_path)
     assert check(tmp_path, ROOT / "assets.yaml") == []
@@ -40,20 +42,18 @@ def test_look_ahead_is_caught(tmp_path):
     assert any("not before" in p for p in check(tmp_path, ROOT / "assets.yaml"))
 
 
-@pytest.mark.xfail(reason="Task 9 moves the checker to accounts", strict=True)
 def test_tampered_equity_is_caught(tmp_path):
     st = setup(tmp_path)
-    p = st.est_dir("e") / "equity.csv"
+    p = acct(st) / "equity.csv"
     eq = pd.read_csv(p)
     eq.loc[0, "equity"] = 99999.0
     eq.to_csv(p, index=False)
     assert any("compound" in problem for problem in check(tmp_path, ROOT / "assets.yaml"))
 
 
-@pytest.mark.xfail(reason="Task 9 moves the checker to accounts", strict=True)
 def test_ledger_price_mismatch_is_caught(tmp_path):
     st = setup(tmp_path)
-    p = st.est_dir("e") / "ledger.csv"
+    p = acct(st) / "ledger.csv"
     led = pd.read_csv(p)
     led.loc[0, "exit"] = 150.0
     led.to_csv(p, index=False)
@@ -68,20 +68,18 @@ def test_script_runs_directly_from_a_file_path(tmp_path):
     assert "data checks passed" in r.stdout
 
 
-@pytest.mark.xfail(reason="Task 9 moves the checker to accounts", strict=True)
 def test_nan_in_last_equity_row_is_caught(tmp_path):
     st = setup(tmp_path)
-    p = st.est_dir("e") / "equity.csv"
+    p = acct(st) / "equity.csv"
     eq = pd.read_csv(p)
     eq.loc[len(eq) - 1, "equity"] = float("nan")
     eq.to_csv(p, index=False)
     assert any("non-finite" in problem for problem in check(tmp_path, ROOT / "assets.yaml"))
 
 
-@pytest.mark.xfail(reason="Task 9 moves the checker to accounts", strict=True)
 def test_nan_in_ledger_numeric_column_is_caught(tmp_path):
     st = setup(tmp_path)
-    p = st.est_dir("e") / "ledger.csv"
+    p = acct(st) / "ledger.csv"
     led = pd.read_csv(p)
     led.loc[0, "net_ret"] = float("nan")
     led.to_csv(p, index=False)
@@ -103,13 +101,35 @@ def test_non_monotonic_price_dates_are_caught(tmp_path):
     assert any("prices/SPY" in problem for problem in check(tmp_path, ROOT / "assets.yaml"))
 
 
-@pytest.mark.xfail(reason="Task 9 moves the checker to accounts", strict=True)
 def test_all_bad_ledger_rows_are_reported(tmp_path):
     st = setup(tmp_path)
     st.save_prediction("e", "2026-01-06", {"predictions": {
         "SPY": {"asof": "2026-01-05", "expected_return": 0.01, "confidence": None, "path": None}}})
-    p = st.est_dir("e") / "ledger.csv"
+    df = pd.read_csv(tmp_path / "prices" / "SPY.csv")
+    df = pd.concat([df, candles([("2026-01-06", 102, 104, 101, 103)])], ignore_index=True)
+    df.to_csv(tmp_path / "prices" / "SPY.csv", index=False)
+    score(st, {"SPY": df}, registry={"e": {"kind": "ml"}})
+    p = acct(st) / "ledger.csv"
     led = pd.read_csv(p)
     led["exit"] = 150.0
     led.to_csv(p, index=False)
     assert sum("candle" in problem for problem in check(tmp_path, ROOT / "assets.yaml")) == len(led)
+
+
+def test_crypto_prediction_must_be_asof_the_day_before_the_run(tmp_path):
+    st = setup(tmp_path)
+    st.save_prediction("e", "2026-01-06", {"predictions": {
+        "BTC-USD": {"asof": "2026-01-03", "expected_return": 0.01, "confidence": None, "path": None}}})
+    assert any("crypto" in p and "asof" in p for p in check(tmp_path, ROOT / "assets.yaml"))
+
+
+def test_day_returns_must_follow_from_the_ledger(tmp_path):
+    st = setup(tmp_path)
+    p = acct(st) / "equity.csv"
+    eq = pd.read_csv(p)
+    eq.loc[0, "day_return"] = 0.5
+    eq["equity"] = 10000.0 * (1 + eq["day_return"]).cumprod()  # compounds, but no longer matches the ledger
+    eq.to_csv(p, index=False)
+    problems = check(tmp_path, ROOT / "assets.yaml")
+    assert any("do not follow from the ledger" in x for x in problems)
+    assert not any("compound" in x for x in problems)

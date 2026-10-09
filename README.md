@@ -16,7 +16,39 @@ A scheduled GitHub Actions workflow (`.github/workflows/daily.yml`) runs at 00:3
 4. **Aggregate** the results into static JSON, verify the data, commit it, and deploy the dashboard to GitHub Pages.
 5. **Notify** through [ntfy](https://ntfy.sh): one low-priority message per day with the best and worst return, how many estimators beat the random control, and a link.
 
-The trading rules are the same for every account: the full balance carries over from day to day (no reset), the balance is split equally across assets that have a session, a trade enters at the next session's open and exits at its close, trading is long-only, and each trade costs 0.1% (fee plus slippage). An estimator trades an asset only when its predicted return is above that cost.
+The trading rules are the same for every account: the full balance carries over from day to day (no reset), the balance is split equally across assets that have a session, and a trade enters at a session's open. Every account pays the real cost of the asset it trades, and a model trades an asset only when its predicted return is above that asset's own round-trip cost.
+
+### Account types
+
+Each model's stored predictions are scored under five rules, so every model has five accounts. Scoring is separate from predicting, so the whole backtest can be rescored in seconds (`python -m bench.cli score --mode backtest`) without re-running any model.
+
+- `one_day`: long only; buy at the open and sell at the close when the expected return beats the cost.
+- `one_day_short`: as `one_day`, and also shorts at the open and buys back at the close when the expected return is below minus the cost.
+- `hold`: buy when the expected gain beats the cost, keep the position while the newest prediction is still above zero, sell at the next open otherwise; overnight moves are earned and fees are paid only when the position changes.
+- `top_picks`: the 3 strongest calls of the day, traded as in `one_day`.
+- `weekly`: for models with a 5-day path; one fifth of the account enters each day and is sold at the close of its fifth session.
+
+Two more accounts are derived, not models: the **ensemble** (majority vote of the models; the controls do not vote) goes through the first four rules, and **buy-and-hold with fees** is the always-long control under `hold` (it buys every asset once, pays the entry cost once and holds). Buy-and-hold with fees is the honest baseline. The luck check compares each account with the random control under the same rule.
+
+### Costs
+
+Round trip means buy and sell, as a fraction of the position; entry and exit each pay half. Short borrow is charged per calendar day held (annual rate divided by 360). Figures live per asset in `assets.yaml`.
+
+| Group | Assets | Round trip | Short borrow, per year | Basis |
+|---|---|---|---|---|
+| ETF | SPY, QQQ | 0.01% | 0.5% | Quoted spreads of 0.0032% (SPY) and 0.0041% (QQQ), rounded up; zero commission |
+| Stock | 13 large US stocks | 0.05% | 0.5% | US equity spreads range 2 to 20 basis points with a median of 9; large caps sit at the low end; zero commission |
+| Commodity | GLD, SLV, USO | 0.03% | 0.5% | GLD quoted spread 0.0065%; SLV and USO not found, assumed wider |
+| Crypto | BTC, ETH, SOL | 0.25% | 10% | 0.1% taker fee per side at the cheapest major exchange, plus spread |
+
+Unverified: the SLV and USO spreads (0.03% is an assumption); the stock figure is a judgement inside a published range, not a per-stock measurement; the crypto short cost is an assumption. Crypto fees depend heavily on the exchange (0.1% per side at Binance, 0.26% at Kraken's base tier, 0.40% to 1.20% at Coinbase Advanced for small accounts), so 0.25% is the cheap end. **Crypto shorting is a simplification:** real crypto shorts use derivatives with a funding rate that changes daily and can be negative.
+
+Not modelled:
+
+- Broker commissions and currency conversion. At XTB, real stocks and ETFs are commission-free up to 100,000 EUR of monthly turnover, then 0.2%; a $10,000 account trading every day passes that limit. XTB also charges 0.5% for currency conversion when the account currency differs from the asset's, which is 1% per round trip and would outweigh every other cost here. The bench assumes a USD account at a low-cost broker.
+- Slippage beyond the spread, and market impact. At $10,000 they are negligible for these assets.
+
+Sources: [ETF spreads, etf.com](https://www.etf.com/sections/news/why-trading-spreads-matter-etfs); [XTB fees](https://www.xtb.com/en/help-center/instruments/do-you-charge-commissions); [crypto fee comparison](https://www.spark.money/tools/crypto-exchange-fee-comparison); [borrow fees, Interactive Brokers](https://www.interactivebrokers.com/campus/traders-insight/securities/short-selling/the-risks-of-shorting-series-part-ii-borrow-fees/).
 
 Two stated approximations:
 
@@ -53,7 +85,7 @@ Backtest of 364 days (2025-10-08 to 2026-10-06), computed from the committed dat
 | Chronos-Bolt Tiny (pretrained) | about $7,630 | 0.98 |
 | Always long (control) | about $7,520 | n/a |
 
-These numbers change whenever a backfill is re-run or data is corrected; the live dashboard is the current source of truth, and `data/` is the record.
+These figures were computed under the earlier flat 0.1% cost and predate the V2 accounts; the rescored V2 backtest is in the committed data and shows on the dashboard in part 2. These numbers change whenever a backfill is re-run or data is corrected; the live dashboard is the current source of truth, and `data/` is the record.
 
 The honest reading:
 
@@ -102,7 +134,7 @@ python -m http.server -d site 8000
 
 Then open http://localhost:8000. `aggregate` writes `site/data/`, which is not committed.
 
-Other commands: `python -m bench.cli fetch` refreshes the price cache in `data/prices/`, `python -m bench.cli backfill --estimator <name> --days 365` replays the past, and `python -m bench.cli run --estimator <name> --run-date YYYY-MM-DD` does one live day (it only predicts within 11 hours after 00:00 UTC of that date, by design). Data layout: `data/live/` and `data/backtest/` each hold `estimators/<name>/` with `predictions/`, `ledger.csv`, `equity.csv` and `runs.jsonl`.
+Other commands: `python -m bench.cli fetch` refreshes the price cache in `data/prices/`, `python -m bench.cli backfill --estimator <name> --days 365` replays the past, and `python -m bench.cli run --estimator <name> --run-date YYYY-MM-DD` does one live day (it only predicts within 11 hours after 00:00 UTC of that date, by design). `python -m bench.cli score --mode live|backtest|all` rescores every account from the stored predictions. Data layout (store schema 2): `data/live/` and `data/backtest/` each hold `estimators/<name>/` with `predictions/` and `runs.jsonl`, and `accounts/<model>/<strategy>/` with `ledger.csv`, `equity.csv` and `positions.json`.
 
 To reset a backtest, delete `data/backtest/estimators/<name>` (or the whole `data/backtest/estimators` folder), commit, and run the `backfill` workflow from the Actions tab. Live data is never reset.
 
@@ -116,9 +148,9 @@ There is one secret: `NTFY_TOPIC`, the name of the ntfy topic that receives the 
 
 ## Roadmap (V2)
 
-1. **Hold-while-bullish accounts** as a separate account set with its own backfill: positions carried overnight, fees only when the position changes.
+1. **Hold-while-bullish accounts** (built in part 1: the `hold` account; its dashboard view arrives in part 2).
 2. **Per-estimator holdings view:** what each model's money is currently in: positions, size, entry, unrealised profit or loss.
-3. **Shorting accounts:** sell at the open and buy back at the close on predicted drops, with borrow fees. Crypto shorts need derivatives.
+3. **Shorting accounts** (built in part 1: the `one_day_short` account; its dashboard view arrives in part 2). Crypto shorts are a simplification, see Costs.
 4. **Copy-trading estimators** from public disclosures: SEC Form 4 insider filings first, then Congress STOCK Act filings and 13F holdings. Keyed on the disclosure date, not the trade date, so the estimator only acts on what was public.
 5. **Inverse-tipster estimator:** needs a named tipster with readable, timestamped posts.
 6. **Dashboard navigation rework:** replace the scrolling tab bar with a side menu: Live and Backtest at the top, then a drop-down of all models sorted by wallet size, largest first, with each wallet amount shown in its box.

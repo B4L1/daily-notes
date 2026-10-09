@@ -230,3 +230,15 @@ def test_tests_workflow_runs_on_push_and_pr_only_never_on_a_schedule():
     assert "node --test site/lib.test.js" in runs
     py = next(s for s in steps if s.get("uses", "").startswith("actions/setup-python"))
     assert py["with"]["python-version"] == "3.12"
+
+
+def test_accounts_are_scored_before_they_are_verified():
+    for name, job in (("daily.yml", "aggregate"), ("backfill.yml", "commit")):
+        _, wf = load(name)
+        runs = [s.get("run", "") for s in wf["jobs"][job]["steps"]]
+        score = next(i for i, r in enumerate(runs) if "bench.cli score" in r)
+        verify = next(i for i, r in enumerate(runs) if "verify_data.py" in r)
+        commit = next(i for i, r in enumerate(runs) if "git commit" in r)
+        assert score < verify < commit, name
+    _, bf = load("backfill.yml")
+    assert any("score --mode backtest" in s.get("run", "") for s in bf["jobs"]["commit"]["steps"])

@@ -34,3 +34,23 @@ assets.
 
 **How.** A one-off script edited the files (asserting the expected rows first); `verify_data.py`
 and a scratch `aggregate` confirmed 0 settled live days and consistent data.
+
+## 2026-10-09: store schema 1 to 2, V1 ledgers removed, all accounts rescored
+
+**Change.** V2 part 1 replaces the single per-estimator account with five accounts per model under
+per-asset costs. The store schema marker in `data/live` and `data/backtest` goes from 1 to 2.
+
+**Removed.** `estimators/<name>/ledger.csv` and `equity.csv` in both stores (the V1 flat-0.1% accounts).
+Predictions, `runs.jsonl` and `data/prices` are untouched.
+
+**Added.** `accounts/<model>/<strategy>/` (ledger, equity, positions) for every model and the derived
+`ensemble`, rebuilt from the stored predictions. The live store has no settled day, so its accounts are empty.
+
+**Commands.**
+
+```sh
+python scripts/migrate_v2.py data
+python -m bench.cli score --mode all
+python scripts/verify_data.py data
+```
+

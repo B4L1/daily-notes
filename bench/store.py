@@ -6,7 +6,7 @@ import pandas as pd
 
 from bench.strategies.common import EQUITY_COLS as ACCT_EQUITY_COLS, LEDGER_COLS as ACCT_LEDGER_COLS
 
-SCHEMA_VERSION = 1
+SCHEMA_VERSION = 2
 
 
 class SchemaMismatch(RuntimeError):
