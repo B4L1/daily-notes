@@ -4,19 +4,49 @@
   "entry": 639.3599853515625,
   "entry_date": "2026-10-08",
   "group": "stock",
-  "last": 620.6799926757812,
-  "last_date": "2026-10-08",
+  "last": 608.0999755859375,
+  "last_date": "2026-10-09",
   "side": "long",
-  "unrealised": -0.029466705930556142
+  "unrealised": -0.04914265903689011
+ },
+ {
+  "asset": "AMD",
+  "entry": 626.8900146484375,
+  "entry_date": "2026-10-09",
+  "group": "stock",
+  "last": 608.0999755859375,
+  "last_date": "2026-10-09",
+  "side": "long",
+  "unrealised": -0.030223422168859343
+ },
+ {
+  "asset": "NVDA",
+  "entry": 233.83999633789065,
+  "entry_date": "2026-10-09",
+  "group": "stock",
+  "last": 229.27999877929688,
+  "last_date": "2026-10-09",
+  "side": "long",
+  "unrealised": -0.019750503036293027
  },
  {
   "asset": "TSLA",
   "entry": 374.1199951171875,
   "entry_date": "2026-10-08",
   "group": "stock",
-  "last": 375.0,
-  "last_date": "2026-10-08",
+  "last": 382.7000122070313,
+  "last_date": "2026-10-09",
   "side": "long",
-  "unrealised": 0.002102199546396427
+  "unrealised": 0.02268386400573505
+ },
+ {
+  "asset": "TSLA",
+  "entry": 382.3800048828125,
+  "entry_date": "2026-10-09",
+  "group": "stock",
+  "last": 382.7000122070313,
+  "last_date": "2026-10-09",
+  "side": "long",
+  "unrealised": 0.0005868829963190105
  }
 ]
