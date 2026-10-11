@@ -6,3 +6,4 @@
 {"error": "run started outside the live window", "estimator": "candle_rules", "run_date": "2026-10-08", "status": "skipped_late"}
 {"estimator": "candle_rules", "n_predictions": 18, "run_date": "2026-10-09", "skipped_stale": ["BTC-USD", "ETH-USD", "SOL-USD"], "status": "ok"}
 {"estimator": "candle_rules", "n_predictions": 18, "run_date": "2026-10-10", "skipped_stale": ["BTC-USD", "ETH-USD", "SOL-USD"], "status": "ok"}
+{"estimator": "candle_rules", "n_predictions": 0, "run_date": "2026-10-11", "skipped_stale": ["BTC-USD", "ETH-USD", "SOL-USD"], "status": "ok"}
