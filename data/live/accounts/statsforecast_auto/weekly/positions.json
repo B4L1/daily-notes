@@ -41,13 +41,13 @@
  },
  {
   "asset": "NVDA",
-  "entry": 216.55999755859372,
+  "entry": 216.5599975585937,
   "entry_date": "2026-10-16",
   "group": "stock",
   "last": 214.1300048828125,
   "last_date": "2026-10-16",
   "side": "long",
-  "unrealised": -0.011470875060842017
+  "unrealised": -0.011470875060841795
  },
  {
   "asset": "QQQ",
