@@ -4,29 +4,19 @@
   "entry": 377.9100036621094,
   "entry_date": "2026-10-20",
   "group": "commodity",
-  "last": 377.6499938964844,
-  "last_date": "2026-10-20",
+  "last": 378.9500122070313,
+  "last_date": "2026-10-21",
   "side": "long",
-  "unrealised": -0.0008380203305162924
- },
- {
-  "asset": "JPM",
-  "entry": 333.9700012207031,
-  "entry_date": "2026-10-20",
-  "group": "stock",
-  "last": 335.260009765625,
-  "last_date": "2026-10-20",
-  "side": "long",
-  "unrealised": 0.0036126479630108344
+  "unrealised": 0.0026020005685051086
  },
  {
   "asset": "XOM",
   "entry": 178.4499969482422,
   "entry_date": "2026-10-19",
   "group": "stock",
-  "last": 177.86000061035156,
-  "last_date": "2026-10-20",
+  "last": 178.08999633789062,
+  "last_date": "2026-10-21",
   "side": "long",
-  "unrealised": -0.003556227783583249
+  "unrealised": -0.002267375267627353
  }
 ]
