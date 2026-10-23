@@ -1,32 +1,22 @@
 [
  {
-  "asset": "META",
-  "entry": 697.5999755859375,
-  "entry_date": "2026-10-21",
+  "asset": "AAPL",
+  "entry": 344.94000244140625,
+  "entry_date": "2026-10-22",
   "group": "stock",
-  "last": 697.52001953125,
-  "last_date": "2026-10-21",
+  "last": 348.2200012207031,
+  "last_date": "2026-10-22",
   "side": "long",
-  "unrealised": -0.0003646159080931408
+  "unrealised": 0.009258896492380625
  },
  {
-  "asset": "MSFT",
-  "entry": 529.4400024414062,
-  "entry_date": "2026-10-21",
+  "asset": "NVDA",
+  "entry": 217.1300048828125,
+  "entry_date": "2026-10-22",
   "group": "stock",
-  "last": 532.9500122070312,
-  "last_date": "2026-10-21",
+  "last": 212.2100067138672,
+  "last_date": "2026-10-22",
   "side": "long",
-  "unrealised": 0.006379664833483151
- },
- {
-  "asset": "SPY",
-  "entry": 771.1699829101562,
-  "entry_date": "2026-10-21",
-  "group": "etf",
-  "last": 773.0900268554688,
-  "last_date": "2026-10-21",
-  "side": "long",
-  "unrealised": 0.0024397804477124196
+  "unrealised": -0.022909227459607356
  }
 ]

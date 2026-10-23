@@ -18,3 +18,4 @@
 {"estimator": "control_always_long", "n_predictions": 18, "run_date": "2026-10-20", "skipped_stale": ["BTC-USD", "ETH-USD", "SOL-USD"], "status": "ok"}
 {"estimator": "control_always_long", "n_predictions": 18, "run_date": "2026-10-21", "skipped_stale": ["BTC-USD", "ETH-USD", "SOL-USD"], "status": "ok"}
 {"estimator": "control_always_long", "n_predictions": 18, "run_date": "2026-10-22", "skipped_stale": ["BTC-USD", "ETH-USD", "SOL-USD"], "status": "ok"}
+{"estimator": "control_always_long", "n_predictions": 18, "run_date": "2026-10-23", "skipped_stale": ["BTC-USD", "ETH-USD", "SOL-USD"], "status": "ok"}

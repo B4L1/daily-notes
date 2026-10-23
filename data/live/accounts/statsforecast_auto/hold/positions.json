@@ -1,22 +1,12 @@
 [
  {
-  "asset": "GLD",
-  "entry": 377.9100036621094,
-  "entry_date": "2026-10-20",
-  "group": "commodity",
-  "last": 378.9500122070313,
-  "last_date": "2026-10-21",
-  "side": "long",
-  "unrealised": 0.0026020005685051086
- },
- {
   "asset": "XOM",
   "entry": 178.4499969482422,
   "entry_date": "2026-10-19",
   "group": "stock",
-  "last": 178.08999633789062,
-  "last_date": "2026-10-21",
+  "last": 178.22999572753906,
+  "last_date": "2026-10-22",
   "side": "long",
-  "unrealised": -0.002267375267627353
+  "unrealised": -0.001482845191737053
  }
 ]

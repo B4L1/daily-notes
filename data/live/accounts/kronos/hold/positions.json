@@ -1,32 +1,22 @@
 [
  {
-  "asset": "GOOGL",
-  "entry": 353.1400146484375,
-  "entry_date": "2026-10-08",
+  "asset": "JNJ",
+  "entry": 260.5400085449219,
+  "entry_date": "2026-10-22",
   "group": "stock",
-  "last": 334.760009765625,
-  "last_date": "2026-10-21",
+  "last": 267.6099853515625,
+  "last_date": "2026-10-22",
   "side": "long",
-  "unrealised": -0.05229735832927454
+  "unrealised": 0.02688585850451694
  },
  {
   "asset": "JPM",
   "entry": 339.45001220703125,
   "entry_date": "2026-10-16",
   "group": "stock",
-  "last": 335.19000244140625,
-  "last_date": "2026-10-21",
+  "last": 336.5400085449219,
+  "last_date": "2026-10-22",
   "side": "long",
-  "unrealised": -0.012799741088319078
- },
- {
-  "asset": "WMT",
-  "entry": 116.9000015258789,
-  "entry_date": "2026-10-21",
-  "group": "stock",
-  "last": 117.8000030517578,
-  "last_date": "2026-10-21",
-  "side": "long",
-  "unrealised": 0.007448900890772409
+  "unrealised": -0.008822701598062005
  }
 ]
