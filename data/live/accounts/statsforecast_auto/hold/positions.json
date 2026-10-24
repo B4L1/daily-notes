@@ -1,12 +1,42 @@
 [
  {
+  "asset": "AMD",
+  "entry": 510.2099914550781,
+  "entry_date": "2026-10-23",
+  "group": "stock",
+  "last": 516.7899780273438,
+  "last_date": "2026-10-23",
+  "side": "long",
+  "unrealised": 0.012646624296792058
+ },
+ {
+  "asset": "NVDA",
+  "entry": 210.99000549316406,
+  "entry_date": "2026-10-23",
+  "group": "stock",
+  "last": 210.9600067138672,
+  "last_date": "2026-10-23",
+  "side": "long",
+  "unrealised": -0.0003921810442004956
+ },
+ {
+  "asset": "QQQ",
+  "entry": 702.2000122070312,
+  "entry_date": "2026-10-23",
+  "group": "etf",
+  "last": 704.4000244140625,
+  "last_date": "2026-10-23",
+  "side": "long",
+  "unrealised": 0.0030830278678243227
+ },
+ {
   "asset": "XOM",
   "entry": 178.4499969482422,
   "entry_date": "2026-10-19",
   "group": "stock",
-  "last": 178.22999572753906,
-  "last_date": "2026-10-22",
+  "last": 183.2100067138672,
+  "last_date": "2026-10-23",
   "side": "long",
-  "unrealised": -0.001482845191737053
+  "unrealised": 0.026424193595002338
  }
 ]

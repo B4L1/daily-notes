@@ -1,22 +1,12 @@
 [
  {
-  "asset": "AAPL",
-  "entry": 344.94000244140625,
-  "entry_date": "2026-10-22",
+  "asset": "XOM",
+  "entry": 179.3699951171875,
+  "entry_date": "2026-10-23",
   "group": "stock",
-  "last": 348.2200012207031,
-  "last_date": "2026-10-22",
+  "last": 183.2100067138672,
+  "last_date": "2026-10-23",
   "side": "long",
-  "unrealised": 0.009258896492380625
- },
- {
-  "asset": "NVDA",
-  "entry": 217.1300048828125,
-  "entry_date": "2026-10-22",
-  "group": "stock",
-  "last": 212.2100067138672,
-  "last_date": "2026-10-22",
-  "side": "long",
-  "unrealised": -0.022909227459607356
+  "unrealised": 0.021158327486271528
  }
 ]
