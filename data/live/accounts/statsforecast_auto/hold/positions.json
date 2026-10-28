@@ -1,52 +1,22 @@
 [
  {
-  "asset": "NVDA",
-  "entry": 210.99000549316406,
-  "entry_date": "2026-10-23",
-  "group": "stock",
-  "last": 216.0,
-  "last_date": "2026-10-26",
-  "side": "long",
-  "unrealised": 0.02349517454097247
- },
- {
-  "asset": "QQQ",
-  "entry": 702.2000122070312,
-  "entry_date": "2026-10-23",
-  "group": "etf",
-  "last": 712.2000122070312,
-  "last_date": "2026-10-26",
-  "side": "long",
-  "unrealised": 0.014190956744745459
- },
- {
-  "asset": "TSLA",
-  "entry": 383.8299865722656,
-  "entry_date": "2026-10-26",
-  "group": "stock",
-  "last": 391.6199951171875,
-  "last_date": "2026-10-26",
-  "side": "long",
-  "unrealised": 0.020045466267472584
- },
- {
   "asset": "USO",
   "entry": 166.16000366210938,
   "entry_date": "2026-10-26",
   "group": "commodity",
-  "last": 166.22999572753906,
-  "last_date": "2026-10-26",
+  "last": 163.8800048828125,
+  "last_date": "2026-10-27",
   "side": "long",
-  "unrealised": 0.0002712329314341457
+  "unrealised": -0.01387170636161818
  },
  {
   "asset": "XOM",
   "entry": 178.4499969482422,
   "entry_date": "2026-10-19",
   "group": "stock",
-  "last": 184.5399932861328,
-  "last_date": "2026-10-26",
+  "last": 179.91000366210938,
+  "last_date": "2026-10-27",
   "side": "long",
-  "unrealised": 0.03387718656227809
+  "unrealised": 0.007931601226312507
  }
 ]
