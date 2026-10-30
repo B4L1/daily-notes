@@ -1,22 +1,12 @@
 [
  {
-  "asset": "AAPL",
-  "entry": 346.9200134277344,
-  "entry_date": "2026-10-28",
-  "group": "stock",
-  "last": 343.8299865722656,
-  "last_date": "2026-10-28",
+  "asset": "SLV",
+  "entry": 47.22999954223633,
+  "entry_date": "2026-10-29",
+  "group": "commodity",
+  "last": 47.279998779296875,
+  "last_date": "2026-10-29",
   "side": "long",
-  "unrealised": -0.009157029677930112
- },
- {
-  "asset": "JNJ",
-  "entry": 265.8299865722656,
-  "entry_date": "2026-10-28",
-  "group": "stock",
-  "last": 271.0400085449219,
-  "last_date": "2026-10-28",
-  "side": "long",
-  "unrealised": 0.019349075483683004
+  "unrealised": 0.0009086330202233541
  }
 ]

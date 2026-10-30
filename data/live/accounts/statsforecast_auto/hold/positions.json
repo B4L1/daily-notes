@@ -1,22 +1,12 @@
 [
  {
-  "asset": "USO",
-  "entry": 166.16000366210938,
-  "entry_date": "2026-10-26",
-  "group": "commodity",
-  "last": 166.57000732421875,
-  "last_date": "2026-10-28",
-  "side": "long",
-  "unrealised": 0.002317523188932619
- },
- {
   "asset": "XOM",
   "entry": 178.4499969482422,
   "entry_date": "2026-10-19",
   "group": "stock",
-  "last": 182.02000427246094,
-  "last_date": "2026-10-28",
+  "last": 183.2899932861328,
+  "last_date": "2026-10-29",
   "side": "long",
-  "unrealised": 0.01975564519625181
+  "unrealised": 0.026872423203483903
  }
 ]
