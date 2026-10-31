@@ -1,0 +1,116 @@
+{
+ "created_at": "2026-10-31T06:02:09.696554+00:00",
+ "estimator": "xgb_indicators",
+ "predictions": {
+  "AAPL": {
+   "asof": "2026-10-30",
+   "confidence": null,
+   "expected_return": 0.0010704540181905031,
+   "path": null
+  },
+  "AMD": {
+   "asof": "2026-10-30",
+   "confidence": null,
+   "expected_return": -0.000548160751350224,
+   "path": null
+  },
+  "AMZN": {
+   "asof": "2026-10-30",
+   "confidence": null,
+   "expected_return": 0.0002032191987382248,
+   "path": null
+  },
+  "GLD": {
+   "asof": "2026-10-30",
+   "confidence": null,
+   "expected_return": 0.0011186323827132583,
+   "path": null
+  },
+  "GOOGL": {
+   "asof": "2026-10-30",
+   "confidence": null,
+   "expected_return": -0.0007940229843370616,
+   "path": null
+  },
+  "JNJ": {
+   "asof": "2026-10-30",
+   "confidence": null,
+   "expected_return": 0.0011121451389044523,
+   "path": null
+  },
+  "JPM": {
+   "asof": "2026-10-30",
+   "confidence": null,
+   "expected_return": 0.0008227493963204324,
+   "path": null
+  },
+  "META": {
+   "asof": "2026-10-30",
+   "confidence": null,
+   "expected_return": 0.0013398631708696485,
+   "path": null
+  },
+  "MSFT": {
+   "asof": "2026-10-30",
+   "confidence": null,
+   "expected_return": 0.0007012325222603977,
+   "path": null
+  },
+  "NVDA": {
+   "asof": "2026-10-30",
+   "confidence": null,
+   "expected_return": 0.0011685574427247047,
+   "path": null
+  },
+  "QQQ": {
+   "asof": "2026-10-30",
+   "confidence": null,
+   "expected_return": 0.001062183640897274,
+   "path": null
+  },
+  "SLV": {
+   "asof": "2026-10-30",
+   "confidence": null,
+   "expected_return": 0.0044846851378679276,
+   "path": null
+  },
+  "SPY": {
+   "asof": "2026-10-30",
+   "confidence": null,
+   "expected_return": 0.0007012325222603977,
+   "path": null
+  },
+  "TSLA": {
+   "asof": "2026-10-30",
+   "confidence": null,
+   "expected_return": 0.001005072146654129,
+   "path": null
+  },
+  "USO": {
+   "asof": "2026-10-30",
+   "confidence": null,
+   "expected_return": 0.001273066969588399,
+   "path": null
+  },
+  "V": {
+   "asof": "2026-10-30",
+   "confidence": null,
+   "expected_return": 0.0008660476887598634,
+   "path": null
+  },
+  "WMT": {
+   "asof": "2026-10-30",
+   "confidence": null,
+   "expected_return": 0.001098926761187613,
+   "path": null
+  },
+  "XOM": {
+   "asof": "2026-10-30",
+   "confidence": null,
+   "expected_return": 0.0012010486098006368,
+   "path": null
+  }
+ },
+ "run_date": "2026-10-31",
+ "schema_version": 2
+}

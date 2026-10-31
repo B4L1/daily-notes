@@ -26,3 +26,4 @@
 {"estimator": "control_persistence", "n_predictions": 18, "run_date": "2026-10-28", "skipped_stale": ["BTC-USD", "ETH-USD", "SOL-USD"], "status": "ok"}
 {"estimator": "control_persistence", "n_predictions": 18, "run_date": "2026-10-29", "skipped_stale": ["BTC-USD", "ETH-USD", "SOL-USD"], "status": "ok"}
 {"estimator": "control_persistence", "n_predictions": 18, "run_date": "2026-10-30", "skipped_stale": ["BTC-USD", "ETH-USD", "SOL-USD"], "status": "ok"}
+{"estimator": "control_persistence", "n_predictions": 18, "run_date": "2026-10-31", "skipped_stale": ["BTC-USD", "ETH-USD", "SOL-USD"], "status": "ok"}

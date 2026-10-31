@@ -1,82 +1,52 @@
 [
  {
-  "asset": "TSLA",
-  "entry": 383.8299865722656,
-  "entry_date": "2026-10-26",
-  "group": "stock",
-  "last": 403.29998779296875,
-  "last_date": "2026-10-29",
-  "side": "long",
-  "unrealised": 0.050475586592587524
- },
- {
-  "asset": "USO",
-  "entry": 166.16000366210938,
-  "entry_date": "2026-10-26",
-  "group": "commodity",
-  "last": 168.19000244140625,
-  "last_date": "2026-10-29",
-  "side": "long",
-  "unrealised": 0.012067132490108361
- },
- {
   "asset": "USO",
   "entry": 165.67999267578125,
   "entry_date": "2026-10-27",
   "group": "commodity",
-  "last": 168.19000244140625,
-  "last_date": "2026-10-29",
+  "last": 168.8300018310547,
+  "last_date": "2026-10-30",
   "side": "long",
-  "unrealised": 0.014999745754376109
+  "unrealised": 0.01886261042084723
  },
  {
   "asset": "USO",
   "entry": 166.5500030517578,
   "entry_date": "2026-10-28",
   "group": "commodity",
-  "last": 168.19000244140625,
-  "last_date": "2026-10-29",
+  "last": 168.8300018310547,
+  "last_date": "2026-10-30",
   "side": "long",
-  "unrealised": 0.009696888979874623
- },
- {
-  "asset": "XOM",
-  "entry": 181.86000061035156,
-  "entry_date": "2026-10-26",
-  "group": "stock",
-  "last": 183.2899932861328,
-  "last_date": "2026-10-29",
-  "side": "long",
-  "unrealised": 0.007613151165632631
+  "unrealised": 0.013539575127707076
  },
  {
   "asset": "XOM",
   "entry": 183.6300048828125,
   "entry_date": "2026-10-27",
   "group": "stock",
-  "last": 183.2899932861328,
-  "last_date": "2026-10-29",
+  "last": 187.25,
+  "last_date": "2026-10-30",
   "side": "long",
-  "unrealised": -0.0021016124143038717
+  "unrealised": 0.0194635273154172
  },
  {
   "asset": "XOM",
   "entry": 180.58999633789062,
   "entry_date": "2026-10-28",
   "group": "stock",
-  "last": 183.2899932861328,
-  "last_date": "2026-10-29",
+  "last": 187.25,
+  "last_date": "2026-10-30",
   "side": "long",
-  "unrealised": 0.01470097736859341
+  "unrealised": 0.03662913947153665
  },
  {
   "asset": "XOM",
   "entry": 183.77000427246094,
   "entry_date": "2026-10-29",
   "group": "stock",
-  "last": 183.2899932861328,
-  "last_date": "2026-10-29",
+  "last": 187.25,
+  "last_date": "2026-10-30",
   "side": "long",
-  "unrealised": -0.0028620203252346654
+  "unrealised": 0.018686690682008983
  }
 ]
