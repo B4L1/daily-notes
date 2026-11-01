@@ -1,0 +1,7 @@
+{
+ "created_at": "2026-11-01T06:31:43.671011+00:00",
+ "estimator": "xgb_indicators",
+ "predictions": {},
+ "run_date": "2026-11-01",
+ "schema_version": 2
+}
