@@ -4,119 +4,109 @@
   "entry": 343.1700134277344,
   "entry_date": "2026-10-27",
   "group": "stock",
-  "last": 344.6300048828125,
-  "last_date": "2026-10-30",
+  "last": 338.32000732421875,
+  "last_date": "2026-11-02",
   "side": "long",
-  "unrealised": 0.004004426080225082
+  "unrealised": -0.014382954260984598
  },
  {
   "asset": "AMD",
   "entry": 562.27001953125,
   "entry_date": "2026-10-29",
   "group": "stock",
-  "last": 504.79998779296875,
-  "last_date": "2026-10-30",
+  "last": 466.8399963378906,
+  "last_date": "2026-11-02",
   "side": "long",
-  "unrealised": -0.10246073459721808
- },
- {
-  "asset": "AMZN",
-  "entry": 253.0,
-  "entry_date": "2026-10-28",
-  "group": "stock",
-  "last": 240.35000610351562,
-  "last_date": "2026-10-30",
-  "side": "long",
-  "unrealised": -0.05024997587543237
+  "unrealised": -0.16997276642620376
  },
  {
   "asset": "GLD",
   "entry": 368.79998779296875,
   "entry_date": "2026-10-29",
   "group": "commodity",
-  "last": 355.7799987792969,
-  "last_date": "2026-10-30",
+  "last": 361.6499938964844,
+  "last_date": "2026-11-02",
   "side": "long",
-  "unrealised": -0.03545365901470922
+  "unrealised": -0.019537185827397958
  },
  {
   "asset": "GOOGL",
   "entry": 321.1499938964844,
   "entry_date": "2026-10-23",
   "group": "stock",
-  "last": 279.8399963378906,
-  "last_date": "2026-10-30",
+  "last": 278.989990234375,
+  "last_date": "2026-11-02",
   "side": "long",
-  "unrealised": -0.1288814754591249
+  "unrealised": -0.13152823279890427
+ },
+ {
+  "asset": "JNJ",
+  "entry": 272.05999755859375,
+  "entry_date": "2026-11-02",
+  "group": "stock",
+  "last": 270.55999755859375,
+  "last_date": "2026-11-02",
+  "side": "long",
+  "unrealised": -0.005763489720872844
  },
  {
   "asset": "JPM",
   "entry": 344.510009765625,
   "entry_date": "2026-10-29",
   "group": "stock",
-  "last": 337.0400085449219,
-  "last_date": "2026-10-30",
+  "last": 340.5799865722656,
+  "last_date": "2026-11-02",
   "side": "long",
-  "unrealised": -0.02193297294405197
+  "unrealised": -0.01165757331269715
  },
  {
   "asset": "META",
   "entry": 676.3499755859375,
   "entry_date": "2026-10-22",
   "group": "stock",
-  "last": 614.989990234375,
-  "last_date": "2026-10-30",
+  "last": 606.72998046875,
+  "last_date": "2026-11-02",
   "side": "long",
-  "unrealised": -0.09097224080204183
+  "unrealised": -0.1031848674950038
  },
  {
-  "asset": "NVDA",
-  "entry": 213.11000061035156,
-  "entry_date": "2026-10-26",
-  "group": "stock",
-  "last": 204.63999938964844,
-  "last_date": "2026-10-30",
+  "asset": "QQQ",
+  "entry": 695.3200073242188,
+  "entry_date": "2026-11-02",
+  "group": "etf",
+  "last": 681.0900268554688,
+  "last_date": "2026-11-02",
   "side": "long",
-  "unrealised": -0.03999473838132819
+  "unrealised": -0.020515368922017448
  },
  {
   "asset": "SLV",
   "entry": 50.2599983215332,
   "entry_date": "2026-10-22",
   "group": "commodity",
-  "last": 44.599998474121094,
-  "last_date": "2026-10-30",
+  "last": 45.56999969482422,
+  "last_date": "2026-11-02",
   "side": "long",
-  "unrealised": -0.11276440581837745
+  "unrealised": -0.09346473902376985
  },
  {
-  "asset": "SPY",
-  "entry": 765.8599853515625,
-  "entry_date": "2026-10-20",
-  "group": "etf",
-  "last": 755.719970703125,
-  "last_date": "2026-10-30",
+  "asset": "TSLA",
+  "entry": 404.6600036621094,
+  "entry_date": "2026-11-02",
+  "group": "stock",
+  "last": 403.82000732421875,
+  "last_date": "2026-11-02",
   "side": "long",
-  "unrealised": -0.013290037137836391
- },
- {
-  "asset": "USO",
-  "entry": 164.30999755859375,
-  "entry_date": "2026-10-29",
-  "group": "commodity",
-  "last": 168.8300018310547,
-  "last_date": "2026-10-30",
-  "side": "long",
-  "unrealised": 0.02735900334502826
+  "unrealised": -0.0023258076664083582
  },
  {
   "asset": "WMT",
   "entry": 118.43000030517578,
   "entry_date": "2026-10-28",
   "group": "stock",
-  "last": 123.51000213623047,
-  "last_date": "2026-10-30",
+  "last": 127.69000244140625,
+  "last_date": "2026-11-02",
   "side": "long",
-  "unrealised": 0.042644552207753955
+  "unrealised": 0.07793966572970432
  }
 ]
