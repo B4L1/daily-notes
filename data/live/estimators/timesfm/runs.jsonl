@@ -30,3 +30,4 @@
 {"estimator": "timesfm", "n_predictions": 18, "run_date": "2026-11-03", "skipped_stale": ["BTC-USD", "ETH-USD", "SOL-USD"], "status": "ok"}
 {"estimator": "timesfm", "n_predictions": 18, "run_date": "2026-11-04", "skipped_stale": ["BTC-USD", "ETH-USD", "SOL-USD"], "status": "ok"}
 {"estimator": "timesfm", "n_predictions": 18, "run_date": "2026-11-05", "skipped_stale": ["BTC-USD", "ETH-USD", "SOL-USD"], "status": "ok"}
+{"estimator": "timesfm", "n_predictions": 21, "run_date": "2026-11-06", "status": "ok"}

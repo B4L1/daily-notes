@@ -1,22 +1,32 @@
 [
  {
+  "asset": "JNJ",
+  "entry": 278.9200134277344,
+  "entry_date": "2026-11-05",
+  "group": "stock",
+  "last": 272.32000732421875,
+  "last_date": "2026-11-05",
+  "side": "long",
+  "unrealised": -0.023912719725293657
+ },
+ {
   "asset": "TSLA",
   "entry": 379.79998779296875,
   "entry_date": "2026-11-04",
   "group": "stock",
-  "last": 385.19000244140625,
-  "last_date": "2026-11-04",
+  "last": 343.69000244140625,
+  "last_date": "2026-11-05",
   "side": "long",
-  "unrealised": 0.013941718856440882
+  "unrealised": -0.09532632046382863
  },
  {
   "asset": "XOM",
   "entry": 183.97999572753906,
   "entry_date": "2026-11-02",
   "group": "stock",
-  "last": 169.27000427246094,
-  "last_date": "2026-11-04",
+  "last": 165.3000030517578,
+  "last_date": "2026-11-05",
   "side": "long",
-  "unrealised": -0.08020429827524592
+  "unrealised": -0.10178273784963535
  }
 ]

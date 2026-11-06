@@ -1,52 +1,72 @@
 [
  {
+  "asset": "JNJ",
+  "entry": 278.9200134277344,
+  "entry_date": "2026-11-05",
+  "group": "stock",
+  "last": 272.32000732421875,
+  "last_date": "2026-11-05",
+  "side": "long",
+  "unrealised": -0.023912719725293657
+ },
+ {
   "asset": "NVDA",
   "entry": 207.52999877929688,
   "entry_date": "2026-11-02",
   "group": "stock",
-  "last": 200.1300048828125,
-  "last_date": "2026-11-04",
+  "last": 181.60000610351562,
+  "last_date": "2026-11-05",
   "side": "long",
-  "unrealised": -0.03590746610134224
+  "unrealised": -0.125195756412581
  },
  {
   "asset": "QQQ",
   "entry": 695.3200073242188,
   "entry_date": "2026-11-02",
   "group": "etf",
-  "last": 691.9500122070312,
-  "last_date": "2026-11-04",
+  "last": 647.0499877929688,
+  "last_date": "2026-11-05",
   "side": "long",
-  "unrealised": -0.004896682220688847
+  "unrealised": -0.06947130101650056
  },
  {
   "asset": "TSLA",
   "entry": 379.79998779296875,
   "entry_date": "2026-11-04",
   "group": "stock",
-  "last": 385.19000244140625,
-  "last_date": "2026-11-04",
+  "last": 343.69000244140625,
+  "last_date": "2026-11-05",
   "side": "long",
-  "unrealised": 0.013941718856440882
+  "unrealised": -0.09532632046382863
+ },
+ {
+  "asset": "TSLA",
+  "entry": 374.1199951171875,
+  "entry_date": "2026-11-05",
+  "group": "stock",
+  "last": 343.69000244140625,
+  "last_date": "2026-11-05",
+  "side": "long",
+  "unrealised": -0.08158752024200014
  },
  {
   "asset": "XOM",
   "entry": 183.97999572753906,
   "entry_date": "2026-11-02",
   "group": "stock",
-  "last": 169.27000427246094,
-  "last_date": "2026-11-04",
+  "last": 165.3000030517578,
+  "last_date": "2026-11-05",
   "side": "long",
-  "unrealised": -0.08020429827524592
+  "unrealised": -0.10178273784963535
  },
  {
   "asset": "XOM",
   "entry": 178.0,
   "entry_date": "2026-11-03",
   "group": "stock",
-  "last": 169.27000427246094,
-  "last_date": "2026-11-04",
+  "last": 165.3000030517578,
+  "last_date": "2026-11-05",
   "side": "long",
-  "unrealised": -0.04929491981763515
+  "unrealised": -0.07159829746203475
  }
 ]
