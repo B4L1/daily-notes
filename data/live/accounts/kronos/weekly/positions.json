@@ -170,6 +170,16 @@
   "unrealised": 0.001773902414202816
  },
  {
+  "asset": "SOL-USD",
+  "entry": 89.14337158203125,
+  "entry_date": "2026-11-06",
+  "group": "crypto",
+  "last": 90.0594253540039,
+  "last_date": "2026-11-06",
+  "side": "long",
+  "unrealised": 0.009026184933500022
+ },
+ {
   "asset": "SPY",
   "entry": 752.72998046875,
   "entry_date": "2026-11-03",
