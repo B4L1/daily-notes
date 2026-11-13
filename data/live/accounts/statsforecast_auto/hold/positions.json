@@ -4,19 +4,9 @@
   "entry": 278.9200134277344,
   "entry_date": "2026-11-05",
   "group": "stock",
-  "last": 280.4100036621094,
-  "last_date": "2026-11-11",
+  "last": 283.5199890136719,
+  "last_date": "2026-11-12",
   "side": "long",
-  "unrealised": 0.005091998288556082
- },
- {
-  "asset": "NVDA",
-  "entry": 172.8000030517578,
-  "entry_date": "2026-11-11",
-  "group": "stock",
-  "last": 173.72999572753906,
-  "last_date": "2026-11-11",
-  "side": "long",
-  "unrealised": 0.005131901963871449
+  "unrealised": 0.01624209581416189
  }
 ]

@@ -1,12 +1,22 @@
 [
  {
-  "asset": "NVDA",
-  "entry": 173.97000122070312,
-  "entry_date": "2026-11-10",
-  "group": "stock",
-  "last": 173.72999572753906,
-  "last_date": "2026-11-11",
+  "asset": "QQQ",
+  "entry": 680.3200073242188,
+  "entry_date": "2026-11-12",
+  "group": "etf",
+  "last": 688.1699829101562,
+  "last_date": "2026-11-12",
   "side": "long",
-  "unrealised": -0.0016295797636374507
+  "unrealised": 0.011488651666018751
+ },
+ {
+  "asset": "SPY",
+  "entry": 753.97998046875,
+  "entry_date": "2026-11-12",
+  "group": "etf",
+  "last": 757.1199951171875,
+  "last_date": "2026-11-12",
+  "side": "long",
+  "unrealised": 0.0041145862354136035
  }
 ]
