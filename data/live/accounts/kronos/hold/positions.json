@@ -4,69 +4,79 @@
   "entry": 267.9200134277344,
   "entry_date": "2026-11-12",
   "group": "stock",
-  "last": 267.44000244140625,
-  "last_date": "2026-11-12",
+  "last": 266.6600036621094,
+  "last_date": "2026-11-13",
   "side": "long",
-  "unrealised": -0.002041620492201829
+  "unrealised": -0.004952932601057253
  },
  {
   "asset": "GOOGL",
   "entry": 293.7699890136719,
   "entry_date": "2026-11-12",
   "group": "stock",
-  "last": 298.70001220703125,
-  "last_date": "2026-11-12",
+  "last": 295.7699890136719,
+  "last_date": "2026-11-13",
   "side": "long",
-  "unrealised": 0.01653191570865306
+  "unrealised": 0.006558047366291481
  },
  {
-  "asset": "NVDA",
-  "entry": 172.8000030517578,
-  "entry_date": "2026-11-11",
+  "asset": "JNJ",
+  "entry": 285.0,
+  "entry_date": "2026-11-13",
   "group": "stock",
-  "last": 166.19000244140625,
-  "last_date": "2026-11-12",
+  "last": 285.75,
+  "last_date": "2026-11-13",
   "side": "long",
-  "unrealised": -0.03850231767138171
+  "unrealised": 0.002381578947368318
+ },
+ {
+  "asset": "MSFT",
+  "entry": 519.75,
+  "entry_date": "2026-11-13",
+  "group": "stock",
+  "last": 523.8800048828125,
+  "last_date": "2026-11-13",
+  "side": "long",
+  "unrealised": 0.007696137340668624
  },
  {
   "asset": "QQQ",
   "entry": 680.3200073242188,
   "entry_date": "2026-11-12",
   "group": "etf",
-  "last": 688.1699829101562,
-  "last_date": "2026-11-12",
+  "last": 679.8900146484375,
+  "last_date": "2026-11-13",
   "side": "long",
-  "unrealised": 0.011488651666018751
+  "unrealised": -0.0006820447306443766
  },
  {
-  "asset": "USO",
-  "entry": 142.02999877929688,
-  "entry_date": "2026-11-12",
+  "asset": "SLV",
+  "entry": 44.779998779296875,
+  "entry_date": "2026-11-13",
   "group": "commodity",
-  "last": 146.07000732421875,
-  "last_date": "2026-11-12",
+  "last": 44.130001068115234,
+  "last_date": "2026-11-13",
   "side": "long",
-  "unrealised": 0.02829475519006173
+  "unrealised": -0.014665357947757602
+ },
+ {
+  "asset": "SPY",
+  "entry": 760.0700073242188,
+  "entry_date": "2026-11-13",
+  "group": "etf",
+  "last": 754.3699951171875,
+  "last_date": "2026-11-13",
+  "side": "long",
+  "unrealised": -0.007549325262284473
  },
  {
   "asset": "WMT",
   "entry": 124.33000183105469,
   "entry_date": "2026-11-11",
   "group": "stock",
-  "last": 126.19000244140625,
-  "last_date": "2026-11-12",
+  "last": 128.08999633789062,
+  "last_date": "2026-11-13",
   "side": "long",
-  "unrealised": 0.014710191288978075
- },
- {
-  "asset": "XOM",
-  "entry": 168.25,
-  "entry_date": "2026-11-12",
-  "group": "stock",
-  "last": 169.77999877929688,
-  "last_date": "2026-11-12",
-  "side": "long",
-  "unrealised": 0.008843603443071973
+  "unrealised": 0.029992053015853587
  }
 ]

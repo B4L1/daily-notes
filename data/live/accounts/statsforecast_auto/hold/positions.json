@@ -1,12 +1,42 @@
 [
  {
+  "asset": "GLD",
+  "entry": 356.2699890136719,
+  "entry_date": "2026-11-13",
+  "group": "commodity",
+  "last": 355.45001220703125,
+  "last_date": "2026-11-13",
+  "side": "long",
+  "unrealised": -0.0024515601423816978
+ },
+ {
   "asset": "JNJ",
   "entry": 278.9200134277344,
   "entry_date": "2026-11-05",
   "group": "stock",
-  "last": 283.5199890136719,
-  "last_date": "2026-11-12",
+  "last": 285.75,
+  "last_date": "2026-11-13",
   "side": "long",
-  "unrealised": 0.01624209581416189
+  "unrealised": 0.024237258867980754
+ },
+ {
+  "asset": "NVDA",
+  "entry": 169.91000366210938,
+  "entry_date": "2026-11-13",
+  "group": "stock",
+  "last": 162.85000610351562,
+  "last_date": "2026-11-13",
+  "side": "long",
+  "unrealised": -0.04180139430538524
+ },
+ {
+  "asset": "V",
+  "entry": 423.6700134277344,
+  "entry_date": "2026-11-13",
+  "group": "stock",
+  "last": 425.760009765625,
+  "last_date": "2026-11-13",
+  "side": "long",
+  "unrealised": 0.00468307591203207
  }
 ]
