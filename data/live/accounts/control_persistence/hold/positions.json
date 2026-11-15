@@ -20,26 +20,6 @@
   "unrealised": -0.01100825019568788
  },
  {
-  "asset": "BTC-USD",
-  "entry": 73964.46875,
-  "entry_date": "2026-11-12",
-  "group": "crypto",
-  "last": 71342.96875,
-  "last_date": "2026-11-12",
-  "side": "long",
-  "unrealised": -0.036692693556830275
- },
- {
-  "asset": "ETH-USD",
-  "entry": 2055.876220703125,
-  "entry_date": "2026-11-12",
-  "group": "crypto",
-  "last": 2016.8297119140625,
-  "last_date": "2026-11-12",
-  "side": "long",
-  "unrealised": -0.020242636033169475
- },
- {
   "asset": "GOOGL",
   "entry": 293.7699890136719,
   "entry_date": "2026-11-12",

@@ -30,26 +30,6 @@
   "unrealised": -0.01100825019568788
  },
  {
-  "asset": "BTC-USD",
-  "entry": 73964.46875,
-  "entry_date": "2026-11-12",
-  "group": "crypto",
-  "last": 71342.96875,
-  "last_date": "2026-11-12",
-  "side": "long",
-  "unrealised": -0.036692693556830275
- },
- {
-  "asset": "ETH-USD",
-  "entry": 2055.876220703125,
-  "entry_date": "2026-11-12",
-  "group": "crypto",
-  "last": 2016.8297119140625,
-  "last_date": "2026-11-12",
-  "side": "long",
-  "unrealised": -0.020242636033169475
- },
- {
   "asset": "JPM",
   "entry": 346.4100036621094,
   "entry_date": "2026-11-13",
@@ -78,16 +58,6 @@
   "last_date": "2026-11-13",
   "side": "long",
   "unrealised": -0.014665357947757602
- },
- {
-  "asset": "SOL-USD",
-  "entry": 83.32109069824219,
-  "entry_date": "2026-11-12",
-  "group": "crypto",
-  "last": 81.66072845458984,
-  "last_date": "2026-11-12",
-  "side": "long",
-  "unrealised": -0.021177274472024804
  },
  {
   "asset": "USO",
