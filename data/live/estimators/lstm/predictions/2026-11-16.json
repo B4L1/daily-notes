@@ -1,0 +1,7 @@
+{
+ "created_at": "2026-11-16T06:55:55.532473+00:00",
+ "estimator": "lstm",
+ "predictions": {},
+ "run_date": "2026-11-16",
+ "schema_version": 2
+}
