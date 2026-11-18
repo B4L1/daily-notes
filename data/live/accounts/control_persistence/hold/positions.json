@@ -1,92 +1,22 @@
 [
  {
-  "asset": "AAPL",
-  "entry": 357.1300048828125,
-  "entry_date": "2026-11-16",
-  "group": "stock",
-  "last": 352.7799987792969,
-  "last_date": "2026-11-16",
-  "side": "long",
-  "unrealised": -0.012430455419709247
- },
- {
-  "asset": "GLD",
-  "entry": 354.1300048828125,
-  "entry_date": "2026-11-16",
-  "group": "commodity",
-  "last": 352.92999267578125,
-  "last_date": "2026-11-16",
-  "side": "long",
-  "unrealised": -0.003538620536202147
- },
- {
-  "asset": "JNJ",
-  "entry": 285.0,
-  "entry_date": "2026-11-13",
-  "group": "stock",
-  "last": 282.54998779296875,
-  "last_date": "2026-11-16",
-  "side": "long",
-  "unrealised": -0.008846534059758798
- },
- {
-  "asset": "JPM",
-  "entry": 345.57000732421875,
-  "entry_date": "2026-11-16",
-  "group": "stock",
-  "last": 338.2099914550781,
-  "last_date": "2026-11-16",
-  "side": "long",
-  "unrealised": -0.0215481905638453
- },
- {
-  "asset": "META",
-  "entry": 640.0,
-  "entry_date": "2026-11-16",
-  "group": "stock",
-  "last": 626.4099731445312,
-  "last_date": "2026-11-16",
-  "side": "long",
-  "unrealised": -0.021484416961669944
- },
- {
-  "asset": "MSFT",
-  "entry": 519.75,
-  "entry_date": "2026-11-13",
-  "group": "stock",
-  "last": 517.989990234375,
-  "last_date": "2026-11-16",
-  "side": "long",
-  "unrealised": -0.0036362621753246727
- },
- {
   "asset": "V",
   "entry": 429.6499938964844,
   "entry_date": "2026-11-16",
   "group": "stock",
-  "last": 426.4599914550781,
-  "last_date": "2026-11-16",
+  "last": 416.7699890136719,
+  "last_date": "2026-11-17",
   "side": "long",
-  "unrealised": -0.00767465375706447
+  "unrealised": -0.0302279007698896
  },
  {
   "asset": "WMT",
   "entry": 126.80000305175781,
   "entry_date": "2026-11-12",
   "group": "stock",
-  "last": 128.41000366210938,
-  "last_date": "2026-11-16",
+  "last": 127.5199966430664,
+  "last_date": "2026-11-17",
   "side": "long",
-  "unrealised": 0.012447165391190035
- },
- {
-  "asset": "XOM",
-  "entry": 168.25,
-  "entry_date": "2026-11-12",
-  "group": "stock",
-  "last": 166.8699951171875,
-  "last_date": "2026-11-16",
-  "side": "long",
-  "unrealised": -0.008452109258915291
+  "unrealised": 0.0054281827600957955
  }
 ]
