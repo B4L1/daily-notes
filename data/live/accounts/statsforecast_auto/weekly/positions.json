@@ -4,169 +4,179 @@
   "entry": 512.1199951171875,
   "entry_date": "2026-11-17",
   "group": "stock",
-  "last": 530.1400146484375,
-  "last_date": "2026-11-18",
+  "last": 489.19000244140625,
+  "last_date": "2026-11-19",
   "side": "long",
-  "unrealised": 0.03493710400504177
+  "unrealised": -0.045024648313691046
  },
  {
   "asset": "GLD",
-  "entry": 356.2699890136719,
-  "entry_date": "2026-11-13",
+  "entry": 339.8800048828125,
+  "entry_date": "2026-11-19",
   "group": "commodity",
-  "last": 341.19000244140625,
-  "last_date": "2026-11-18",
+  "last": 335.17999267578125,
+  "last_date": "2026-11-19",
   "side": "long",
-  "unrealised": -0.04247741189908906
- },
- {
-  "asset": "JNJ",
-  "entry": 285.0,
-  "entry_date": "2026-11-13",
-  "group": "stock",
-  "last": 272.70001220703125,
-  "last_date": "2026-11-18",
-  "side": "long",
-  "unrealised": -0.04340785190515353
+  "unrealised": -0.013978445744114238
  },
  {
   "asset": "JNJ",
   "entry": 288.989990234375,
   "entry_date": "2026-11-16",
   "group": "stock",
-  "last": 272.70001220703125,
-  "last_date": "2026-11-18",
+  "last": 267.1400146484375,
+  "last_date": "2026-11-19",
   "side": "long",
-  "unrealised": -0.0566186583543338
+  "unrealised": -0.07585807060554886
  },
  {
   "asset": "JNJ",
   "entry": 278.989990234375,
   "entry_date": "2026-11-17",
   "group": "stock",
-  "last": 272.70001220703125,
-  "last_date": "2026-11-18",
+  "last": 267.1400146484375,
+  "last_date": "2026-11-19",
   "side": "long",
-  "unrealised": -0.022795532985106864
+  "unrealised": -0.042724554646145246
  },
  {
   "asset": "JPM",
   "entry": 333.57000732421875,
   "entry_date": "2026-11-17",
   "group": "stock",
-  "last": 324.1099853515625,
-  "last_date": "2026-11-18",
+  "last": 320.2200012207031,
+  "last_date": "2026-11-19",
   "side": "long",
-  "unrealised": -0.028609929744707024
+  "unrealised": -0.04027160209367944
  },
  {
   "asset": "JPM",
   "entry": 327.5199890136719,
   "entry_date": "2026-11-18",
   "group": "stock",
-  "last": 324.1099853515625,
-  "last_date": "2026-11-18",
+  "last": 320.2200012207031,
+  "last_date": "2026-11-19",
   "side": "long",
-  "unrealised": -0.010661589449482506
+  "unrealised": -0.022538678669514783
  },
  {
-  "asset": "NVDA",
-  "entry": 169.91000366210938,
-  "entry_date": "2026-11-13",
+  "asset": "JPM",
+  "entry": 326.3800048828125,
+  "entry_date": "2026-11-19",
   "group": "stock",
-  "last": 150.9600067138672,
-  "last_date": "2026-11-18",
+  "last": 320.2200012207031,
+  "last_date": "2026-11-19",
   "side": "long",
-  "unrealised": -0.11177961297044639
+  "unrealised": -0.019123716434685162
  },
  {
   "asset": "NVDA",
   "entry": 159.02000427246094,
   "entry_date": "2026-11-16",
   "group": "stock",
-  "last": 150.9600067138672,
-  "last_date": "2026-11-18",
+  "last": 145.97999572753906,
+  "last_date": "2026-11-19",
   "side": "long",
-  "unrealised": -0.05093543165666095
+  "unrealised": -0.08225231539787561
  },
  {
   "asset": "NVDA",
   "entry": 156.89999389648438,
   "entry_date": "2026-11-17",
   "group": "stock",
-  "last": 150.9600067138672,
-  "last_date": "2026-11-18",
+  "last": 145.97999572753906,
+  "last_date": "2026-11-19",
   "side": "long",
-  "unrealised": -0.03810842838551112
+  "unrealised": -0.06984846140051373
+ },
+ {
+  "asset": "NVDA",
+  "entry": 152.9199981689453,
+  "entry_date": "2026-11-19",
+  "group": "stock",
+  "last": 145.97999572753906,
+  "last_date": "2026-11-19",
+  "side": "long",
+  "unrealised": -0.04563322341423895
  },
  {
   "asset": "QQQ",
   "entry": 663.0499877929688,
   "entry_date": "2026-11-17",
   "group": "etf",
-  "last": 659.510009765625,
-  "last_date": "2026-11-18",
+  "last": 645.0399780273438,
+  "last_date": "2026-11-19",
   "side": "long",
-  "unrealised": -0.005388930838573619
+  "unrealised": -0.027212371008516596
  },
  {
   "asset": "QQQ",
   "entry": 661.030029296875,
   "entry_date": "2026-11-18",
   "group": "etf",
-  "last": 659.510009765625,
-  "last_date": "2026-11-18",
+  "last": 645.0399780273438,
+  "last_date": "2026-11-19",
   "side": "long",
-  "unrealised": -0.002349471225031713
+  "unrealised": -0.02423959889997674
+ },
+ {
+  "asset": "SLV",
+  "entry": 40.790000915527344,
+  "entry_date": "2026-11-19",
+  "group": "commodity",
+  "last": 39.63999938964844,
+  "last_date": "2026-11-19",
+  "side": "long",
+  "unrealised": -0.02834322137943714
  },
  {
   "asset": "SPY",
   "entry": 738.3900146484375,
   "entry_date": "2026-11-17",
   "group": "etf",
-  "last": 730.2000122070312,
-  "last_date": "2026-11-18",
+  "last": 715.8699951171875,
+  "last_date": "2026-11-19",
   "side": "long",
-  "unrealised": -0.011141702594740127
+  "unrealised": -0.03054881374949559
  },
  {
   "asset": "SPY",
   "entry": 733.3699951171875,
   "entry_date": "2026-11-18",
   "group": "etf",
-  "last": 730.2000122070312,
-  "last_date": "2026-11-18",
+  "last": 715.8699951171875,
+  "last_date": "2026-11-19",
   "side": "long",
-  "unrealised": -0.004372487872781999
+  "unrealised": -0.023912443400351598
+ },
+ {
+  "asset": "SPY",
+  "entry": 737.4600219726562,
+  "entry_date": "2026-11-19",
+  "group": "etf",
+  "last": 715.8699951171875,
+  "last_date": "2026-11-19",
+  "side": "long",
+  "unrealised": -0.029326199674820204
  },
  {
   "asset": "TSLA",
   "entry": 387.0,
   "entry_date": "2026-11-16",
   "group": "stock",
-  "last": 383.7200012207031,
-  "last_date": "2026-11-18",
+  "last": 374.4100036621094,
+  "last_date": "2026-11-19",
   "side": "long",
-  "unrealised": -0.008725449042110839
- },
- {
-  "asset": "V",
-  "entry": 423.6700134277344,
-  "entry_date": "2026-11-13",
-  "group": "stock",
-  "last": 415.2200012207031,
-  "last_date": "2026-11-18",
-  "side": "long",
-  "unrealised": -0.020194796514310248
+  "unrealised": -0.032782290278787124
  },
  {
   "asset": "V",
   "entry": 415.9800109863281,
   "entry_date": "2026-11-18",
   "group": "stock",
-  "last": 415.2200012207031,
-  "last_date": "2026-11-18",
+  "last": 402.25,
+  "last_date": "2026-11-19",
   "side": "long",
-  "unrealised": -0.002077034341921774
+  "unrealised": -0.03325642007718824
  }
 ]
