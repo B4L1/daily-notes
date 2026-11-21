@@ -47,3 +47,4 @@
 {"estimator": "candle_rules", "n_predictions": 21, "run_date": "2026-11-18", "status": "ok"}
 {"estimator": "candle_rules", "n_predictions": 21, "run_date": "2026-11-19", "status": "ok"}
 {"estimator": "candle_rules", "n_predictions": 21, "run_date": "2026-11-20", "status": "ok"}
+{"estimator": "candle_rules", "n_predictions": 21, "run_date": "2026-11-21", "status": "ok"}
