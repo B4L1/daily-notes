@@ -14,10 +14,20 @@
   "entry": 58798.98046875,
   "entry_date": "2026-11-21",
   "group": "crypto",
-  "last": 60094.08984375,
-  "last_date": "2026-11-21",
+  "last": 61161.91015625,
+  "last_date": "2026-11-22",
   "side": "long",
-  "unrealised": 0.020776051551834457
+  "unrealised": 0.03893657583282126
+ },
+ {
+  "asset": "BTC-USD",
+  "entry": 60094.08984375,
+  "entry_date": "2026-11-22",
+  "group": "crypto",
+  "last": 61161.91015625,
+  "last_date": "2026-11-22",
+  "side": "long",
+  "unrealised": 0.016519140281122863
  },
  {
   "asset": "GOOGL",

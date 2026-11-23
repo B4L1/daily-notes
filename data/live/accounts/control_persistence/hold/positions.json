@@ -1,5 +1,35 @@
 [
  {
+  "asset": "BTC-USD",
+  "entry": 60094.08984375,
+  "entry_date": "2026-11-22",
+  "group": "crypto",
+  "last": 61161.91015625,
+  "last_date": "2026-11-22",
+  "side": "long",
+  "unrealised": 0.016519140281122863
+ },
+ {
+  "asset": "ETH-USD",
+  "entry": 1682.20458984375,
+  "entry_date": "2026-11-22",
+  "group": "crypto",
+  "last": 1721.07568359375,
+  "last_date": "2026-11-22",
+  "side": "long",
+  "unrealised": 0.021857233201408838
+ },
+ {
+  "asset": "SOL-USD",
+  "entry": 70.21524810791016,
+  "entry_date": "2026-11-22",
+  "group": "crypto",
+  "last": 70.57005310058594,
+  "last_date": "2026-11-22",
+  "side": "long",
+  "unrealised": 0.003803104592473989
+ },
+ {
   "asset": "USO",
   "entry": 136.61000061035156,
   "entry_date": "2026-11-20",

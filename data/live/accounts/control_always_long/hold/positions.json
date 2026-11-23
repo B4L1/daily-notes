@@ -34,20 +34,20 @@
   "entry": 64855.84375,
   "entry_date": "2026-11-17",
   "group": "crypto",
-  "last": 60094.08984375,
-  "last_date": "2026-11-21",
+  "last": 61161.91015625,
+  "last_date": "2026-11-22",
   "side": "long",
-  "unrealised": -0.07467058372727589
+  "unrealised": -0.058206064097924864
  },
  {
   "asset": "ETH-USD",
   "entry": 1819.27587890625,
   "entry_date": "2026-11-17",
   "group": "crypto",
-  "last": 1682.20458984375,
-  "last_date": "2026-11-21",
+  "last": 1721.07568359375,
+  "last_date": "2026-11-22",
   "side": "long",
-  "unrealised": -0.07659387206018878
+  "unrealised": -0.05522762728077171
  },
  {
   "asset": "GLD",
@@ -144,10 +144,10 @@
   "entry": 71.50531768798828,
   "entry_date": "2026-11-17",
   "group": "crypto",
-  "last": 70.21524810791016,
-  "last_date": "2026-11-21",
+  "last": 70.57005310058594,
+  "last_date": "2026-11-22",
   "side": "long",
-  "unrealised": -0.019291589378111845
+  "unrealised": -0.01432965082377993
  },
  {
   "asset": "SPY",
