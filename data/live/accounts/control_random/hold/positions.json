@@ -1,92 +1,62 @@
 [
  {
-  "asset": "AMD",
-  "entry": 471.7300109863281,
-  "entry_date": "2026-11-20",
+  "asset": "AMZN",
+  "entry": 260.260009765625,
+  "entry_date": "2026-11-23",
   "group": "stock",
-  "last": 424.3900146484375,
-  "last_date": "2026-11-20",
+  "last": 255.38999938964844,
+  "last_date": "2026-11-23",
   "side": "long",
-  "unrealised": -0.100604005968178
- },
- {
-  "asset": "BTC-USD",
-  "entry": 58798.98046875,
-  "entry_date": "2026-11-21",
-  "group": "crypto",
-  "last": 61161.91015625,
-  "last_date": "2026-11-22",
-  "side": "long",
-  "unrealised": 0.03893657583282126
- },
- {
-  "asset": "ETH-USD",
-  "entry": 1619.43212890625,
-  "entry_date": "2026-11-21",
-  "group": "crypto",
-  "last": 1721.07568359375,
-  "last_date": "2026-11-22",
-  "side": "long",
-  "unrealised": 0.06151493646951975
+  "unrealised": -0.01896209633920401
  },
  {
   "asset": "GLD",
   "entry": 339.8800048828125,
   "entry_date": "2026-11-19",
   "group": "commodity",
-  "last": 322.8699951171875,
-  "last_date": "2026-11-20",
+  "last": 333.0199890136719,
+  "last_date": "2026-11-23",
   "side": "long",
-  "unrealised": -0.0501971034519665
+  "unrealised": -0.02033364061017919
+ },
+ {
+  "asset": "META",
+  "entry": 591.719970703125,
+  "entry_date": "2026-11-23",
+  "group": "stock",
+  "last": 597.5999755859375,
+  "last_date": "2026-11-23",
+  "side": "long",
+  "unrealised": 0.00968714117139799
  },
  {
   "asset": "MSFT",
   "entry": 493.739990234375,
   "entry_date": "2026-11-20",
   "group": "stock",
-  "last": 484.5199890136719,
-  "last_date": "2026-11-20",
+  "last": 492.5,
+  "last_date": "2026-11-23",
   "side": "long",
-  "unrealised": -0.018923798766687844
+  "unrealised": -0.00276142354052869
  },
  {
   "asset": "NVDA",
   "entry": 143.52000427246094,
   "entry_date": "2026-11-20",
   "group": "stock",
-  "last": 125.52999877929688,
-  "last_date": "2026-11-20",
+  "last": 165.0500030517578,
+  "last_date": "2026-11-23",
   "side": "long",
-  "unrealised": -0.12559841804360264
- },
- {
-  "asset": "SOL-USD",
-  "entry": 70.21524810791016,
-  "entry_date": "2026-11-22",
-  "group": "crypto",
-  "last": 70.57005310058594,
-  "last_date": "2026-11-22",
-  "side": "long",
-  "unrealised": 0.003803104592473989
- },
- {
-  "asset": "SPY",
-  "entry": 713.5599975585938,
-  "entry_date": "2026-11-20",
-  "group": "etf",
-  "last": 689.8099975585938,
-  "last_date": "2026-11-20",
-  "side": "long",
-  "unrealised": -0.03333381647129786
+  "unrealised": 0.14976392236878663
  },
  {
   "asset": "XOM",
   "entry": 167.4600067138672,
   "entry_date": "2026-11-17",
   "group": "stock",
-  "last": 159.99000549316406,
-  "last_date": "2026-11-20",
+  "last": 156.89999389648438,
+  "last_date": "2026-11-23",
   "side": "long",
-  "unrealised": -0.04485767300378077
+  "unrealised": -0.06330990919626747
  }
 ]

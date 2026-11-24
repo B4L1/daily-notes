@@ -4,39 +4,69 @@
   "entry": 60094.08984375,
   "entry_date": "2026-11-22",
   "group": "crypto",
-  "last": 61161.91015625,
-  "last_date": "2026-11-22",
+  "last": 61210.984375,
+  "last_date": "2026-11-23",
   "side": "long",
-  "unrealised": 0.016519140281122863
+  "unrealised": 0.017335763328041515
  },
  {
   "asset": "ETH-USD",
   "entry": 1682.20458984375,
   "entry_date": "2026-11-22",
   "group": "crypto",
-  "last": 1721.07568359375,
-  "last_date": "2026-11-22",
+  "last": 1708.851318359375,
+  "last_date": "2026-11-23",
   "side": "long",
-  "unrealised": 0.021857233201408838
+  "unrealised": 0.014590361319011676
+ },
+ {
+  "asset": "JNJ",
+  "entry": 269.8500061035156,
+  "entry_date": "2026-11-23",
+  "group": "stock",
+  "last": 270.04998779296875,
+  "last_date": "2026-11-23",
+  "side": "long",
+  "unrealised": 0.0004910846208260047
  },
  {
   "asset": "SOL-USD",
   "entry": 70.21524810791016,
   "entry_date": "2026-11-22",
   "group": "crypto",
-  "last": 70.57005310058594,
-  "last_date": "2026-11-22",
+  "last": 71.98179626464844,
+  "last_date": "2026-11-23",
   "side": "long",
-  "unrealised": 0.003803104592473989
+  "unrealised": 0.023909038874623895
  },
  {
   "asset": "USO",
   "entry": 136.61000061035156,
   "entry_date": "2026-11-20",
   "group": "commodity",
-  "last": 139.6300048828125,
-  "last_date": "2026-11-20",
+  "last": 133.36000061035156,
+  "last_date": "2026-11-23",
   "side": "long",
-  "unrealised": 0.021956758355669775
+  "unrealised": -0.023940351990919612
+ },
+ {
+  "asset": "WMT",
+  "entry": 126.63999938964844,
+  "entry_date": "2026-11-23",
+  "group": "stock",
+  "last": 129.5800018310547,
+  "last_date": "2026-11-23",
+  "side": "long",
+  "unrealised": 0.0229654331615273
+ },
+ {
+  "asset": "XOM",
+  "entry": 157.94000244140625,
+  "entry_date": "2026-11-23",
+  "group": "stock",
+  "last": 156.89999389648438,
+  "last_date": "2026-11-23",
+  "side": "long",
+  "unrealised": -0.006834833030553572
  }
 ]

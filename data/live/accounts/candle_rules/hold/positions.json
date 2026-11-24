@@ -1,1 +1,12 @@
-[]
+[
+ {
+  "asset": "USO",
+  "entry": 136.52000427246094,
+  "entry_date": "2026-11-23",
+  "group": "commodity",
+  "last": 133.36000061035156,
+  "last_date": "2026-11-23",
+  "side": "long",
+  "unrealised": -0.023296817779193475
+ }
+]

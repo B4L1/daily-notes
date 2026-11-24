@@ -50,3 +50,4 @@
 {"estimator": "control_always_long", "n_predictions": 21, "run_date": "2026-11-21", "status": "ok"}
 {"estimator": "control_always_long", "n_predictions": 3, "run_date": "2026-11-22", "status": "ok"}
 {"estimator": "control_always_long", "n_predictions": 3, "run_date": "2026-11-23", "status": "ok"}
+{"estimator": "control_always_long", "n_predictions": 21, "run_date": "2026-11-24", "status": "ok"}
